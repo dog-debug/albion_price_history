@@ -1,0 +1,10 @@
+# No external dependencies required
+# Uses Python standard library only:
+# - tkinter (built-in, for GUI)
+# - json (built-in)
+# - gzip (built-in)
+# - pathlib (built-in)
+# - datetime (built-in)
+# - collections (built-in)
+# - threading (built-in)
+# - concurrent.futures (built-in, Python 3.2+)

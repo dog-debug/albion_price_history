@@ -1,0 +1,18 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.DS_Store
+*.egg
+
+# Raw SQL data — downloaded by CI, never commit these
+albion_data_dumps/extracted/
+albion_data_dumps/temp/
+
+# Keep formatted output and processed tracker
+!albion_data_dumps/formatted/
+!albion_data_dumps/formatted/.processed.txt
