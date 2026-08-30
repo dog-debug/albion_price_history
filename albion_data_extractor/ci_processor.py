@@ -42,9 +42,9 @@ SOURCE_TO_SERVER = {
 # Use relative paths from project root
 PROJECT_ROOT = Path(__file__).parent.parent
 PATHS = {
+    'raw': PROJECT_ROOT / 'albion_data_dumps' / 'raw',
     'history': PROJECT_ROOT / 'albion_data_dumps' / 'extracted' / 'history',
     'output': PROJECT_ROOT / 'albion_data_dumps' / 'formatted',
-    'temp': PROJECT_ROOT / 'albion_data_dumps' / 'temp',
 }
 
 PROCESSED_FILE = PATHS['output'] / '.processed.txt'
@@ -102,7 +102,7 @@ def setup_directories():
 
 
 def download_latest_exports() -> List[Path]:
-    """Scrape AODP page, skip already extracted or processed files, download the rest"""
+    """Scrape AODP page, skip already extracted or processed files, download the rest to raw/"""
     print("[INFO] Checking for new market history files...")
 
     processed = load_processed_files()
@@ -115,6 +115,7 @@ def download_latest_exports() -> List[Path]:
     # Pre-build set of SQL filenames already present in extracted/history/
     existing_sql = {f.name for f in PATHS['history'].glob('market_history_*.sql')}
     existing_gz  = {f.name for f in PATHS['history'].glob('market_history_*.sql.gz')}
+    existing_raw = {f.name for f in PATHS['raw'].glob('market_history_*.sql.gz')}
 
     to_download = []
     for filename in available:
@@ -123,6 +124,8 @@ def download_latest_exports() -> List[Path]:
             print(f"[SKIP] {filename} — in .processed.txt")
         elif filename in existing_gz or sql_name in existing_sql:
             print(f"[SKIP] {filename} — already in extracted/history/")
+        elif filename in existing_raw:
+            print(f"[SKIP] {filename} — already in raw/")
         else:
             to_download.append(filename)
 
@@ -131,14 +134,14 @@ def download_latest_exports() -> List[Path]:
     downloaded_files = []
     for filename in to_download:
         url = AODP_BASE_URL + filename
-        local_path = PATHS['temp'] / filename
+        local_path = PATHS['raw'] / filename
 
         try:
             print(f"[DOWNLOAD] {filename}...")
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
                 shutil.copyfileobj(resp, out)
-            print(f"[SUCCESS] Downloaded {filename}")
+            print(f"[SUCCESS] Downloaded {filename} to raw/")
             downloaded_files.append(local_path)
         except urllib.error.HTTPError as e:
             print(f"[ERROR] HTTP {e.code} downloading {filename}")
@@ -403,13 +406,7 @@ def process_market_history_files():
             # Clean up extracted SQL file to free disk space
             if sql_file.exists():
                 sql_file.unlink()
-                print(f"[CLEANUP] Deleted {sql_file.name}")
-            
-            # Also clean up the .gz if it's still there
-            gz_file = sql_file.parent / (sql_file.name + '.gz')
-            if gz_file.exists():
-                gz_file.unlink()
-                print(f"[CLEANUP] Deleted {gz_file.name}")
+                print(f"[CLEANUP] Deleted {sql_file.name} from extracted/history/")
             
             print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {len(records):,} records)")
         
@@ -422,27 +419,24 @@ def process_market_history_files():
 
 
 def main():
-    """Main CI/CD process"""
+    """Main CI/CD process: download → extract → format"""
     print("[INFO] Starting AODP CI processor...")
     print(f"[INFO] Project root: {PROJECT_ROOT}")
-    
+
     setup_directories()
-    
-    # Step 1: Download latest files
+
+    # Step 1: Download all new files to raw/
     downloaded = download_latest_exports()
-    
-    # Step 2: Extract if files were downloaded
+
+    # Step 2: Extract each downloaded file from raw/ to extracted/history/, one at a time
     if downloaded:
         extract_zip_files(downloaded)
-    
-    # Step 3: Process all unprocessed history files
+
+    # Step 3: Process all unprocessed history files, format to JSON in formatted/
     processed = process_market_history_files()
-    
-    # Cleanup temp directory
-    if PATHS['temp'].exists():
-        shutil.rmtree(PATHS['temp'])
-    
+
     print(f"[INFO] Processing complete. {processed} files processed.")
+    print(f"[INFO] Formatted JSON files available in: albion_data_dumps/formatted/")
     return 0 if processed >= 0 else 1
 
 
