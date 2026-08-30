@@ -399,6 +399,18 @@ def process_market_history_files():
             # Mark as processed
             save_processed_file(sql_file.name)
             processed_count += 1
+            
+            # Clean up extracted SQL file to free disk space
+            if sql_file.exists():
+                sql_file.unlink()
+                print(f"[CLEANUP] Deleted {sql_file.name}")
+            
+            # Also clean up the .gz if it's still there
+            gz_file = sql_file.parent / (sql_file.name + '.gz')
+            if gz_file.exists():
+                gz_file.unlink()
+                print(f"[CLEANUP] Deleted {gz_file.name}")
+            
             print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {len(records):,} records)")
         
         except Exception as e:
