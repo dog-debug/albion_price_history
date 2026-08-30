@@ -49,7 +49,7 @@ PATHS = {
 
 PROCESSED_FILE = PATHS['output'] / '.processed.txt'
 AODP_DATABASE_PAGE = 'https://www.albion-online-data.com/database/'
-AODP_BASE_URL = 'https://www.albion-online-data.com/database/download/'
+AODP_BASE_URL = 'https://www.albion-online-data.com/database/'
 
 
 class _LinkParser(HTMLParser):
