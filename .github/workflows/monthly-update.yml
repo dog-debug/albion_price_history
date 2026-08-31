@@ -1,9 +1,9 @@
-name: Monthly AODP Market History Update
+name: Hourly AODP Market History Update
 
 on:
   schedule:
-    # Run at 12:00 UTC (noon) on the 1st of every month
-    - cron: '0 12 1 * *'
+    # Run every hour at minute 0
+    - cron: '0 * * * *'
   
   # Allow manual triggering
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
 jobs:
   update-market-history:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 30
     
     permissions:
       contents: write

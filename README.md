@@ -85,7 +85,7 @@ This opens an interactive GUI where you can:
 
 ### CI/CD Processing
 
-The project includes automated GitHub Actions that run **on the 1st of every month** to:
+The project includes automated GitHub Actions that run **every hour** to:
 
 1. Check servers in priority order: **Europe → East → West**
 2. Process **ONE server per run** (whichever has unprocessed files first)
@@ -94,10 +94,10 @@ The project includes automated GitHub Actions that run **on the 1st of every mon
 5. Clean up temporary files and commit results to the repo
 
 **Processing Order:**
-- Month 1: Europe file 1 processed
-- Month 2: Europe file 2 processed (if available) or East file 1 (if EU done)
-- Month 3: Continue down the priority list
-- Eventually cycles through all servers processing all files chronologically
+- Hour 1: Europe file 1 processed (if available)
+- Hour 2: Europe file 2 processed (if available) or East file 1 (if EU done)
+- Hour 3: Continue down the priority list
+- Cycles through all servers processing all files chronologically
 
 Each server has its own `.processed.txt` file tracking which files have been completed.
 
