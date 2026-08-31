@@ -9,10 +9,5 @@ build/
 .DS_Store
 *.egg
 
-# Raw SQL data — downloaded by CI, never commit these
-albion_data_dumps/extracted/
-albion_data_dumps/temp/
-
-# Keep formatted output and processed tracker
-!albion_data_dumps/formatted/
-!albion_data_dumps/formatted/.processed.txt
+# Keep all data directories
+# albion_data_dumps/ is tracked in git
