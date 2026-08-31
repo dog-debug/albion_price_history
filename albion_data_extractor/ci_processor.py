@@ -381,27 +381,30 @@ def process_market_history_files():
                 
                 try:
                     if output_file.exists():
-                        # Append to existing file (binary mode, don't re-parse entire file)
+                        # Append to existing file (binary mode)
                         with open(output_file, 'r+b') as f:
-                            # Seek to 2 bytes before end (before `]}`)
-                            f.seek(-2, 2)
+                            # Seek to 1 byte before end (before `]`)
+                            f.seek(-1, 2)
                             # Write comma and new records
                             f.write(b',\n')
                             for record in price_records:
                                 record_json = json.dumps(record, separators=(',', ':'))
-                                f.write(b'    ' + record_json.encode('utf-8') + b',\n')
-                            # Remove trailing comma and close properly
+                                f.write(b'  ' + record_json.encode('utf-8') + b',\n')
+                            # Remove trailing comma and close array
                             f.seek(-2, 1)  # Go back 2 bytes (comma + newline)
-                            f.write(b'\n  ]\n}')
+                            f.write(b'\n]\n')
                             f.truncate()
                     else:
-                        # Create new file
-                        data = {
-                            'itemId': item_id,
-                            'priceHistory': price_records
-                        }
+                        # Create new file with simple array format
                         with open(output_file, 'w', encoding='utf-8') as f:
-                            json.dump(data, f, indent=2)
+                            f.write('[\n')
+                            for i, record in enumerate(price_records):
+                                record_json = json.dumps(record, separators=(',', ':'))
+                                if i < len(price_records) - 1:
+                                    f.write('  ' + record_json + ',\n')
+                                else:
+                                    f.write('  ' + record_json + '\n')
+                            f.write(']\n')
                 
                 except Exception as e:
                     print(f"[ERROR] Failed to write {item_id}: {e}")
