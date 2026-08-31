@@ -32,13 +32,6 @@ LOCATION_ID_TO_CITY = {
     7: 'blackmarket',
 }
 
-# Server name to full domain mapping
-SERVER_NAMES = {
-    'europe': 'europe.albion-online-data.com',
-    'east': 'east.albion-online-data.com',
-    'west': 'west.albion-online-data.com',
-}
-
 # Server codes (legacy, kept for reference)
 SOURCE_TO_SERVER = {
     6: 'west.albion-online-data.com',
@@ -325,8 +318,8 @@ def transform_record(rec: Tuple, server_name: str) -> Dict[str, Any]:
         # Map location to city name
         city = LOCATION_ID_TO_CITY.get(location_id, 'unknown').lower()
         
-        # Use the correct server name from the processing server
-        server = SERVER_NAMES.get(server_name, 'unknown.albion-online-data.com')
+        # Use just the server name (not the full domain)
+        server = server_name
         
         # Parse timestamp
         try:

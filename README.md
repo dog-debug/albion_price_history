@@ -51,7 +51,7 @@ albion_data_dumps/
     "timestamp": "2026-08-30T10:30:45Z",
     "city": "bridgewatch",
     "quality": 1,
-    "server": "europe.albion-online-data.com",
+    "server": "europe",
     "sellPrice": 5000,
     "buyPrice": 5000,
     "quantity": 100
@@ -60,7 +60,7 @@ albion_data_dumps/
     "timestamp": "2026-08-30T11:00:00Z",
     "city": "caerleon",
     "quality": 1,
-    "server": "europe.albion-online-data.com",
+    "server": "europe",
     "sellPrice": 5050,
     "buyPrice": 5025,
     "quantity": 150
