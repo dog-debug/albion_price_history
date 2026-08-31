@@ -129,24 +129,31 @@ def download_latest_exports() -> List[Path]:
         else:
             to_download.append(filename)
 
-    print(f"[INFO] {len(to_download)} new file(s) to download, {len(available) - len(to_download)} skipped")
-
+    print(f"[INFO] {len(to_download)} new file(s) available to download")
+    
+    # Download only the OLDEST unprocessed file
+    if not to_download:
+        print("[INFO] No new files to download")
+        return []
+    
+    to_download.sort()  # Sort chronologically (oldest first)
+    filename = to_download[0]  # Get the oldest one
+    
     downloaded_files = []
-    for filename in to_download:
-        url = AODP_BASE_URL + filename
-        local_path = PATHS['raw'] / filename
+    url = AODP_BASE_URL + filename
+    local_path = PATHS['raw'] / filename
 
-        try:
-            print(f"[DOWNLOAD] {filename}...")
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
-                shutil.copyfileobj(resp, out)
-            print(f"[SUCCESS] Downloaded {filename} to raw/")
-            downloaded_files.append(local_path)
-        except urllib.error.HTTPError as e:
-            print(f"[ERROR] HTTP {e.code} downloading {filename}")
-        except Exception as e:
-            print(f"[ERROR] Error downloading {filename}: {e}")
+    try:
+        print(f"[DOWNLOAD] {filename} (oldest unprocessed)...")
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
+            shutil.copyfileobj(resp, out)
+        print(f"[SUCCESS] Downloaded {filename} to raw/")
+        downloaded_files.append(local_path)
+    except urllib.error.HTTPError as e:
+        print(f"[ERROR] HTTP {e.code} downloading {filename}")
+    except Exception as e:
+        print(f"[ERROR] Error downloading {filename}: {e}")
 
     return downloaded_files
 
