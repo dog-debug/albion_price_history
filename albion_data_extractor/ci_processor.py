@@ -39,14 +39,25 @@ SOURCE_TO_SERVER = {
     8: 'east.albion-online-data.com',
 }
 
-# Use relative paths from project root
-PROJECT_ROOT = Path(__file__).parent.parent
-PATHS = {
-    'raw': PROJECT_ROOT / 'albion_data_dumps' / 'raw',
-    'history': PROJECT_ROOT / 'albion_data_dumps' / 'extracted' / 'history',
-    'output': PROJECT_ROOT / 'albion_data_dumps' / 'formatted',
+# Servers to download from
+SERVERS = {
+    'west': 'https://www.albion-online-data.com/database/',
+    'europe': 'https://www.albion-online-data.com/database-europe/',
+    'east': 'https://www.albion-online-data.com/database-east/',
 }
 
+# Use relative paths from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+
+def get_paths_for_server(server_name: str) -> Dict[str, Path]:
+    """Get directory paths for a specific server"""
+    return {
+        'raw': PROJECT_ROOT / 'albion_data_dumps' / 'raw' / server_name,
+        'history': PROJECT_ROOT / 'albion_data_dumps' / 'extracted' / 'history' / server_name,
+        'output': PROJECT_ROOT / 'albion_data_dumps' / 'formatted' / server_name,
+    }
+
+PATHS = get_paths_for_server('west')  # Default for backward compatibility
 PROCESSED_FILE = PATHS['output'] / '.processed.txt'
 AODP_DATABASE_PAGE = 'https://www.albion-online-data.com/database/'
 AODP_BASE_URL = 'https://www.albion-online-data.com/database/'
@@ -68,11 +79,11 @@ class _LinkParser(HTMLParser):
 _MARKET_HISTORY_RE = re.compile(r'^market_history_\d{4}_\d{2}\.sql\.gz$')
 
 
-def get_available_downloads() -> List[str]:
+def get_available_downloads(base_url: str) -> List[str]:
     """Scrape AODP database page, return only market_history_YYYY_MM.sql.gz filenames"""
     try:
         req = urllib.request.Request(
-            AODP_DATABASE_PAGE,
+            base_url,
             headers={'User-Agent': 'Mozilla/5.0'}
         )
         with urllib.request.urlopen(req, timeout=30) as resp:
@@ -87,35 +98,38 @@ def get_available_downloads() -> List[str]:
             if _MARKET_HISTORY_RE.match(name):
                 filenames.append(name)
 
-        print(f"[INFO] Found {len(filenames)} market_history_YYYY_MM.sql.gz file(s) on AODP page")
+        print(f"[INFO] Found {len(filenames)} market_history_YYYY_MM.sql.gz file(s) on {base_url}")
         return sorted(filenames)
 
     except Exception as e:
-        print(f"[ERROR] Failed to scrape AODP page: {e}")
+        print(f"[ERROR] Failed to scrape {base_url}: {e}")
         return []
 
 
 def setup_directories():
-    """Create necessary directories"""
-    for path in PATHS.values():
-        path.mkdir(parents=True, exist_ok=True)
+    """Create necessary directories for all servers"""
+    for server_name in SERVERS.keys():
+        paths = get_paths_for_server(server_name)
+        for path in paths.values():
+            path.mkdir(parents=True, exist_ok=True)
 
 
-def download_latest_exports() -> List[Path]:
+def download_latest_exports(server_name: str, base_url: str) -> List[Path]:
     """Scrape AODP page, skip already extracted or processed files, download the rest to raw/"""
-    print("[INFO] Checking for new market history files...")
+    paths = get_paths_for_server(server_name)
+    print(f"[INFO] Checking for new market history files on {server_name}...")
 
-    processed = load_processed_files()
-    available = get_available_downloads()
+    processed = load_processed_files(paths)
+    available = get_available_downloads(base_url)
 
     if not available:
-        print("[WARN] No market_history files found on AODP page — skipping download")
+        print(f"[WARN] No market_history files found on {base_url} — skipping download")
         return []
 
     # Pre-build set of SQL filenames already present in extracted/history/
-    existing_sql = {f.name for f in PATHS['history'].glob('market_history_*.sql')}
-    existing_gz  = {f.name for f in PATHS['history'].glob('market_history_*.sql.gz')}
-    existing_raw = {f.name for f in PATHS['raw'].glob('market_history_*.sql.gz')}
+    existing_sql = {f.name for f in paths['history'].glob('market_history_*.sql')}
+    existing_gz  = {f.name for f in paths['history'].glob('market_history_*.sql.gz')}
+    existing_raw = {f.name for f in paths['raw'].glob('market_history_*.sql.gz')}
 
     to_download = []
     for filename in available:
@@ -129,82 +143,86 @@ def download_latest_exports() -> List[Path]:
         else:
             to_download.append(filename)
 
-    print(f"[INFO] {len(to_download)} new file(s) available to download")
+    print(f"[INFO] {len(to_download)} new file(s) available to download on {server_name}")
     
     # Download only the OLDEST unprocessed file
     if not to_download:
-        print("[INFO] No new files to download")
+        print(f"[INFO] No new files to download on {server_name}")
         return []
     
     to_download.sort()  # Sort chronologically (oldest first)
     filename = to_download[0]  # Get the oldest one
     
     downloaded_files = []
-    url = AODP_BASE_URL + filename
-    local_path = PATHS['raw'] / filename
+    url = base_url + filename
+    local_path = paths['raw'] / filename
 
     try:
-        print(f"[DOWNLOAD] {filename} (oldest unprocessed)...")
+        print(f"[DOWNLOAD] {filename} from {server_name} (oldest unprocessed)...")
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
             shutil.copyfileobj(resp, out)
-        print(f"[SUCCESS] Downloaded {filename} to raw/")
+        print(f"[SUCCESS] Downloaded {filename} to {server_name}/raw/")
         downloaded_files.append(local_path)
     except urllib.error.HTTPError as e:
-        print(f"[ERROR] HTTP {e.code} downloading {filename}")
+        print(f"[ERROR] HTTP {e.code} downloading {filename} from {server_name}")
     except Exception as e:
-        print(f"[ERROR] Error downloading {filename}: {e}")
+        print(f"[ERROR] Error downloading {filename} from {server_name}: {e}")
 
     return downloaded_files
 
 
-def extract_zip_files(zip_paths: List[Path]):
+def extract_zip_files(zip_paths: List[Path], server_name: str):
     """Extract downloaded archives to history directory, mark archive as processed"""
+    paths = get_paths_for_server(server_name)
+    
     for zip_path in zip_paths:
         if not zip_path.exists():
             continue
 
         try:
-            print(f"[EXTRACT] Extracting {zip_path.name}...")
+            print(f"[EXTRACT] Extracting {zip_path.name} for {server_name}...")
 
             if zip_path.suffix == '.gz' and zip_path.stem.endswith('.sql'):
                 # Single gzipped SQL file — decompress directly
-                dest = PATHS['history'] / zip_path.stem
+                dest = paths['history'] / zip_path.stem
                 with gzip.open(zip_path, 'rb') as f_in, open(dest, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
             else:
                 # ZIP archive — extract all contents
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                    zip_ref.extractall(PATHS['history'])
+                    zip_ref.extractall(paths['history'])
 
-            print(f"[SUCCESS] Extracted {zip_path.name} to extracted/history/")
+            print(f"[SUCCESS] Extracted {zip_path.name} to {server_name}/extracted/history/")
             
             # Mark archive itself as processed so it won't be re-downloaded
-            save_processed_file(zip_path.name)
+            save_processed_file(zip_path.name, paths)
 
         except Exception as e:
-            print(f"[ERROR] Failed to extract {zip_path.name}: {e}")
+            print(f"[ERROR] Failed to extract {zip_path.name} for {server_name}: {e}")
 
 
-def load_processed_files() -> Set[str]:
-    """Load list of already-processed SQL files"""
-    if not PROCESSED_FILE.exists():
+def load_processed_files(paths: Dict[str, Path]) -> Set[str]:
+    """Load list of already-processed SQL files for a specific server"""
+    processed_file = paths['output'] / '.processed.txt'
+    if not processed_file.exists():
         return set()
     
     try:
-        with open(PROCESSED_FILE, 'r') as f:
+        with open(processed_file, 'r') as f:
             return set(line.strip() for line in f if line.strip())
     except:
         return set()
 
 
-def save_processed_file(filename: str):
-    """Add file to processed list"""
+def save_processed_file(filename: str, paths: Dict[str, Path]):
+    """Add file to processed list for a specific server"""
     try:
-        processed = load_processed_files()
+        processed_file = paths['output'] / '.processed.txt'
+        processed = load_processed_files(paths)
         processed.add(filename)
         
-        with open(PROCESSED_FILE, 'w') as f:
+        with open(processed_file, 'w') as f:
             for name in sorted(processed):
                 f.write(name + '\n')
     except Exception as e:
@@ -328,31 +346,32 @@ def transform_record(rec: Tuple) -> Dict[str, Any]:
         return None
 
 
-def process_market_history_files():
-    """Process ONE unprocessed SQL file per run"""
-    print("[INFO] Processing market history files...")
+def process_market_history_files(server_name: str):
+    """Process ONE unprocessed SQL file per run for a specific server"""
+    paths = get_paths_for_server(server_name)
+    print(f"[INFO] Processing market history files for {server_name}...")
     
-    if not PATHS['history'].exists():
-        print("[WARN] History directory not found")
+    if not paths['history'].exists():
+        print(f"[WARN] History directory not found for {server_name}")
         return 0
     
-    sql_files = sorted(PATHS['history'].glob('market_history*.sql')) + sorted(PATHS['history'].glob('market_history*.sql.gz'))
-    processed = load_processed_files()
+    sql_files = sorted(paths['history'].glob('market_history*.sql')) + sorted(paths['history'].glob('market_history*.sql.gz'))
+    processed = load_processed_files(paths)
     processed_count = 0
     
     # Process only the FIRST unprocessed file
     for sql_file in sql_files:
         if sql_file.name in processed:
-            print(f"[SKIP] {sql_file.name} already processed")
+            print(f"[SKIP] {sql_file.name} already processed for {server_name}")
             continue
         
         try:
-            print(f"\n[PROCESS] Processing {sql_file.name}...")
+            print(f"\n[PROCESS] Processing {sql_file.name} for {server_name}...")
             records = read_sql_file(sql_file)
             
             if not records:
                 print(f"[WARN] No records found in {sql_file.name}")
-                save_processed_file(sql_file.name)
+                save_processed_file(sql_file.name, paths)
                 processed_count += 1
                 continue
             
@@ -371,13 +390,13 @@ def process_market_history_files():
                         file_items[item_id].append(transformed)
             
             # Write items to individual JSON files (append-only)
-            print(f"[DEBUG] Writing {len(file_items):,} items to JSON files...")
+            print(f"[DEBUG] Writing {len(file_items):,} items to JSON files for {server_name}...")
             
             for item_idx, (item_id, price_records) in enumerate(file_items.items()):
                 if item_idx % 1000 == 0 and item_idx > 0:
                     print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
                 
-                output_file = PATHS['output'] / f"{item_id}.json"
+                output_file = paths['output'] / f"{item_id}.json"
                 
                 try:
                     if output_file.exists():
@@ -410,16 +429,16 @@ def process_market_history_files():
                     print(f"[ERROR] Failed to write {item_id}: {e}")
             
             # Mark as processed
-            save_processed_file(sql_file.name)
+            save_processed_file(sql_file.name, paths)
             processed_count += 1
             
-            print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {len(records):,} records)")
+            print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {len(records):,} records) for {server_name}")
             
             # Exit after processing one file per run
             break
         
         except Exception as e:
-            print(f"[ERROR] Error processing {sql_file.name}: {e}")
+            print(f"[ERROR] Error processing {sql_file.name} for {server_name}: {e}")
             import traceback
             traceback.print_exc()
     
@@ -427,25 +446,32 @@ def process_market_history_files():
 
 
 def main():
-    """Main CI/CD process: download → extract → format"""
+    """Main CI/CD process: download → extract → format for all servers"""
     print("[INFO] Starting AODP CI processor...")
     print(f"[INFO] Project root: {PROJECT_ROOT}")
 
     setup_directories()
 
-    # Step 1: Download all new files to raw/
-    downloaded = download_latest_exports()
+    # Process each server
+    for server_name, base_url in SERVERS.items():
+        print(f"\n{'='*60}")
+        print(f"[INFO] Processing server: {server_name}")
+        print(f"{'='*60}")
+        
+        # Step 1: Download oldest unprocessed file for this server
+        downloaded = download_latest_exports(server_name, base_url)
 
-    # Step 2: Extract each downloaded file from raw/ to extracted/history/, one at a time
-    if downloaded:
-        extract_zip_files(downloaded)
+        # Step 2: Extract each downloaded file, one at a time
+        if downloaded:
+            extract_zip_files(downloaded, server_name)
 
-    # Step 3: Process all unprocessed history files, format to JSON in formatted/
-    processed = process_market_history_files()
+        # Step 3: Process all unprocessed history files for this server
+        processed = process_market_history_files(server_name)
+        print(f"[INFO] {server_name}: {processed} files processed")
 
-    print(f"[INFO] Processing complete. {processed} files processed.")
-    print(f"[INFO] Formatted JSON files available in: albion_data_dumps/formatted/")
-    return 0 if processed >= 0 else 1
+    print(f"\n[INFO] Processing complete for all servers")
+    print(f"[INFO] Formatted JSON files available in: albion_data_dumps/formatted/west/, /europe/, /east/")
+    return 0
 
 
 if __name__ == '__main__':
