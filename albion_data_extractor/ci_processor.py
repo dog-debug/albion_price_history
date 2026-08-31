@@ -39,22 +39,23 @@ SOURCE_TO_SERVER = {
     8: 'east.albion-online-data.com',
 }
 
-# Servers to download from
+# Servers to download from (in priority order: europe first, then east, then west)
+SERVERS_PRIORITY = ['europe', 'east', 'west']
 SERVERS = {
-    'west': 'https://www.albion-online-data.com/database/',
     'europe': 'https://www.albion-online-data.com/database-europe/',
     'east': 'https://www.albion-online-data.com/database-east/',
+    'west': 'https://www.albion-online-data.com/database/',
 }
 
 # Use relative paths from project root
 PROJECT_ROOT = Path(__file__).parent.parent
 
 def get_paths_for_server(server_name: str) -> Dict[str, Path]:
-    """Get directory paths for a specific server"""
+    """Get directory paths for a specific server (each server has its own folder structure)"""
     return {
-        'raw': PROJECT_ROOT / 'albion_data_dumps' / 'raw' / server_name,
-        'history': PROJECT_ROOT / 'albion_data_dumps' / 'extracted' / 'history' / server_name,
-        'output': PROJECT_ROOT / 'albion_data_dumps' / 'formatted' / server_name,
+        'raw': PROJECT_ROOT / 'albion_data_dumps' / server_name / 'raw',
+        'history': PROJECT_ROOT / 'albion_data_dumps' / server_name / 'extracted',
+        'output': PROJECT_ROOT / 'albion_data_dumps' / server_name / 'formatted',
     }
 
 PATHS = get_paths_for_server('west')  # Default for backward compatibility
@@ -108,7 +109,7 @@ def get_available_downloads(base_url: str) -> List[str]:
 
 def setup_directories():
     """Create necessary directories for all servers"""
-    for server_name in SERVERS.keys():
+    for server_name in SERVERS_PRIORITY:
         paths = get_paths_for_server(server_name)
         for path in paths.values():
             path.mkdir(parents=True, exist_ok=True)
@@ -446,31 +447,61 @@ def process_market_history_files(server_name: str):
 
 
 def main():
-    """Main CI/CD process: download → extract → format for all servers"""
+    """Main CI/CD process: download → extract → format for ONE server per run (priority: EU → East → West)"""
     print("[INFO] Starting AODP CI processor...")
     print(f"[INFO] Project root: {PROJECT_ROOT}")
+    print(f"[INFO] Processing priority: {' → '.join(SERVERS_PRIORITY)}")
 
     setup_directories()
 
-    # Process each server
-    for server_name, base_url in SERVERS.items():
+    # Process servers in priority order: EU first, then East, then West
+    # Stop after processing one server
+    for server_name in SERVERS_PRIORITY:
+        base_url = SERVERS[server_name]
         print(f"\n{'='*60}")
-        print(f"[INFO] Processing server: {server_name}")
+        print(f"[INFO] Checking server: {server_name}")
         print(f"{'='*60}")
         
-        # Step 1: Download oldest unprocessed file for this server
+        # Step 1: Check if this server has unprocessed files
+        paths = get_paths_for_server(server_name)
+        processed = load_processed_files(paths)
+        available = get_available_downloads(base_url)
+        
+        if not available:
+            print(f"[SKIP] No market_history files available on {server_name}")
+            continue
+        
+        # Check if there are any unprocessed files for this server
+        has_unprocessed = False
+        for filename in available:
+            sql_name = filename[:-3]
+            if filename not in processed and not (paths['history'] / sql_name).exists():
+                has_unprocessed = True
+                break
+        
+        if not has_unprocessed:
+            print(f"[INFO] All files processed for {server_name}, checking next server...")
+            continue
+        
+        print(f"[INFO] Found unprocessed files on {server_name}, processing ONE file...")
+        
+        # Step 2: Download oldest unprocessed file for this server
         downloaded = download_latest_exports(server_name, base_url)
 
-        # Step 2: Extract each downloaded file, one at a time
+        # Step 3: Extract downloaded file
         if downloaded:
             extract_zip_files(downloaded, server_name)
 
-        # Step 3: Process all unprocessed history files for this server
-        processed = process_market_history_files(server_name)
-        print(f"[INFO] {server_name}: {processed} files processed")
-
-    print(f"\n[INFO] Processing complete for all servers")
-    print(f"[INFO] Formatted JSON files available in: albion_data_dumps/formatted/west/, /europe/, /east/")
+        # Step 4: Process the extracted file
+        processed_count = process_market_history_files(server_name)
+        print(f"[SUCCESS] {server_name}: {processed_count} files processed")
+        
+        # Exit after processing one server
+        print(f"\n[INFO] Processed one file from {server_name}. Will check other servers next month.")
+        return 0
+    
+    print(f"\n[INFO] All servers up to date! No files to process.")
+    print(f"[INFO] Formatted JSON files available in: albion_data_dumps/{{europe,east,west}}/formatted/")
     return 0
 
 

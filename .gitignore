@@ -20,7 +20,7 @@ build/
 .DS_Store
 *.egg
 
-# Ignore temporary data directories - only track formatted/ output
-albion_data_dumps/raw/
-albion_data_dumps/extracted/
+# Ignore temporary data directories - only track formatted/ output for each server
+albion_data_dumps/*/raw/
+albion_data_dumps/*/extracted/
 albion_data_dumps/temp/

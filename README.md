@@ -16,31 +16,42 @@ Handles 6+ years of Albion market data (2020-2026) with support for multiple cit
 
 ## Output Format
 
-Data is organized by server, with each item getting its own JSON file as a simple array of price records:
+Data is organized by server, with each server having its own complete folder structure:
 
 **File Structure:**
 ```
-albion_data_dumps/formatted/
-├── west/
-│   ├── ITEM_NAME.json
-│   ├── ANOTHER_ITEM.json
-│   └── ...
+albion_data_dumps/
 ├── europe/
-│   ├── ITEM_NAME.json
-│   └── ...
-└── east/
-    ├── ITEM_NAME.json
-    └── ...
+│   ├── raw/              (temporary, ignored in git)
+│   ├── extracted/        (temporary, ignored in git)
+│   └── formatted/        (tracked in git)
+│       ├── ITEM_ID.json
+│       ├── .processed.txt
+│       └── ...
+├── east/
+│   ├── raw/              (temporary, ignored in git)
+│   ├── extracted/        (temporary, ignored in git)
+│   └── formatted/        (tracked in git)
+│       ├── ITEM_ID.json
+│       ├── .processed.txt
+│       └── ...
+└── west/
+    ├── raw/              (temporary, ignored in git)
+    ├── extracted/        (temporary, ignored in git)
+    └── formatted/        (tracked in git)
+        ├── ITEM_ID.json
+        ├── .processed.txt
+        └── ...
 ```
 
-**Example:** `albion_data_dumps/formatted/west/T4_2H_SWORD.json`
+**Example:** `albion_data_dumps/europe/formatted/T4_2H_SWORD.json`
 ```json
 [
   {
     "timestamp": "2026-08-30T10:30:45Z",
     "city": "bridgewatch",
     "quality": 1,
-    "server": "west.albion-online-data.com",
+    "server": "europe.albion-online-data.com",
     "sellPrice": 5000,
     "buyPrice": 5000,
     "quantity": 100
@@ -49,7 +60,7 @@ albion_data_dumps/formatted/
     "timestamp": "2026-08-30T11:00:00Z",
     "city": "caerleon",
     "quality": 1,
-    "server": "west.albion-online-data.com",
+    "server": "europe.albion-online-data.com",
     "sellPrice": 5050,
     "buyPrice": 5025,
     "quantity": 150
@@ -76,15 +87,19 @@ This opens an interactive GUI where you can:
 
 The project includes automated GitHub Actions that run **on the 1st of every month** to:
 
-1. Download latest AODP exports from **all three servers** (West, Europe, East)
-2. Extract ZIP files for each server
-3. Process market history SQL files for each server
-4. Commit results back to the repo
+1. Check servers in priority order: **Europe → East → West**
+2. Process **ONE server per run** (whichever has unprocessed files first)
+3. Download the oldest unprocessed file from that server
+4. Extract and format the data
+5. Clean up temporary files and commit results to the repo
 
-Data is stored in separate folders for each server:
-- `albion_data_dumps/formatted/west/` — West server data
-- `albion_data_dumps/formatted/europe/` — Europe server data
-- `albion_data_dumps/formatted/east/` — East server data
+**Processing Order:**
+- Month 1: Europe file 1 processed
+- Month 2: Europe file 2 processed (if available) or East file 1 (if EU done)
+- Month 3: Continue down the priority list
+- Eventually cycles through all servers processing all files chronologically
+
+Each server has its own `.processed.txt` file tracking which files have been completed.
 
 To manually trigger this workflow, go to the GitHub Actions tab and click "Run workflow".
 
@@ -93,25 +108,24 @@ To manually trigger this workflow, go to the GitHub Actions tab and click "Run w
 ```
 albion_price_history/
 ├── albion_data_dumps/
-│   ├── raw/                           # Downloaded .gz files (ignored in git)
-│   │   ├── west/
-│   │   ├── europe/
-│   │   └── east/
-│   ├── extracted/
-│   │   └── history/                   # SQL files extracted from .gz (ignored in git)
-│   │       ├── west/
-│   │       ├── europe/
-│   │       └── east/
-│   └── formatted/                     # JSON output (tracked in git)
-│       ├── west/
-│       │   ├── {ITEM_ID}.json
-│       │   ├── .processed.txt
-│       │   └── ...
-│       ├── europe/
-│       │   ├── {ITEM_ID}.json
-│       │   ├── .processed.txt
-│       │   └── ...
-│       └── east/
+│   ├── europe/                        # Europe server data
+│   │   ├── raw/                       # Downloaded .gz files (ignored in git)
+│   │   ├── extracted/                 # SQL files extracted (ignored in git)
+│   │   └── formatted/                 # JSON output (tracked in git)
+│   │       ├── {ITEM_ID}.json
+│   │       ├── .processed.txt
+│   │       └── ...
+│   ├── east/                          # East server data
+│   │   ├── raw/                       # Downloaded .gz files (ignored in git)
+│   │   ├── extracted/                 # SQL files extracted (ignored in git)
+│   │   └── formatted/                 # JSON output (tracked in git)
+│   │       ├── {ITEM_ID}.json
+│   │       ├── .processed.txt
+│   │       └── ...
+│   └── west/                          # West server data
+│       ├── raw/                       # Downloaded .gz files (ignored in git)
+│       ├── extracted/                 # SQL files extracted (ignored in git)
+│       └── formatted/                 # JSON output (tracked in git)
 │           ├── {ITEM_ID}.json
 │           ├── .processed.txt
 │           └── ...

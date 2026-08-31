@@ -29,9 +29,9 @@ jobs:
       
       - name: Create directories
         run: |
-          mkdir -p albion_data_dumps/raw/{west,europe,east}
-          mkdir -p albion_data_dumps/extracted/history/{west,europe,east}
-          mkdir -p albion_data_dumps/formatted/{west,europe,east}
+          mkdir -p albion_data_dumps/europe/{raw,extracted,formatted}
+          mkdir -p albion_data_dumps/east/{raw,extracted,formatted}
+          mkdir -p albion_data_dumps/west/{raw,extracted,formatted}
           mkdir -p albion_data_dumps/temp
       
       - name: Run AODP CI Processor
@@ -39,8 +39,8 @@ jobs:
       
       - name: Clean up temporary directories
         run: |
-          rm -rf albion_data_dumps/raw/
-          rm -rf albion_data_dumps/extracted/
+          rm -rf albion_data_dumps/*/raw/
+          rm -rf albion_data_dumps/*/extracted/
           rm -rf albion_data_dumps/temp/
       
       - name: Check for changes
@@ -57,7 +57,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add albion_data_dumps/formatted/
+          git add albion_data_dumps/*/formatted/
           git commit -m "chore: update market history data - $(date +'%Y-%m-%d')"
           git push
       
