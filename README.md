@@ -16,23 +16,45 @@ Handles 6+ years of Albion market data (2020-2026) with support for multiple cit
 
 ## Output Format
 
-Each item gets its own JSON file named `{ITEM_ID}.json`:
+Data is organized by server, with each item getting its own JSON file as a simple array of price records:
 
+**File Structure:**
+```
+albion_data_dumps/formatted/
+├── west/
+│   ├── ITEM_NAME.json
+│   ├── ANOTHER_ITEM.json
+│   └── ...
+├── europe/
+│   ├── ITEM_NAME.json
+│   └── ...
+└── east/
+    ├── ITEM_NAME.json
+    └── ...
+```
+
+**Example:** `albion_data_dumps/formatted/west/T4_2H_SWORD.json`
 ```json
-{
-  "itemId": "ITEM_NAME",
-  "priceHistory": [
-    {
-      "timestamp": "2026-08-30T10:30:45Z",
-      "city": "caerleon",
-      "quality": 1,
-      "server": "europe.albion-online-data.com",
-      "sellPrice": 5000,
-      "buyPrice": 5000,
-      "quantity": 100
-    }
-  ]
-}
+[
+  {
+    "timestamp": "2026-08-30T10:30:45Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west.albion-online-data.com",
+    "sellPrice": 5000,
+    "buyPrice": 5000,
+    "quantity": 100
+  },
+  {
+    "timestamp": "2026-08-30T11:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west.albion-online-data.com",
+    "sellPrice": 5050,
+    "buyPrice": 5025,
+    "quantity": 150
+  }
+]
 ```
 
 ## Usage
@@ -54,10 +76,15 @@ This opens an interactive GUI where you can:
 
 The project includes automated GitHub Actions that run **on the 1st of every month** to:
 
-1. Download latest AODP exports
-2. Extract ZIP files
-3. Process market history SQL files
+1. Download latest AODP exports from **all three servers** (West, Europe, East)
+2. Extract ZIP files for each server
+3. Process market history SQL files for each server
 4. Commit results back to the repo
+
+Data is stored in separate folders for each server:
+- `albion_data_dumps/formatted/west/` — West server data
+- `albion_data_dumps/formatted/europe/` — Europe server data
+- `albion_data_dumps/formatted/east/` — East server data
 
 To manually trigger this workflow, go to the GitHub Actions tab and click "Run workflow".
 
@@ -66,16 +93,33 @@ To manually trigger this workflow, go to the GitHub Actions tab and click "Run w
 ```
 albion_price_history/
 ├── albion_data_dumps/
+│   ├── raw/                           # Downloaded .gz files (ignored in git)
+│   │   ├── west/
+│   │   ├── europe/
+│   │   └── east/
 │   ├── extracted/
-│   │   └── history/          # SQL files extracted from AODP
-│   └── formatted/
-│       ├── {ITEM_ID}.json    # Output price history files
-│       └── .processed.txt    # Tracks which SQL files have been processed
+│   │   └── history/                   # SQL files extracted from .gz (ignored in git)
+│   │       ├── west/
+│   │       ├── europe/
+│   │       └── east/
+│   └── formatted/                     # JSON output (tracked in git)
+│       ├── west/
+│       │   ├── {ITEM_ID}.json
+│       │   ├── .processed.txt
+│       │   └── ...
+│       ├── europe/
+│       │   ├── {ITEM_ID}.json
+│       │   ├── .processed.txt
+│       │   └── ...
+│       └── east/
+│           ├── {ITEM_ID}.json
+│           ├── .processed.txt
+│           └── ...
 ├── albion_data_extractor/
-│   ├── transform_aodp_to_json_v2.py  # GUI tool
+│   ├── transform_aodp_to_json_v2.py  # GUI tool (legacy)
 │   └── ci_processor.py               # Automated CI processor
 └── .github/workflows/
-    └── monthly-update.yml    # GitHub Actions workflow
+    └── monthly-update.yml            # GitHub Actions workflow
 ```
 
 ## Data Sources
