@@ -36,6 +36,12 @@ jobs:
       - name: Run AODP CI Processor
         run: python albion_data_extractor/ci_processor.py
       
+      - name: Clean up temporary directories
+        run: |
+          rm -rf albion_data_dumps/raw/
+          rm -rf albion_data_dumps/extracted/
+          rm -rf albion_data_dumps/temp/
+      
       - name: Check for changes
         id: changes
         run: |
@@ -50,7 +56,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add albion_data_dumps/
+          git add albion_data_dumps/formatted/
           git commit -m "chore: update market history data - $(date +'%Y-%m-%d')"
           git push
       
