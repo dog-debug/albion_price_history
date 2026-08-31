@@ -170,9 +170,8 @@ def extract_zip_files(zip_paths: List[Path]):
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                     zip_ref.extractall(PATHS['history'])
 
-            print(f"[SUCCESS] Extracted {zip_path.name}")
-            zip_path.unlink()
-
+            print(f"[SUCCESS] Extracted {zip_path.name} to extracted/history/")
+            
             # Mark archive itself as processed so it won't be re-downloaded
             save_processed_file(zip_path.name)
 
@@ -323,7 +322,7 @@ def transform_record(rec: Tuple) -> Dict[str, Any]:
 
 
 def process_market_history_files():
-    """Process all unprocessed SQL files in history directory"""
+    """Process ONE unprocessed SQL file per run"""
     print("[INFO] Processing market history files...")
     
     if not PATHS['history'].exists():
@@ -334,6 +333,7 @@ def process_market_history_files():
     processed = load_processed_files()
     processed_count = 0
     
+    # Process only the FIRST unprocessed file
     for sql_file in sql_files:
         if sql_file.name in processed:
             print(f"[SKIP] {sql_file.name} already processed")
@@ -403,12 +403,10 @@ def process_market_history_files():
             save_processed_file(sql_file.name)
             processed_count += 1
             
-            # Clean up extracted SQL file to free disk space
-            if sql_file.exists():
-                sql_file.unlink()
-                print(f"[CLEANUP] Deleted {sql_file.name} from extracted/history/")
-            
             print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {len(records):,} records)")
+            
+            # Exit after processing one file per run
+            break
         
         except Exception as e:
             print(f"[ERROR] Error processing {sql_file.name}: {e}")
