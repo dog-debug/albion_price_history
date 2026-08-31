@@ -29,8 +29,9 @@ jobs:
       
       - name: Create directories
         run: |
-          mkdir -p albion_data_dumps/extracted/history
-          mkdir -p albion_data_dumps/formatted
+          mkdir -p albion_data_dumps/raw/{west,europe,east}
+          mkdir -p albion_data_dumps/extracted/history/{west,europe,east}
+          mkdir -p albion_data_dumps/formatted/{west,europe,east}
           mkdir -p albion_data_dumps/temp
       
       - name: Run AODP CI Processor

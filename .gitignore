@@ -9,6 +9,17 @@ build/
 .DS_Store
 *.egg
 
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.DS_Store
+*.egg
+
 # Ignore temporary data directories - only track formatted/ output
 albion_data_dumps/raw/
 albion_data_dumps/extracted/
