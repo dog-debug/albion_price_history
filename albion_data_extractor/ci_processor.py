@@ -32,7 +32,14 @@ LOCATION_ID_TO_CITY = {
     7: 'blackmarket',
 }
 
-# Server codes
+# Server name to full domain mapping
+SERVER_NAMES = {
+    'europe': 'europe.albion-online-data.com',
+    'east': 'east.albion-online-data.com',
+    'west': 'west.albion-online-data.com',
+}
+
+# Server codes (legacy, kept for reference)
 SOURCE_TO_SERVER = {
     6: 'west.albion-online-data.com',
     7: 'europe.albion-online-data.com',
@@ -306,10 +313,11 @@ def read_sql_file(filepath: Path) -> List[Tuple]:
         return records
 
 
-def transform_record(rec: Tuple) -> Dict[str, Any]:
+def transform_record(rec: Tuple, server_name: str) -> Dict[str, Any]:
     """
     Transform SQL record to price checker format.
     SQL record format: (id, city_id, price, item_id, location_id, quality, timestamp, source)
+    server_name: The server this record came from (europe, east, or west)
     """
     try:
         id_, city_id, price, item_id, location_id, quality, ts_str, source = rec
@@ -317,8 +325,8 @@ def transform_record(rec: Tuple) -> Dict[str, Any]:
         # Map location to city name
         city = LOCATION_ID_TO_CITY.get(location_id, 'unknown').lower()
         
-        # Map server
-        server = SOURCE_TO_SERVER.get(source, 'unknown.albion-online-data.com')
+        # Use the correct server name from the processing server
+        server = SERVER_NAMES.get(server_name, 'unknown.albion-online-data.com')
         
         # Parse timestamp
         try:
@@ -385,7 +393,7 @@ def process_market_history_files(server_name: str):
                 
                 if len(rec) >= 8:
                     item_id = rec[3]  # item_id is at index 3
-                    transformed = transform_record(rec)
+                    transformed = transform_record(rec, server_name)
                     
                     if transformed:
                         file_items[item_id].append(transformed)
