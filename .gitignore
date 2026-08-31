@@ -9,7 +9,7 @@ build/
 .DS_Store
 *.egg
 
-# Only track formatted output
-albion_data_dumps/
-!albion_data_dumps/formatted/
-!albion_data_dumps/formatted/**
+# Ignore temporary data directories - only track formatted/ output
+albion_data_dumps/raw/
+albion_data_dumps/extracted/
+albion_data_dumps/temp/
