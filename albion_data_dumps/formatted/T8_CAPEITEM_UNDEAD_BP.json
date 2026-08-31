@@ -1,0 +1,842 @@
+{
+  "itemId": "T8_CAPEITEM_UNDEAD_BP",
+  "priceHistory": [
+    {
+      "timestamp": "2020-01-24T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 61020,
+      "buyPrice": 61020,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-24T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 116540,
+      "buyPrice": 116540,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-24T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 54040,
+      "buyPrice": 54040,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-25T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 81060,
+      "buyPrice": 81060,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-25T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 27020,
+      "buyPrice": 27020,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-25T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 348003,
+      "buyPrice": 348003,
+      "quantity": 10
+    },
+    {
+      "timestamp": "2020-01-26T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 151057,
+      "buyPrice": 151057,
+      "quantity": 5
+    },
+    {
+      "timestamp": "2020-01-26T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 178074,
+      "buyPrice": 178074,
+      "quantity": 6
+    },
+    {
+      "timestamp": "2020-01-26T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 156744,
+      "buyPrice": 156744,
+      "quantity": 6
+    },
+    {
+      "timestamp": "2020-01-26T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 61450,
+      "buyPrice": 61450,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-27T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 30000,
+      "buyPrice": 30000,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-27T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 60000,
+      "buyPrice": 60000,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-27T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 30000,
+      "buyPrice": 30000,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-27T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 1668512,
+      "buyPrice": 1668512,
+      "quantity": 45
+    },
+    {
+      "timestamp": "2020-01-28T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 502901,
+      "buyPrice": 502901,
+      "quantity": 16
+    },
+    {
+      "timestamp": "2020-01-28T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 100882,
+      "buyPrice": 100882,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-29T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 25203,
+      "buyPrice": 25203,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-29T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 25203,
+      "buyPrice": 25203,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-29T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 75607,
+      "buyPrice": 75607,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-30T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 126010,
+      "buyPrice": 126010,
+      "quantity": 5
+    },
+    {
+      "timestamp": "2020-01-30T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 110000,
+      "buyPrice": 110000,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-24T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 81060,
+      "buyPrice": 81060,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-31T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 25203,
+      "buyPrice": 25203,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-23T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 54040,
+      "buyPrice": 54040,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-23T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 95004,
+      "buyPrice": 95004,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-17T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 403780,
+      "buyPrice": 403780,
+      "quantity": 13
+    },
+    {
+      "timestamp": "2020-01-17T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 313968,
+      "buyPrice": 313968,
+      "quantity": 10
+    },
+    {
+      "timestamp": "2020-01-17T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 130061,
+      "buyPrice": 130061,
+      "quantity": 5
+    },
+    {
+      "timestamp": "2020-01-18T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 426900,
+      "buyPrice": 426900,
+      "quantity": 13
+    },
+    {
+      "timestamp": "2020-01-18T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 52027,
+      "buyPrice": 52027,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-18T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 2721423,
+      "buyPrice": 2721423,
+      "quantity": 72
+    },
+    {
+      "timestamp": "2020-01-18T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 156690,
+      "buyPrice": 156690,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-19T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 27000,
+      "buyPrice": 27000,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-19T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 108004,
+      "buyPrice": 108004,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-19T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 279949,
+      "buyPrice": 279949,
+      "quantity": 8
+    },
+    {
+      "timestamp": "2020-01-20T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 27015,
+      "buyPrice": 27015,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-20T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 162102,
+      "buyPrice": 162102,
+      "quantity": 6
+    },
+    {
+      "timestamp": "2020-01-20T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 504187,
+      "buyPrice": 504187,
+      "quantity": 17
+    },
+    {
+      "timestamp": "2020-01-21T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 428139,
+      "buyPrice": 428139,
+      "quantity": 14
+    },
+    {
+      "timestamp": "2020-01-21T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 54036,
+      "buyPrice": 54036,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-21T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 81054,
+      "buyPrice": 81054,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-21T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 83323,
+      "buyPrice": 83323,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-22T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 27020,
+      "buyPrice": 27020,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-22T06:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 81060,
+      "buyPrice": 81060,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-22T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 27020,
+      "buyPrice": 27020,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-23T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 108080,
+      "buyPrice": 108080,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-23T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 54040,
+      "buyPrice": 54040,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-17T00:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 52022,
+      "buyPrice": 52022,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-31T12:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 93059,
+      "buyPrice": 93059,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-31T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 97134,
+      "buyPrice": 97134,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-16T18:00:00Z",
+      "city": "lymhurst",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 104039,
+      "buyPrice": 104039,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-30T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 288763,
+      "buyPrice": 288763,
+      "quantity": 8
+    },
+    {
+      "timestamp": "2020-01-31T00:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 31004,
+      "buyPrice": 31004,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-31T06:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 600828,
+      "buyPrice": 600828,
+      "quantity": 15
+    },
+    {
+      "timestamp": "2020-01-31T12:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 93008,
+      "buyPrice": 93008,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-31T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 217000,
+      "buyPrice": 217000,
+      "quantity": 7
+    },
+    {
+      "timestamp": "2020-01-30T12:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 65555,
+      "buyPrice": 65555,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-30T00:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 122178,
+      "buyPrice": 122178,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-29T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 204007,
+      "buyPrice": 204007,
+      "quantity": 6
+    },
+    {
+      "timestamp": "2020-01-29T06:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 93006,
+      "buyPrice": 93006,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-23T00:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 281085,
+      "buyPrice": 281085,
+      "quantity": 7
+    },
+    {
+      "timestamp": "2020-01-23T06:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 20000,
+      "buyPrice": 20000,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-23T12:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 144440,
+      "buyPrice": 144440,
+      "quantity": 5
+    },
+    {
+      "timestamp": "2020-01-23T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 306664,
+      "buyPrice": 306664,
+      "quantity": 12
+    },
+    {
+      "timestamp": "2020-01-24T00:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 141228,
+      "buyPrice": 141228,
+      "quantity": 6
+    },
+    {
+      "timestamp": "2020-01-24T12:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 13002,
+      "buyPrice": 13002,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-24T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 204997,
+      "buyPrice": 204997,
+      "quantity": 6
+    },
+    {
+      "timestamp": "2020-01-25T00:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 54001,
+      "buyPrice": 54001,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-25T06:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 34982,
+      "buyPrice": 34982,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-25T12:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 30002,
+      "buyPrice": 30002,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-26T00:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 45004,
+      "buyPrice": 45004,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-26T12:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 40666,
+      "buyPrice": 40666,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-26T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 90666,
+      "buyPrice": 90666,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-27T00:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 85000,
+      "buyPrice": 85000,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-27T06:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 99995,
+      "buyPrice": 99995,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-27T12:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 133804,
+      "buyPrice": 133804,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-27T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 237888,
+      "buyPrice": 237888,
+      "quantity": 4
+    },
+    {
+      "timestamp": "2020-01-28T00:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 155005,
+      "buyPrice": 155005,
+      "quantity": 5
+    },
+    {
+      "timestamp": "2020-01-28T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 69977,
+      "buyPrice": 69977,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-25T18:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 1775098,
+      "buyPrice": 1775098,
+      "quantity": 48
+    },
+    {
+      "timestamp": "2020-01-22T12:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 116666,
+      "buyPrice": 116666,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-22T06:00:00Z",
+      "city": "caerleon",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 451966,
+      "buyPrice": 451966,
+      "quantity": 16
+    },
+    {
+      "timestamp": "2020-01-31T18:00:00Z",
+      "city": "unknown",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 35000,
+      "buyPrice": 35000,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-31T12:00:00Z",
+      "city": "unknown",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 15506,
+      "buyPrice": 15506,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-31T06:00:00Z",
+      "city": "unknown",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 46515,
+      "buyPrice": 46515,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-30T18:00:00Z",
+      "city": "unknown",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 60484,
+      "buyPrice": 60484,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-30T12:00:00Z",
+      "city": "unknown",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 31003,
+      "buyPrice": 31003,
+      "quantity": 2
+    },
+    {
+      "timestamp": "2020-01-31T18:00:00Z",
+      "city": "blackmarket",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 93003,
+      "buyPrice": 93003,
+      "quantity": 3
+    },
+    {
+      "timestamp": "2020-01-31T12:00:00Z",
+      "city": "blackmarket",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 669674,
+      "buyPrice": 669674,
+      "quantity": 18
+    },
+    {
+      "timestamp": "2020-01-31T06:00:00Z",
+      "city": "blackmarket",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 290997,
+      "buyPrice": 290997,
+      "quantity": 8
+    },
+    {
+      "timestamp": "2020-01-31T00:00:00Z",
+      "city": "blackmarket",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 28009,
+      "buyPrice": 28009,
+      "quantity": 1
+    },
+    {
+      "timestamp": "2020-01-30T18:00:00Z",
+      "city": "blackmarket",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 295245,
+      "buyPrice": 295245,
+      "quantity": 8
+    },
+    {
+      "timestamp": "2020-01-30T12:00:00Z",
+      "city": "blackmarket",
+      "quality": 1,
+      "server": "west.albion-online-data.com",
+      "sellPrice": 64000,
+      "buyPrice": 64000,
+      "quantity": 2
+    }
+  ]
+}
