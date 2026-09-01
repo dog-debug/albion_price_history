@@ -222,4 +222,20 @@
   {"timestamp":"2024-12-11T06:00:00Z","city":"unknown","quality":3,"server":"europe","sellPrice":149000,"buyPrice":149000,"quantity":1},
   {"timestamp":"2024-12-10T18:00:00Z","city":"unknown","quality":3,"server":"europe","sellPrice":149000,"buyPrice":149000,"quantity":1},
   {"timestamp":"2024-12-09T18:00:00Z","city":"unknown","quality":3,"server":"europe","sellPrice":120000,"buyPrice":120000,"quantity":1}
+],
+  {"timestamp":"2025-01-03T06:00:00Z","city":"unknown","quality":3,"server":"europe","sellPrice":122972,"buyPrice":122972,"quantity":1},
+  {"timestamp":"2025-01-02T12:00:00Z","city":"unknown","quality":3,"server":"europe","sellPrice":49999,"buyPrice":49999,"quantity":1},
+  {"timestamp":"2025-01-01T18:00:00Z","city":"unknown","quality":3,"server":"europe","sellPrice":120974,"buyPrice":120974,"quantity":1},
+  {"timestamp":"2025-01-01T12:00:00Z","city":"unknown","quality":3,"server":"europe","sellPrice":120974,"buyPrice":120974,"quantity":1},
+  {"timestamp":"2025-01-31T06:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":52468,"buyPrice":52468,"quantity":18},
+  {"timestamp":"2025-01-31T12:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":61958,"buyPrice":61958,"quantity":21},
+  {"timestamp":"2025-01-31T18:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":32994,"buyPrice":32994,"quantity":12},
+  {"timestamp":"2025-01-29T06:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":16495,"buyPrice":16495,"quantity":6},
+  {"timestamp":"2025-01-29T12:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":62237,"buyPrice":62237,"quantity":21},
+  {"timestamp":"2025-01-29T18:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":56240,"buyPrice":56240,"quantity":20},
+  {"timestamp":"2025-01-30T00:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":16497,"buyPrice":16497,"quantity":6},
+  {"timestamp":"2025-01-30T06:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":56599,"buyPrice":56599,"quantity":20},
+  {"timestamp":"2025-01-30T12:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":35237,"buyPrice":35237,"quantity":12},
+  {"timestamp":"2025-01-30T18:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":69996,"buyPrice":69996,"quantity":24},
+  {"timestamp":"2025-01-31T00:00:00Z","city":"blackmarket","quality":1,"server":"europe","sellPrice":35491,"buyPrice":35491,"quantity":12}
 ]
