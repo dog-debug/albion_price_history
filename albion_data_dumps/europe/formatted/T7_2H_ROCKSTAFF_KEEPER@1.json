@@ -31,4 +31,17 @@
   {"timestamp":"2024-10-31T12:00:00Z","city":"lymhurst","quality":1,"server":"europe","sellPrice":700000,"buyPrice":700000,"quantity":1},
   {"timestamp":"2024-10-24T12:00:00Z","city":"lymhurst","quality":1,"server":"europe","sellPrice":700000,"buyPrice":700000,"quantity":1},
   {"timestamp":"2024-10-31T18:00:00Z","city":"lymhurst","quality":2,"server":"europe","sellPrice":700000,"buyPrice":700000,"quantity":1}
+],
+  {"timestamp":"2024-11-01T12:00:00Z","city":"unknown","quality":4,"server":"europe","sellPrice":666666,"buyPrice":666666,"quantity":1},
+  {"timestamp":"2024-11-01T12:00:00Z","city":"lymhurst","quality":2,"server":"europe","sellPrice":700000,"buyPrice":700000,"quantity":1},
+  {"timestamp":"2024-11-22T18:00:00Z","city":"bridgewatch","quality":1,"server":"europe","sellPrice":832352,"buyPrice":832352,"quantity":1},
+  {"timestamp":"2024-11-30T18:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":68118,"buyPrice":68118,"quantity":3},
+  {"timestamp":"2024-11-29T18:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":71007,"buyPrice":71007,"quantity":3},
+  {"timestamp":"2024-11-29T00:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":29999,"buyPrice":29999,"quantity":1},
+  {"timestamp":"2024-11-28T18:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":41008,"buyPrice":41008,"quantity":2},
+  {"timestamp":"2024-11-28T06:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":113493,"buyPrice":113493,"quantity":3},
+  {"timestamp":"2024-11-24T18:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":75674,"buyPrice":75674,"quantity":2},
+  {"timestamp":"2024-11-24T06:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":39996,"buyPrice":39996,"quantity":1},
+  {"timestamp":"2024-11-23T18:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":739180,"buyPrice":739180,"quantity":19},
+  {"timestamp":"2024-11-23T06:00:00Z","city":"martlock","quality":2,"server":"europe","sellPrice":10025,"buyPrice":10025,"quantity":1}
 ]
