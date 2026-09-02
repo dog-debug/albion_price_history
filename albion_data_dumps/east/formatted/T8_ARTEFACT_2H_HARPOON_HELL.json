@@ -768,4 +768,12 @@
   {"timestamp":"2024-11-28T12:00:00Z","city":"unknown","quality":1,"server":"east","sellPrice":100003,"buyPrice":100003,"quantity":1},
   {"timestamp":"2024-11-29T12:00:00Z","city":"unknown","quality":1,"server":"east","sellPrice":100004,"buyPrice":100004,"quantity":1},
   {"timestamp":"2024-11-30T06:00:00Z","city":"unknown","quality":1,"server":"east","sellPrice":100006,"buyPrice":100006,"quantity":1}
+],
+  {"timestamp":"2024-12-01T00:00:00Z","city":"blackmarket","quality":1,"server":"east","sellPrice":120000,"buyPrice":120000,"quantity":1},
+  {"timestamp":"2024-12-01T12:00:00Z","city":"unknown","quality":1,"server":"east","sellPrice":299990,"buyPrice":299990,"quantity":2},
+  {"timestamp":"2024-12-02T06:00:00Z","city":"blackmarket","quality":1,"server":"east","sellPrice":225555,"buyPrice":225555,"quantity":1},
+  {"timestamp":"2024-12-01T18:00:00Z","city":"blackmarket","quality":1,"server":"east","sellPrice":120000,"buyPrice":120000,"quantity":1},
+  {"timestamp":"2024-12-03T06:00:00Z","city":"blackmarket","quality":1,"server":"east","sellPrice":120001,"buyPrice":120001,"quantity":1},
+  {"timestamp":"2024-12-03T12:00:00Z","city":"blackmarket","quality":1,"server":"east","sellPrice":120001,"buyPrice":120001,"quantity":1},
+  {"timestamp":"2024-12-04T18:00:00Z","city":"blackmarket","quality":1,"server":"east","sellPrice":120001,"buyPrice":120001,"quantity":1}
 ]
