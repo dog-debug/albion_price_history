@@ -1,4 +1,18 @@
 [
   {"timestamp":"2020-02-19T12:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":347997,"buyPrice":347997,"quantity":1},
   {"timestamp":"2020-02-22T06:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":25005,"buyPrice":25005,"quantity":1}
+],
+  {"timestamp":"2020-03-05T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":466616,"buyPrice":466616,"quantity":1},
+  {"timestamp":"2020-03-11T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":305359,"buyPrice":305359,"quantity":1},
+  {"timestamp":"2020-03-18T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":387703,"buyPrice":387703,"quantity":1},
+  {"timestamp":"2020-03-19T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":449461,"buyPrice":449461,"quantity":1},
+  {"timestamp":"2020-03-09T12:00:00Z","city":"blackmarket","quality":1,"server":"west","sellPrice":499999,"buyPrice":499999,"quantity":1},
+  {"timestamp":"2020-03-13T18:00:00Z","city":"blackmarket","quality":1,"server":"west","sellPrice":999998,"buyPrice":999998,"quantity":2},
+  {"timestamp":"2020-03-16T18:00:00Z","city":"blackmarket","quality":1,"server":"west","sellPrice":498999,"buyPrice":498999,"quantity":1},
+  {"timestamp":"2020-03-17T18:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":500000,"buyPrice":500000,"quantity":1},
+  {"timestamp":"2020-03-18T00:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":500000,"buyPrice":500000,"quantity":1},
+  {"timestamp":"2020-03-19T12:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":450000,"buyPrice":450000,"quantity":1},
+  {"timestamp":"2020-03-22T00:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":450000,"buyPrice":450000,"quantity":1},
+  {"timestamp":"2020-03-28T12:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":999996,"buyPrice":999996,"quantity":2},
+  {"timestamp":"2020-03-30T18:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":499998,"buyPrice":499998,"quantity":1}
 ]
