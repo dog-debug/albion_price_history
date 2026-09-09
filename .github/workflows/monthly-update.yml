@@ -2,16 +2,15 @@ name: 30-Minute AODP Market History Update
 
 on:
   schedule:
-    # Run every 30 minutes
-    - cron: '*/30 * * * *'
-  
+      # Run once every 6 hours
+    - cron: '0 */6 * * *'    
   # Allow manual triggering
   workflow_dispatch:
 
 jobs:
   update-market-history:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 720
     
     permissions:
       contents: write
