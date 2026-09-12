@@ -398,34 +398,60 @@ def process_market_history_files(server_name: str):
                 if item_idx % 1000 == 0 and item_idx > 0:
                     print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
                 
-                output_file = paths['output'] / f"{item_id}.json"
+                # Auto-split files larger than 50MB to avoid git push errors
+                MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
                 
                 try:
+                    # Find the next available file number (name.json, name_2.json, etc.)
+                    file_number = 1
+                    output_file = paths['output'] / f"{item_id}.json"
                     if output_file.exists():
-                        # Append to existing file (binary mode)
-                        with open(output_file, 'r+b') as f:
-                            # Seek to 1 byte before end (before `]`)
-                            f.seek(-1, 2)
-                            # Write comma and new records
-                            f.write(b',\n')
-                            for record in price_records:
-                                record_json = json.dumps(record, separators=(',', ':'))
-                                f.write(b'  ' + record_json.encode('utf-8') + b',\n')
-                            # Remove trailing comma and close array
-                            f.seek(-2, 1)  # Go back 2 bytes (comma + newline)
-                            f.write(b'\n]\n')
-                            f.truncate()
-                    else:
-                        # Create new file with simple array format
-                        with open(output_file, 'w', encoding='utf-8') as f:
-                            f.write('[\n')
-                            for i, record in enumerate(price_records):
-                                record_json = json.dumps(record, separators=(',', ':'))
-                                if i < len(price_records) - 1:
-                                    f.write('  ' + record_json + ',\n')
-                                else:
-                                    f.write('  ' + record_json + '\n')
-                            f.write(']\n')
+                        file_number += 1
+                        while (paths['output'] / f"{item_id}_{file_number}.json").exists():
+                            file_number += 1
+                        output_file = paths['output'] / f"{item_id}_{file_number}.json"
+                    
+                    # Write records, splitting into multiple files if needed
+                    current_file = output_file
+                    current_size = 0
+                    file_num = 1
+                    first_record_in_file = True
+                    
+                    with open(current_file, 'w', encoding='utf-8') as f:
+                        f.write('[\n')
+                        current_size += 2  # for '[\n'
+                        
+                        for i, record in enumerate(price_records):
+                            record_json = json.dumps(record, separators=(',', ':'))
+                            record_bytes = ('  ' + record_json + ',\n').encode('utf-8')
+                            record_size = len(record_bytes)
+                            
+                            # Check if adding this record would exceed the limit
+                            if current_size + record_size + 2 > MAX_FILE_SIZE and not first_record_in_file:
+                                # Close current file
+                                f.seek(-2, 0)  # Remove trailing comma and newline
+                                f.write('\n]\n')
+                                f.close()
+                                
+                                # Open new file
+                                file_num += 1
+                                current_file = paths['output'] / f"{item_id}_{file_num}.json"
+                                f = open(current_file, 'w', encoding='utf-8')
+                                f.write('[\n')
+                                current_size = 2
+                                first_record_in_file = True
+                            
+                            # Write record
+                            f.write('  ' + record_json)
+                            if i < len(price_records) - 1:
+                                f.write(',\n')
+                            else:
+                                f.write('\n')
+                            current_size += record_size
+                            first_record_in_file = False
+                        
+                        # Close final file
+                        f.write(']\n')
                 
                 except Exception as e:
                     print(f"[ERROR] Failed to write {item_id}: {e}")
