@@ -1,2 +1,0 @@
-# Use Git LFS for JSON data files in albion_data_dumps
-albion_data_dumps/**/*.json filter=lfs diff=lfs merge=lfs -text
