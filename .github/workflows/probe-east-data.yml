@@ -1,0 +1,252 @@
+name: Probe East Server Data
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe-east-data:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Probe East Data
+        run: |
+          import json
+          import os
+          from pathlib import Path
+          from collections import defaultdict
+          from datetime import datetime
+          
+          east_dir = Path('albion_data_dumps/east/formatted')
+          
+          print("=" * 80)
+          print("EAST SERVER DATA PROBE REPORT")
+          print("=" * 80)
+          
+          # File statistics
+          json_files = list(east_dir.glob('*.json'))
+          processed_file = east_dir / '.processed.txt'
+          
+          print(f"\n📊 FILE STATISTICS:")
+          print(f"  Total JSON files: {len(json_files)}")
+          print(f"  Processed file exists: {processed_file.exists()}")
+          
+          if processed_file.exists():
+              with open(processed_file, 'r') as f:
+                  processed_count = len([l for l in f if l.strip()])
+              print(f"  Processed SQL files: {processed_count}")
+          
+          # Analyze file sizes
+          total_size = 0
+          file_sizes = []
+          for f in json_files:
+              size = f.stat().st_size
+              total_size += size
+              file_sizes.append((f.name, size))
+          
+          print(f"\n💾 SIZE ANALYSIS:")
+          print(f"  Total size: {total_size / (1024**2):.2f} MB")
+          print(f"  Average file size: {(total_size / len(json_files) / 1024):.2f} KB" if json_files else "  No files found")
+          
+          # Find largest files
+          file_sizes.sort(key=lambda x: x[1], reverse=True)
+          print(f"\n  Top 10 largest files:")
+          for name, size in file_sizes[:10]:
+              print(f"    {name}: {size / (1024**2):.2f} MB")
+          
+          # Validate JSON files
+          print(f"\n🔍 JSON VALIDATION:")
+          invalid_files = []
+          duplicate_items = defaultdict(list)
+          
+          for f in json_files:
+              try:
+                  with open(f, 'r', encoding='utf-8') as json_file:
+                      data = json.load(json_file)
+                      if not isinstance(data, list):
+                          invalid_files.append((f.name, "Not a JSON array"))
+              except json.JSONDecodeError as e:
+                  invalid_files.append((f.name, f"Invalid JSON: {str(e)[:50]}"))
+              except Exception as e:
+                  invalid_files.append((f.name, f"Read error: {str(e)[:50]}"))
+              
+              # Check for split files (name_2.json, name_3.json, etc.)
+              if '_' in f.stem and f.stem.split('_')[-1].isdigit():
+                  base_name = f.stem.rsplit('_', 1)[0]
+                  duplicate_items[base_name].append(f.name)
+          
+          if invalid_files:
+              print(f"  ⚠️  Invalid files found: {len(invalid_files)}")
+              for name, error in invalid_files[:20]:
+                  print(f"    {name}: {error}")
+          else:
+              print(f"  ✅ All JSON files are valid")
+          
+          # Report on split files
+          if duplicate_items:
+              print(f"\n📂 SPLIT FILES (items with multiple JSON chunks):")
+              split_count = sum(len(files) - 1 for files in duplicate_items.values())
+              print(f"  Items split across multiple files: {len(duplicate_items)}")
+              print(f"  Extra file chunks created: {split_count}")
+              print(f"  Potential duplicate file redundancy: {split_count} extra files")
+              
+              # Analyze if splits are necessary
+              print(f"\n🔬 SPLIT NECESSITY ANALYSIS:")
+              unnecessary_splits = 0
+              total_combined_size = 0
+              
+              for base_name, files in duplicate_items.items():
+                  # Calculate combined size of all chunks for this item
+                  combined_size = sum(f.stat().st_size for f in [east_dir / fname for fname in files])
+                  total_combined_size += combined_size
+                  
+                  # If combined size < 50MB, the split is unnecessary
+                  if combined_size < 50 * 1024 * 1024:
+                      unnecessary_splits += 1
+              
+              if unnecessary_splits > 0:
+                  print(f"  Items unnecessarily split: {unnecessary_splits}")
+                  print(f"  Could be consolidated without exceeding 50MB limit")
+                  print(f"  Size of unnecessary splits: {total_combined_size / (1024**2):.2f} MB")
+                  print(f"  ⚠️  These splits are REDUNDANT and could be merged")
+              else:
+                  print(f"  All splits appear necessary (combined size > 50MB per item)")
+              
+              # Show some examples
+              print(f"\n  Examples of split items (with necessity check):")
+              for i, (base_name, files) in enumerate(sorted(duplicate_items.items())[:10]):
+                  combined_size = sum(f.stat().st_size for f in [east_dir / fname for fname in files])
+                  necessity = "❌ UNNECESSARY" if combined_size < 50 * 1024 * 1024 else "✅ NECESSARY"
+                  print(f"    {base_name}: {len(files)} files, {combined_size / (1024**2):.2f} MB - {necessity}")
+          
+          # 3. DATA COMPLETENESS - Check if all items are present
+          print(f"\n📋 DATA COMPLETENESS:")
+          expected_items = 12237
+          base_item_files = len([f for f in json_files if not ('_' in f.stem and f.stem.split('_')[-1].isdigit())])
+          print(f"  Expected items in game: {expected_items}")
+          print(f"  Items with data files: {base_item_files}")
+          missing_count = expected_items - base_item_files
+          if missing_count > 0:
+              print(f"  ⚠️  Missing items: {missing_count} ({100*missing_count/expected_items:.1f}%)")
+          else:
+              print(f"  ✅ All expected items have data files")
+          
+          # 6. PROCESSED FILE INTEGRITY - Verify .processed.txt
+          print(f"\n✅ PROCESSED FILE INTEGRITY:")
+          if processed_file.exists():
+              try:
+                  with open(processed_file, 'r') as f:
+                      processed_lines = [l.strip() for l in f if l.strip()]
+                  
+                  # Validate each line is a valid SQL filename
+                  invalid_entries = [l for l in processed_lines if not l.endswith('.sql.gz') and not l.endswith('.sql')]
+                  
+                  print(f"  Processed file entries: {len(processed_lines)}")
+                  
+                  if invalid_entries:
+                      print(f"  ⚠️  Invalid entries in .processed.txt:")
+                      for entry in invalid_entries[:10]:
+                          print(f"    {entry}")
+                  else:
+                      print(f"  ✅ All entries in .processed.txt are valid SQL filenames")
+              except Exception as e:
+                  print(f"  ❌ Failed to read .processed.txt: {e}")
+          else:
+              print(f"  ⚠️  .processed.txt not found - file tracking may not work")
+          
+          # 7. SCHEMA VALIDATION - Check all records have required fields
+          print(f"\n🏗️  SCHEMA VALIDATION:")
+          required_fields = {'timestamp', 'city', 'quality', 'server', 'sellPrice', 'buyPrice'}
+          schema_errors = []
+          records_checked = 0
+          negative_prices = []
+          zero_prices = []
+          
+          for f in json_files[:100]:  # Sample first 100 files for speed
+              try:
+                  with open(f, 'r', encoding='utf-8') as json_file:
+                      data = json.load(json_file)
+                      for record in data:
+                          records_checked += 1
+                          
+                          # Check required fields
+                          missing_fields = required_fields - set(record.keys())
+                          if missing_fields:
+                              schema_errors.append((f.name, f"Missing fields: {missing_fields}"))
+                              continue
+                          
+                          # Check for negative prices
+                          if record.get('sellPrice', 0) < 0 or record.get('buyPrice', 0) < 0:
+                              negative_prices.append((f.name, record))
+                          
+                          # Check for zero prices
+                          if record.get('sellPrice') == 0 and record.get('buyPrice') == 0:
+                              zero_prices.append((f.name, record))
+              except Exception as e:
+                  schema_errors.append((f.name, str(e)))
+          
+          print(f"  Records sampled: {records_checked}")
+          
+          if schema_errors:
+              print(f"  ❌ Schema errors found: {len(schema_errors)}")
+              for fname, error in schema_errors[:5]:
+                  print(f"    {fname}: {error}")
+          else:
+              print(f"  ✅ All records have required fields")
+          
+          if negative_prices:
+              print(f"  ⚠️  Negative prices detected: {len(negative_prices)}")
+              for fname, record in negative_prices[:5]:
+                  print(f"    {fname}: sellPrice={record.get('sellPrice')}, buyPrice={record.get('buyPrice')}")
+          else:
+              print(f"  ✅ No negative prices found")
+          
+          if zero_prices:
+              print(f"  ⚠️  Zero prices found: {len(zero_prices)}")
+              print(f"      (May indicate missing data or error condition)")
+          else:
+              print(f"  ✅ No zero prices detected")
+          
+          # Summary
+          print(f"\n{'=' * 80}")
+          print(f"SUMMARY:")
+          issues = 0
+          
+          if len(json_files) > 15000:
+              print(f"  ⚠️  File count ({len(json_files)}) is high - {split_count if duplicate_items else 0} extra splits")
+              issues += 1
+          
+          if missing_count > 0:
+              print(f"  ⚠️  {missing_count} items missing data files")
+              issues += 1
+          
+          if negative_prices:
+              print(f"  ⚠️  {len(negative_prices)} records with negative prices")
+              issues += 1
+          
+          if invalid_files:
+              print(f"  ❌ {len(invalid_files)} corrupted files")
+              issues += 1
+          
+          if issues == 0:
+              print(f"  ✅ All checks passed - data appears healthy")
+          else:
+              print(f"  Found {issues} issue(s) - review above for details")
+          
+          print(f"{'=' * 80}")
+        shell: python
+      
+      - name: Generate Summary
+        run: echo "### East Data Probe Complete ✅" >> $GITHUB_STEP_SUMMARY
