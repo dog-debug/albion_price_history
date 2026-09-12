@@ -21,12 +21,6 @@ jobs:
         with:
           fetch-depth: 1
       
-      - name: Install Git LFS
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git-lfs
-          git lfs install
-      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -62,9 +56,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git config http.postBuffer 524288000
-          git config core.compression 0
-          git config http.version HTTP/1.1
           git add albion_data_dumps/*/formatted/
           git commit -m "chore: update market history data - $(date +'%Y-%m-%d')"
           git push
