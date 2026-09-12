@@ -1,10 +1,10 @@
-name: Probe West Server Data
+name: Probe EU Server Data
 
 on:
   workflow_dispatch:
 
 jobs:
-  probe-west-data:
+  probe-eu-data:
     runs-on: ubuntu-latest
     
     permissions:
@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Probe West Data
+      - name: Probe EU Data
         run: |
           import json
           import os
@@ -29,15 +29,15 @@ jobs:
           from collections import defaultdict
           from datetime import datetime
           
-          west_dir = Path('albion_data_dumps/west/formatted')
+          eu_dir = Path('albion_data_dumps/europe/formatted')
           
           print("=" * 80)
-          print("WEST SERVER DATA PROBE REPORT")
+          print("EUROPE SERVER DATA PROBE REPORT")
           print("=" * 80)
           
           # File statistics
-          json_files = list(west_dir.glob('*.json'))
-          processed_file = west_dir / '.processed.txt'
+          json_files = list(eu_dir.glob('*.json'))
+          processed_file = eu_dir / '.processed.txt'
           
           print(f"\n📊 FILE STATISTICS:")
           print(f"  Total JSON files: {len(json_files)}")
@@ -58,7 +58,7 @@ jobs:
           
           print(f"\n💾 SIZE ANALYSIS:")
           print(f"  Total size: {total_size / (1024**2):.2f} MB")
-          print(f"  Average file size: {(total_size / len(json_files) / 1024):.2f} KB")
+          print(f"  Average file size: {(total_size / len(json_files) / 1024):.2f} KB" if json_files else "  No files found")
           
           # Find largest files
           file_sizes.sort(key=lambda x: x[1], reverse=True)
@@ -109,7 +109,7 @@ jobs:
               
               for base_name, files in duplicate_items.items():
                   # Calculate combined size of all chunks for this item
-                  combined_size = sum(f.stat().st_size for f in [west_dir / fname for fname in files])
+                  combined_size = sum(f.stat().st_size for f in [eu_dir / fname for fname in files])
                   total_combined_size += combined_size
                   
                   # If combined size < 50MB, the split is unnecessary
@@ -127,7 +127,7 @@ jobs:
               # Show some examples
               print(f"\n  Examples of split items (with necessity check):")
               for i, (base_name, files) in enumerate(sorted(duplicate_items.items())[:10]):
-                  combined_size = sum(f.stat().st_size for f in [west_dir / fname for fname in files])
+                  combined_size = sum(f.stat().st_size for f in [eu_dir / fname for fname in files])
                   necessity = "❌ UNNECESSARY" if combined_size < 50 * 1024 * 1024 else "✅ NECESSARY"
                   print(f"    {base_name}: {len(files)} files, {combined_size / (1024**2):.2f} MB - {necessity}")
           
@@ -225,7 +225,7 @@ jobs:
           issues = 0
           
           if len(json_files) > 15000:
-              print(f"  ⚠️  File count ({len(json_files)}) is high - {split_count} extra splits")
+              print(f"  ⚠️  File count ({len(json_files)}) is high - {split_count if duplicate_items else 0} extra splits")
               issues += 1
           
           if missing_count > 0:
@@ -249,4 +249,4 @@ jobs:
         shell: python
       
       - name: Generate Summary
-        run: echo "### West Data Probe Complete ✅" >> $GITHUB_STEP_SUMMARY
+        run: echo "### EU Data Probe Complete ✅" >> $GITHUB_STEP_SUMMARY
