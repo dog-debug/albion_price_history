@@ -1,0 +1,159 @@
+name: Weekly AODP Market History Update
+
+on:
+  schedule:
+    # Run every Friday at 6pm Florida time (23:00 UTC = 6pm EST)
+    - cron: '0 23 * * 5'
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  update-market-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Create directories
+        run: |
+          mkdir -p albion_data_dumps/europe/{raw,extracted,formatted}
+          mkdir -p albion_data_dumps/east/{raw,extracted,formatted}
+          mkdir -p albion_data_dumps/west/{raw,extracted,formatted}
+          mkdir -p albion_data_dumps/temp
+      
+      - name: Run AODP CI Processor
+        run: python albion_data_extractor/ci_processor.py
+      
+      - name: Validate and fix JSON files
+        id: validate_and_fix
+        continue-on-error: true
+        run: |
+          echo "Validating and fixing ALL JSON files in repository..."
+          echo "========================================================"
+          
+          failed_files=0
+          fixed_files=0
+          valid_files=0
+          
+          for file in albion_data_dumps/*/formatted/*.json; do
+            if [ -f "$file" ]; then
+              echo ""
+              echo "Processing: $file"
+              
+              # First validate
+              if python validate_json_random.py "$file" 2>&1 | grep -q "Valid JSON"; then
+                echo "  ✓ Already valid"
+                ((valid_files++))
+              else
+                echo "  ⚠️  Invalid - attempting to fix..."
+                
+                # Try to fix it
+                if python fix_json_format.py "$file" --auto-fix 2>&1 | grep -q "successfully fixed"; then
+                  echo "  ✓ Fixed and saved"
+                  ((fixed_files++))
+                else
+                  echo "  ✗ Could not fix - skipping"
+                  ((failed_files++))
+                fi
+              fi
+            fi
+          done
+          
+          echo ""
+          echo "========================================================"
+          echo "Summary:"
+          echo "  Valid files: $valid_files"
+          echo "  Fixed files: $fixed_files"
+          echo "  Failed files: $failed_files"
+          
+          # Set output for summary
+          echo "valid_files=$valid_files" >> $GITHUB_OUTPUT
+          echo "fixed_files=$fixed_files" >> $GITHUB_OUTPUT
+          echo "failed_files=$failed_files" >> $GITHUB_OUTPUT
+      
+      - name: Final validation before push
+        id: final_check
+        run: |
+          echo "Running final validation on entire repository..."
+          echo ""
+          
+          all_valid=true
+          for file in albion_data_dumps/*/formatted/*.json; do
+            if [ -f "$file" ]; then
+              if ! python validate_json_random.py "$file" 2>&1 | grep -q "Valid JSON"; then
+                echo "✗ STILL INVALID: $file"
+                all_valid=false
+              fi
+            fi
+          done
+          
+          if [ "$all_valid" = true ]; then
+            echo "✓ All JSON files are valid!"
+            echo "validation_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Some files still invalid - will not push"
+            echo "validation_passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+      
+      - name: Clean up temporary directories
+        run: |
+          rm -rf albion_data_dumps/*/raw/
+          rm -rf albion_data_dumps/*/extracted/
+          rm -rf albion_data_dumps/temp/
+      
+      - name: Check for changes
+        id: changes
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true' && steps.final_check.outputs.validation_passed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add albion_data_dumps/*/formatted/
+          git commit -m "chore: weekly update - market history & JSON validation - $(date +'%Y-%m-%d %H:%M UTC')"
+          git push
+      
+      - name: Create summary
+        run: |
+          echo "### Weekly AODP Market History Update" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Valid files: ${{ steps.validate_and_fix.outputs.valid_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Fixed files: ${{ steps.validate_and_fix.outputs.fixed_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Failed files: ${{ steps.validate_and_fix.outputs.failed_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Final Status" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.final_check.outputs.validation_passed }}" == "true" ]; then
+            echo "✅ **All JSON files valid** - Changes pushed to repository" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  **Validation failed** - Changes not pushed (fix required)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.changes.outputs.has_changes }}" == "true" ]; then
+            echo "- Market history data updated" >> $GITHUB_STEP_SUMMARY
+            echo "- All JSON files validated and fixed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- No new market history files detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Schedule:** Every Friday at 6pm EST (23:00 UTC)" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date)" >> $GITHUB_STEP_SUMMARY
