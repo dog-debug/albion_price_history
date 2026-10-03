@@ -1,0 +1,61 @@
+name: Weekly Highs & Lows Update
+
+on:
+  schedule:
+    # Run every Sunday at 6pm Florida time (23:00 UTC)
+    - cron: '0 23 * * 0'
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  update-highs-lows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Refresh the next stale server summary
+        run: python albion_data_extractor/highs_and_lows.py
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add albion_data_dumps/*/formatted/highs_and_lows.json
+          git commit -m "chore: update highs and lows - $(date +'%Y-%m-%d %H:%M UTC')"
+          git push
+
+      - name: Create summary
+        run: |
+          echo "### Weekly Highs & Lows Update" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.changes.outputs.has_changes }}" == "true" ]; then
+            echo "✅ Highs/lows summary was refreshed and committed" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ℹ️ No stale server summary needed an update" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Schedule:** Every Sunday at 6pm Florida time (23:00 UTC)" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Timestamp:** $(date)" >> "$GITHUB_STEP_SUMMARY"
