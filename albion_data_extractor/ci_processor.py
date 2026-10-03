@@ -271,36 +271,58 @@ def parse_sql_insert(line: str) -> List[Any]:
 
 
 def read_sql_file(filepath: Path) -> List[Tuple]:
-    """Extract all market_history records from SQL file"""
+    """Extract all market_history records from SQL file without loading the whole file into memory."""
     records = []
-    
+
     try:
         print(f"[DEBUG] Reading {filepath.name}...")
-        
-        if filepath.suffix == '.gz':
-            with gzip.open(filepath, 'rt', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-        else:
-            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-        
-        # Find all INSERT VALUES (...), (...), ... patterns
-        insert_pattern = r'INSERT INTO\s+`?market_history`?\s+VALUES\s+((?:\([^()]+\)(?:,\s*)?)+)'
-        
-        for insert_match in re.finditer(insert_pattern, content, re.IGNORECASE):
-            values_text = insert_match.group(1)
-            
-            # Split individual tuples
-            for tuple_match in re.finditer(r'\(([^()]+)\)', values_text):
-                tuple_str = '(' + tuple_match.group(1) + ')'
-                values = parse_sql_insert(tuple_str)
-                
-                if values and len(values) >= 8:
-                    records.append(tuple(values[:8]))
-        
+
+        opener = gzip.open if filepath.suffix == '.gz' else open
+        mode = 'rt'
+
+        with opener(filepath, mode, encoding='utf-8', errors='ignore') as f:
+            buffer = ''
+            in_insert = False
+
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line:
+                    continue
+
+                if not in_insert:
+                    if re.match(r'INSERT\s+INTO\s+`?market_history`?\s+VALUES\s*', line, re.IGNORECASE):
+                        buffer = line
+                        in_insert = True
+                    continue
+
+                buffer += ' ' + line
+                if line.endswith(';'):
+                    insert_pattern = r'INSERT INTO\s+`?market_history`?\s+VALUES\s+((?:\([^()]+\)(?:,\s*)?)+)'
+                    insert_match = re.search(insert_pattern, buffer, re.IGNORECASE)
+                    if insert_match:
+                        values_text = insert_match.group(1)
+                        for tuple_match in re.finditer(r'\(([^()]+)\)', values_text):
+                            tuple_str = '(' + tuple_match.group(1) + ')'
+                            values = parse_sql_insert(tuple_str)
+                            if values and len(values) >= 8:
+                                records.append(tuple(values[:8]))
+                    in_insert = False
+                    buffer = ''
+
+            if in_insert and buffer:
+                insert_pattern = r'INSERT INTO\s+`?market_history`?\s+VALUES\s+((?:\([^()]+\)(?:,\s*)?)+)'
+                insert_match = re.search(insert_pattern, buffer, re.IGNORECASE)
+                if insert_match:
+                    values_text = insert_match.group(1)
+                    for tuple_match in re.finditer(r'\(([^()]+)\)', values_text):
+                        tuple_str = '(' + tuple_match.group(1) + ')'
+                        values = parse_sql_insert(tuple_str)
+                        if values and len(values) >= 8:
+                            records.append(tuple(values[:8]))
+
         print(f"[DEBUG] Extracted {len(records)} records from {filepath.name}")
         return records
-    
+
     except Exception as e:
         print(f"[ERROR] Error reading {filepath.name}: {e}")
         return records
