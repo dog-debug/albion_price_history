@@ -101,7 +101,7 @@ The project includes automated GitHub Actions that run **every hour** to:
 
 Each server has its own `.processed.txt` file tracking which files have been completed.
 
-To manually trigger this workflow, go to the GitHub Actions tab and click "Run workflow".
+To manually trigger this workflow, go to the GitHub Actions tab and click "Run workflow". If a stale `.processed.txt` blocks downloading, rerun the workflow with the `reset_processed` option enabled to clear the cached state and re-seed the archive list.
 
 ## File Structure
 
