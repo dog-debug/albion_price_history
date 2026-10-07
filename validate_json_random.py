@@ -38,10 +38,10 @@ def get_all_json_files_from_github(owner: str, repo: str, branch: str = "main", 
         json_files = [item["name"] for item in data if item["name"].endswith(".json")]
         return json_files
     except URLError as e:
-        print(f"✗ Failed to fetch file list: {e}")
+        print(f"[ERROR] Failed to fetch file list: {e}")
         return []
     except (json.JSONDecodeError, KeyError) as e:
-        print(f"✗ Error parsing GitHub API response: {e}")
+        print(f"[ERROR] Error parsing GitHub API response: {e}")
         return []
 
 
@@ -197,6 +197,52 @@ def parse_repo_input(repo_input: str) -> tuple[str, str]:
     return None, None
 
 
+def find_local_json_files(root: Path) -> list[Path]:
+    """Return all JSON files under the repo's formatted data directories."""
+    if root.is_file():
+        return [root] if root.suffix.lower() == ".json" else []
+
+    candidates = sorted(root.glob("albion_data_dumps/*/formatted/*.json"))
+    if candidates:
+        return candidates
+
+    return sorted(root.glob("**/formatted/*.json"))
+
+
+def validate_local_files(root: Path) -> int:
+    """Validate every JSON file under the repo's formatted output directories."""
+    files = find_local_json_files(root)
+    if not files:
+        print("[INFO] No JSON files found under albion_data_dumps/*/formatted")
+        return 0
+
+    valid_count = 0
+    invalid_files = []
+    for file_path in files:
+        try:
+            content = file_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            print(f"[ERROR] {file_path}: {exc}")
+            invalid_files.append(file_path)
+            continue
+
+        is_valid, errors = validate_json_content(content)
+        if is_valid:
+            valid_count += 1
+            print(f"[OK] {file_path}")
+        else:
+            print(f"[ERROR] {file_path}")
+            for error in errors[:5]:
+                print(f"  - {error}")
+            if len(errors) > 5:
+                print(f"  - ... and {len(errors) - 5} more error(s)")
+            invalid_files.append(file_path)
+
+    total_files = len(files)
+    print(f"[SUMMARY] Valid: {valid_count}/{total_files}; Invalid: {len(invalid_files)}")
+    return 1 if invalid_files else 0
+
+
 def main():
     # Ask user for input if not provided as argument
     if len(sys.argv) > 1:
@@ -208,32 +254,42 @@ def main():
         print("  ./albion_data_dumps/europe/formatted/T4_BAG.json")
         print("  C:\\path\\to\\file.json\n")
         user_input = input("Repo/File: ").strip()
-    
-    # Check if it's a local file path
-    if user_input.startswith(".") or user_input.startswith("/") or user_input.startswith("\\") or ":\\" in user_input or "albion_data_dumps" in user_input:
-        # Local file mode
-        file_path = Path(user_input)
-        if not file_path.exists():
-            print(f"✗ File not found: {file_path}")
+
+    all_mode = "--all" in sys.argv
+
+    # Check if it's a local file path or a repo directory
+    if user_input.startswith(".") or user_input.startswith("/") or user_input.startswith("\\") or ":\\" in user_input or "albion_data_dumps" in user_input or user_input == ".":
+        root_path = Path(user_input)
+        if not root_path.exists():
+            print(f"[ERROR] Path not found: {root_path}")
             sys.exit(1)
-        
-        print(f"✓ Using local file: {file_path}")
-        print(f"File size: {file_path.stat().st_size} bytes")
-        
-        # Read and validate
-        print("\nValidating JSON format...")
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-        except Exception as e:
-            print(f"✗ Error reading file: {e}")
+
+        if root_path.is_dir():
+            if all_mode or user_input in {".", "./", ".\\"}:
+                print(f"[INFO] Validating all JSON files under {root_path}")
+                sys.exit(validate_local_files(root_path))
+            print(f"[ERROR] Directory mode requires --all: {root_path}")
+            sys.exit(1)
+
+        if root_path.is_file():
+            file_path = root_path
+            print(f"[INFO] Using local file: {file_path}")
+            print(f"File size: {file_path.stat().st_size} bytes")
+            print("\nValidating JSON format...")
+            try:
+                content = file_path.read_text(encoding="utf-8")
+            except Exception as exc:
+                print(f"[ERROR] Error reading file: {exc}")
+                sys.exit(1)
+        else:
+            print(f"[ERROR] Unsupported local path: {root_path}")
             sys.exit(1)
     else:
         # GitHub mode
         owner, repo = parse_repo_input(user_input)
         
         if not owner or not repo:
-            print(f"✗ Invalid input: {user_input}")
+            print(f"[ERROR] Invalid input: {user_input}")
             print("  Expected: owner/repo, GitHub URL, or local file path")
             sys.exit(1)
         
@@ -271,57 +327,53 @@ def main():
         if random_mode:
             json_files = get_all_json_files_from_github(owner, repo, branch, server)
             if not json_files:
-                print("✗ No JSON files found in repository")
+                print("[ERROR] No JSON files found in repository")
                 sys.exit(1)
             filename = random.choice(json_files)
-            print(f"✓ Randomly selected: {filename}")
+            print(f"[INFO] Randomly selected: {filename}")
         else:
-            print(f"✓ Using filename: {filename}")
+            print(f"[INFO] Using filename: {filename}")
         
         # Fetch the file
         print(f"\nFetching file...")
         content, success = fetch_json_from_github(filename, owner, repo, branch, server)
         
         if not success:
-            print(f"✗ {content}")
+            print(f"[ERROR] {content}")
             sys.exit(1)
         
-        print(f"✓ File downloaded ({len(content)} bytes)")
+        print(f"[INFO] File downloaded ({len(content)} bytes)")
         
         # Validate JSON format
         print("\nValidating JSON format...")
-    
+
     is_valid, errors = validate_json_content(content)
     
     if is_valid:
-        print(f"✓ Valid JSON - File is properly formatted!")
+        print("[OK] Valid JSON - File is properly formatted!")
         
         # Show a preview of the JSON structure
         try:
             data = json.loads(content)
             
             if isinstance(data, list):
-                print(f"✓ JSON structure: List with {len(data)} item(s)")
+                print(f"[INFO] JSON structure: List with {len(data)} item(s)")
                 if data and isinstance(data[0], dict):
                     keys = data[0].keys()
                     print(f"  First item keys: {', '.join(keys)}")
             elif isinstance(data, dict):
-                print(f"✓ JSON structure: Dictionary with keys: {', '.join(data.keys())}")
+                print(f"[INFO] JSON structure: Dictionary with keys: {', '.join(data.keys())}")
             else:
-                print(f"✓ JSON structure: {type(data).__name__}")
-        except Exception as e:
-            print(f"  Could not preview structure: {str(e)}")
+                print(f"[INFO] JSON structure: {type(data).__name__}")
+        except Exception as exc:
+            print(f"  Could not preview structure: {str(exc)}")
         
         sys.exit(0)
     else:
-        print(f"✗ Found {len(errors)} error(s):")
+        print(f"[ERROR] Found {len(errors)} error(s):")
         for i, error in enumerate(errors, 1):
             print(f"  {i}. {error}")
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
 
 
 if __name__ == "__main__":
