@@ -6,6 +6,12 @@ on:
     - cron: '0 23 * * 5'
   # Allow manual triggering
   workflow_dispatch:
+    inputs:
+      reset_processed:
+        description: 'Reset the .processed state and re-download archived market history files'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   update-market-history:
@@ -34,6 +40,8 @@ jobs:
           mkdir -p albion_data_dumps/temp
 
       - name: Run AODP CI Processor
+        env:
+          ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
         run: python albion_data_extractor/ci_processor.py
 
       - name: Clean up temporary directories
