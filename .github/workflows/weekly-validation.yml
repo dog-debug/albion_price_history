@@ -1,47 +1,81 @@
-name: Weekly aodp validation
+name: Weekly Validation
 
 on:
   schedule:
-    # Run every Friday at 6pm Florida time (23:00 UTC)
-    - cron: '0 23 * * 5'
+    # Run every Saturday at 6pm Florida time (23:00 UTC)
+    - cron: '0 23 * * 6'
   # Allow manual triggering
   workflow_dispatch:
 
 jobs:
-  update-market-history:
+  validate-market-history:
     runs-on: ubuntu-latest
-    timeout-minutes: 720
-
+    timeout-minutes: 330
+    
     permissions:
       contents: write
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
+      
       - name: Create directories
         run: |
           mkdir -p albion_data_dumps/europe/{raw,extracted,formatted}
           mkdir -p albion_data_dumps/east/{raw,extracted,formatted}
           mkdir -p albion_data_dumps/west/{raw,extracted,formatted}
           mkdir -p albion_data_dumps/temp
-
+      
       - name: Run AODP CI Processor
         run: python albion_data_extractor/ci_processor.py
+      
+      - name: Validate generated JSON files
+        id: validate_and_fix
+        continue-on-error: true
+        shell: bash
+        run: |
+          echo "Validating all generated JSON files in albion_data_dumps..."
+          echo "========================================================"
 
+          total_files=$(find albion_data_dumps -path '*/formatted/*.json' | wc -l)
+          if [ "$total_files" -eq 0 ]; then
+            echo "No JSON files found under albion_data_dumps/*/formatted"
+            echo "valid_files=0" >> "$GITHUB_OUTPUT"
+            echo "fixed_files=0" >> "$GITHUB_OUTPUT"
+            echo "failed_files=0" >> "$GITHUB_OUTPUT"
+            echo "changed_files=0" >> "$GITHUB_OUTPUT"
+            echo "validation_passed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if python validate_json_random.py . --all > validation_output.txt 2>&1; then
+            echo "validation_passed=true" >> "$GITHUB_OUTPUT"
+            echo "valid_files=$total_files" >> "$GITHUB_OUTPUT"
+            echo "fixed_files=0" >> "$GITHUB_OUTPUT"
+            echo "failed_files=0" >> "$GITHUB_OUTPUT"
+            echo "changed_files=$total_files" >> "$GITHUB_OUTPUT"
+            cat validation_output.txt
+          else
+            echo "validation_passed=false" >> "$GITHUB_OUTPUT"
+            echo "valid_files=0" >> "$GITHUB_OUTPUT"
+            echo "fixed_files=0" >> "$GITHUB_OUTPUT"
+            echo "failed_files=$total_files" >> "$GITHUB_OUTPUT"
+            echo "changed_files=$total_files" >> "$GITHUB_OUTPUT"
+            cat validation_output.txt
+          fi
       - name: Clean up temporary directories
         run: |
           rm -rf albion_data_dumps/*/raw/
           rm -rf albion_data_dumps/*/extracted/
           rm -rf albion_data_dumps/temp/
-
+      
       - name: Check for changes
         id: changes
         run: |
@@ -50,24 +84,39 @@ jobs:
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
           fi
-
+      
       - name: Commit and push changes
-        if: steps.changes.outputs.has_changes == 'true'
+        if: steps.changes.outputs.has_changes == 'true' && steps.validate_and_fix.outputs.validation_passed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add albion_data_dumps/*/formatted/
-          git commit -m "chore: update market history data - $(date +'%Y-%m-%d')"
+          git commit -m "chore: weekly update - market history & JSON validation - $(date +'%Y-%m-%d %H:%M UTC')"
           git push
-
+      
       - name: Create summary
         run: |
-          echo "### AODP Market History Update" >> $GITHUB_STEP_SUMMARY
+          echo "### Weekly AODP Market History Update" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.changes.outputs.has_changes }}" == "true" ]; then
-            echo "✅ Market history data updated and committed" >> $GITHUB_STEP_SUMMARY
+          echo "## Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Changed files: ${{ steps.validate_and_fix.outputs.changed_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Valid files: ${{ steps.validate_and_fix.outputs.valid_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Fixed files: ${{ steps.validate_and_fix.outputs.fixed_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Failed files: ${{ steps.validate_and_fix.outputs.failed_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Final Status" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.validate_and_fix.outputs.validation_passed }}" == "true" ]; then
+            echo "✅ **All JSON files valid** - Changes pushed to repository" >> $GITHUB_STEP_SUMMARY
           else
-            echo "ℹ️ No new market history files found" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️  **Validation failed** - Changes not pushed (fix required)" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.changes.outputs.has_changes }}" == "true" ]; then
+            echo "- Market history data updated" >> $GITHUB_STEP_SUMMARY
+            echo "- All JSON files validated and fixed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- No new market history files detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Schedule:** Every Friday at 6pm EST (23:00 UTC)" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date)" >> $GITHUB_STEP_SUMMARY
