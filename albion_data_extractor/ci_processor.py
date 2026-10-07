@@ -203,17 +203,41 @@ def extract_zip_files(zip_paths: List[Path], server_name: str):
             print(f"[ERROR] Failed to extract {zip_path.name} for {server_name}: {e}")
 
 
-def load_processed_files(paths: Dict[str, Path]) -> Set[str]:
-    """Load list of already-processed SQL files for a specific server"""
+def reset_processed_files(paths: Dict[str, Path]) -> None:
+    """Clear the per-server processed cache so the job can re-seed from scratch."""
     processed_file = paths['output'] / '.processed.txt'
+    if processed_file.exists():
+        try:
+            processed_file.unlink()
+            print(f"[INFO] Reset processed state for {paths['output']}")
+        except OSError as exc:
+            print(f"[WARN] Failed to reset processed state for {paths['output']}: {exc}")
+
+
+def load_processed_files(paths: Dict[str, Path]) -> Set[str]:
+    """Load list of already-processed SQL files for a specific server."""
+    processed_file = paths['output'] / '.processed.txt'
+    if str(os.getenv('ALBION_RESET_PROCESSED', '0')).lower() in {'1', 'true', 'yes'}:
+        reset_processed_files(paths)
+        return set()
+
     if not processed_file.exists():
         return set()
-    
+
     try:
         with open(processed_file, 'r') as f:
-            return set(line.strip() for line in f if line.strip())
-    except:
+            processed = {line.strip() for line in f if line.strip()}
+    except Exception:
         return set()
+
+    # If the repo was freshly checked out or the formatted outputs were cleaned up,
+    # a stale .processed.txt can make the job think every remote file is already done.
+    if processed and not any(paths['output'].glob('*.json')):
+        print(f"[WARN] No JSON output found for {paths['output']}; resetting stale processed state.")
+        reset_processed_files(paths)
+        return set()
+
+    return processed
 
 
 def save_processed_file(filename: str, paths: Dict[str, Path]):
