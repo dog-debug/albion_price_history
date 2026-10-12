@@ -214,17 +214,17 @@ def main():
         # Local file mode
         file_path = user_input
         if not Path(file_path).exists():
-            print(f"✗ File not found: {file_path}")
+            print(f"[ERROR] File not found: {file_path}")
             sys.exit(1)
         
-        print(f"✓ Using local file: {file_path}")
+        print(f"[INFO] Using local file: {file_path}")
         
         # Read file
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
         except Exception as e:
-            print(f"✗ Error reading file: {e}")
+            print(f"[ERROR] Error reading file: {e}")
             sys.exit(1)
         
         print(f"File size: {len(content)} bytes")
@@ -255,21 +255,21 @@ def main():
             pass
         
         if original_items > 0:
-            print(f"\nItems count: {original_items} → {fixed_items}")
+            print(f"\nItems count: {original_items} -> {fixed_items}")
             if fixed_items != original_items:
-                print(f"  ⚠️  {original_items - fixed_items} items were lost!")
+                print(f"  [WARN] {original_items - fixed_items} items were lost!")
         
         if is_valid:
-            print(f"\n✓ JSON successfully fixed and validated!")
+            print(f"\n[OK] JSON successfully fixed and validated!")
             
             # Save file if auto-fix is enabled or ask user
             if auto_fix:
                 try:
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(fixed_content)
-                    print(f"✓ File auto-saved: {file_path}")
+                    print(f"[INFO] File auto-saved: {file_path}")
                 except Exception as e:
-                    print(f"✗ Error saving file: {e}")
+                    print(f"[ERROR] Error saving file: {e}")
                     sys.exit(1)
             else:
                 save_choice = input("\nSave fixed JSON? (y/n): ").strip().lower()
@@ -277,9 +277,9 @@ def main():
                     try:
                         with open(file_path, "w", encoding="utf-8") as f:
                             f.write(fixed_content)
-                        print(f"✓ File saved: {file_path}")
+                        print(f"[INFO] File saved: {file_path}")
                     except Exception as e:
-                        print(f"✗ Error saving file: {e}")
+                        print(f"[ERROR] Error saving file: {e}")
                         sys.exit(1)
             
             print(f"\nFixed file ({len(fixed_content)} bytes):")
@@ -288,7 +288,7 @@ def main():
             print("=" * 50)
             sys.exit(0)
         else:
-            print(f"\n✗ Could not automatically fix JSON")
+            print(f"\n[ERROR] Could not automatically fix JSON")
             if fixes:
                 print(f"  Attempted: {', '.join(fixes)}")
             sys.exit(1)
@@ -297,7 +297,7 @@ def main():
         owner, repo = parse_repo_input(user_input)
         
         if not owner or not repo:
-            print(f"✗ Invalid input: {user_input}")
+            print(f"[ERROR] Invalid input: {user_input}")
             print("  Expected format: owner/repo or valid GitHub URL")
             sys.exit(1)
     
@@ -333,10 +333,10 @@ def main():
     content, success = fetch_json_from_github(filename, owner, repo, branch, server)
     
     if not success:
-        print(f"✗ {content}")
+        print(f"[ERROR] {content}")
         sys.exit(1)
     
-    print(f"✓ File downloaded ({len(content)} bytes)")
+    print(f"[INFO] File downloaded ({len(content)} bytes)")
     
     # Try to fix it
     print("\nAttempting to fix JSON format...")
@@ -347,14 +347,14 @@ def main():
             print(f"  • {fix}")
     
     if is_valid:
-        print(f"\n✓ JSON successfully fixed and validated!")
+        print(f"\n[OK] JSON successfully fixed and validated!")
         print(f"\nFixed file ({len(fixed_content)} bytes):")
         print("=" * 50)
         print(fixed_content[:500] + ("..." if len(fixed_content) > 500 else ""))
         print("=" * 50)
         sys.exit(0)
     else:
-        print(f"\n✗ Could not automatically fix JSON")
+        print(f"\n[ERROR] Could not automatically fix JSON")
         if fixes:
             print(f"  Attempted: {', '.join(fixes)}")
         sys.exit(1)
