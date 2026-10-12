@@ -55,7 +55,7 @@ jobs:
             exit 0
           fi
 
-          if python validate_json_random.py . --all > validation_output.txt 2>&1; then
+          if python validate_json_random.py . --all --fix > validation_output.txt 2>&1; then
             echo "validation_passed=true" >> "$GITHUB_OUTPUT"
             echo "valid_files=$total_files" >> "$GITHUB_OUTPUT"
             echo "fixed_files=0" >> "$GITHUB_OUTPUT"
