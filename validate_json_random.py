@@ -7,11 +7,13 @@ Can fetch a specific file or a random one.
 
 Usage:
     python validate_json_random.py <owner/repo> [OPTIONS]
-    
+    python validate_json_random.py . --all --fix
+
 Examples:
     python validate_json_random.py YourUsername/albion_price_history --random
     python validate_json_random.py YourUsername/albion_price_history --filename T4_BAG
     python validate_json_random.py YourUsername/albion_price_history --filename T4_BAG --server europe
+    python validate_json_random.py . --all --fix
 """
 
 import json
@@ -20,6 +22,11 @@ import sys
 from pathlib import Path
 from urllib.request import urlopen
 from urllib.error import URLError
+
+try:
+    from fix_json_format import fix_json_string as repair_json_string
+except ImportError:  # pragma: no cover - fallback for direct script execution in some envs
+    repair_json_string = None
 
 
 def get_all_json_files_from_github(owner: str, repo: str, branch: str = "main", server: str = None) -> list[str]:
@@ -209,7 +216,16 @@ def find_local_json_files(root: Path) -> list[Path]:
     return sorted(root.glob("**/formatted/*.json"))
 
 
-def validate_local_files(root: Path) -> int:
+def attempt_json_repair(content: str) -> tuple[str, bool, list[str]]:
+    """Return repaired JSON content if the built-in fixer can recover it."""
+    if repair_json_string is None:
+        return content, False, ["No repair engine available"]
+
+    fixed_content, is_valid, fixes = repair_json_string(content)
+    return fixed_content, is_valid, fixes
+
+
+def validate_local_files(root: Path, fix_invalid: bool = False) -> int:
     """Validate every JSON file under the repo's formatted output directories."""
     files = find_local_json_files(root)
     if not files:
@@ -230,13 +246,29 @@ def validate_local_files(root: Path) -> int:
         if is_valid:
             valid_count += 1
             print(f"[OK] {file_path}")
-        else:
-            print(f"[ERROR] {file_path}")
-            for error in errors[:5]:
-                print(f"  - {error}")
-            if len(errors) > 5:
-                print(f"  - ... and {len(errors) - 5} more error(s)")
-            invalid_files.append(file_path)
+            continue
+
+        print(f"[ERROR] {file_path}")
+        if fix_invalid:
+            fixed_content, repaired_valid, fixes = attempt_json_repair(content)
+            if repaired_valid:
+                try:
+                    file_path.write_text(fixed_content, encoding="utf-8")
+                    print(f"[FIXED] {file_path}")
+                    for fix in fixes[:5]:
+                        print(f"  - {fix}")
+                    valid_count += 1
+                    continue
+                except Exception as exc:
+                    print(f"[ERROR] Could not save repaired file {file_path}: {exc}")
+            else:
+                print("  - Repair attempt failed")
+
+        for error in errors[:5]:
+            print(f"  - {error}")
+        if len(errors) > 5:
+            print(f"  - ... and {len(errors) - 5} more error(s)")
+        invalid_files.append(file_path)
 
     total_files = len(files)
     print(f"[SUMMARY] Valid: {valid_count}/{total_files}; Invalid: {len(invalid_files)}")
@@ -256,6 +288,7 @@ def main():
         user_input = input("Repo/File: ").strip()
 
     all_mode = "--all" in sys.argv
+    fix_mode = "--fix" in sys.argv
 
     # Check if it's a local file path or a repo directory
     if user_input.startswith(".") or user_input.startswith("/") or user_input.startswith("\\") or ":\\" in user_input or "albion_data_dumps" in user_input or user_input == ".":
@@ -267,7 +300,9 @@ def main():
         if root_path.is_dir():
             if all_mode or user_input in {".", "./", ".\\"}:
                 print(f"[INFO] Validating all JSON files under {root_path}")
-                sys.exit(validate_local_files(root_path))
+                if fix_mode:
+                    print("[INFO] Repairing invalid JSON files in place")
+                sys.exit(validate_local_files(root_path, fix_invalid=fix_mode))
             print(f"[ERROR] Directory mode requires --all: {root_path}")
             sys.exit(1)
 
@@ -348,14 +383,14 @@ def main():
         print("\nValidating JSON format...")
 
     is_valid, errors = validate_json_content(content)
-    
+
     if is_valid:
         print("[OK] Valid JSON - File is properly formatted!")
-        
+
         # Show a preview of the JSON structure
         try:
             data = json.loads(content)
-            
+
             if isinstance(data, list):
                 print(f"[INFO] JSON structure: List with {len(data)} item(s)")
                 if data and isinstance(data[0], dict):
@@ -367,13 +402,27 @@ def main():
                 print(f"[INFO] JSON structure: {type(data).__name__}")
         except Exception as exc:
             print(f"  Could not preview structure: {str(exc)}")
-        
+
         sys.exit(0)
-    else:
-        print(f"[ERROR] Found {len(errors)} error(s):")
-        for i, error in enumerate(errors, 1):
-            print(f"  {i}. {error}")
-        sys.exit(1)
+
+    if fix_mode:
+        fixed_content, repaired_valid, fixes = attempt_json_repair(content)
+        if repaired_valid:
+            try:
+                file_path.write_text(fixed_content, encoding="utf-8")
+                print(f"[FIXED] {file_path}")
+                for fix in fixes[:5]:
+                    print(f"  - {fix}")
+                print("[OK] File repaired and is now valid JSON.")
+                sys.exit(0)
+            except Exception as exc:
+                print(f"[ERROR] Could not save repaired file: {exc}")
+                sys.exit(1)
+
+    print(f"[ERROR] Found {len(errors)} error(s):")
+    for i, error in enumerate(errors, 1):
+        print(f"  {i}. {error}")
+    sys.exit(1)
 
 
 if __name__ == "__main__":
