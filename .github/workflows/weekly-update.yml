@@ -13,10 +13,14 @@ on:
         default: false
         type: boolean
 
+concurrency:
+  group: albion-price-history-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   update-market-history:
     runs-on: ubuntu-latest
-    timeout-minutes: 720
+    timeout-minutes: 300
 
     permissions:
       contents: write
