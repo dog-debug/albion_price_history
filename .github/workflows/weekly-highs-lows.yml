@@ -7,6 +7,10 @@ on:
   # Allow manual triggering
   workflow_dispatch:
 
+concurrency:
+  group: albion-price-history-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   update-highs-lows:
     runs-on: ubuntu-latest
