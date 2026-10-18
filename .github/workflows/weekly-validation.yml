@@ -7,10 +7,14 @@ on:
   # Allow manual triggering
   workflow_dispatch:
 
+concurrency:
+  group: albion-price-history-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   validate-market-history:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 300
     
     permissions:
       contents: write
