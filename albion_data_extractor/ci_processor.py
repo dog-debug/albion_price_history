@@ -2,6 +2,7 @@
 """
 CI/CD processor for downloading and extracting AODP market history.
 Runs headless without GUI, suitable for GitHub Actions.
+Processes as many files as possible within a 5.5 hour time window.
 """
 
 import os
@@ -11,6 +12,7 @@ import gzip
 import urllib.request
 import urllib.error
 import sys
+import time
 from html.parser import HTMLParser
 from pathlib import Path
 from datetime import datetime
@@ -394,8 +396,17 @@ def transform_record(rec: Tuple, server_name: str) -> Dict[str, Any]:
         return None
 
 
-def process_market_history_files(server_name: str):
-    """Process ONE unprocessed SQL file per run for a specific server"""
+def process_market_history_files(server_name: str, deadline_time: float) -> int:
+    """
+    Process unprocessed SQL files for a specific server until deadline is reached.
+    
+    Args:
+        server_name: Name of the server to process
+        deadline_time: Unix timestamp when processing must stop
+        
+    Returns:
+        Number of files processed
+    """
     paths = get_paths_for_server(server_name)
     print(f"[INFO] Processing market history files for {server_name}...")
     
@@ -407,8 +418,13 @@ def process_market_history_files(server_name: str):
     processed = load_processed_files(paths)
     processed_count = 0
     
-    # Process only the FIRST unprocessed file
+    # Process multiple files until deadline
     for sql_file in sql_files:
+        # Check if we're running out of time (leave 5 minute buffer for cleanup)
+        if time.time() > deadline_time - 300:
+            print(f"[INFO] Approaching deadline, stopping processing to allow time for commit/push")
+            break
+        
         if sql_file.name in processed:
             print(f"[SKIP] {sql_file.name} already processed for {server_name}")
             continue
@@ -437,67 +453,86 @@ def process_market_history_files(server_name: str):
                     if transformed:
                         file_items[item_id].append(transformed)
             
-            # Write items to individual JSON files (append-only)
+            # Write items to individual JSON files with splitting at 90MB
+            MAX_FILE_SIZE = 90 * 1024 * 1024  # 90MB safe limit
             print(f"[DEBUG] Writing {len(file_items):,} items to JSON files for {server_name}...")
             
             for item_idx, (item_id, price_records) in enumerate(file_items.items()):
                 if item_idx % 1000 == 0 and item_idx > 0:
                     print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
                 
-                # Auto-split files larger than 50MB to avoid git push errors
-                MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
-                
                 try:
-                    # Find the next available file number (name.json, name_2.json, etc.)
+                    # Find next available file number to avoid overwriting existing splits
+                    base_name = f"{item_id}.json"
                     file_number = 1
-                    output_file = paths['output'] / f"{item_id}.json"
+                    output_file = paths['output'] / base_name
+                    
                     if output_file.exists():
-                        file_number += 1
+                        file_number = 2
                         while (paths['output'] / f"{item_id}_{file_number}.json").exists():
                             file_number += 1
                         output_file = paths['output'] / f"{item_id}_{file_number}.json"
                     
-                    # Write records, splitting into multiple files if needed
-                    current_file = output_file
-                    current_size = 0
-                    file_num = 1
-                    first_record_in_file = True
+                    # Load existing records if file exists
+                    existing_records = []
+                    if output_file.exists():
+                        try:
+                            with open(output_file, 'r', encoding='utf-8') as f:
+                                existing_records = json.load(f)
+                                if not isinstance(existing_records, list):
+                                    existing_records = []
+                        except (json.JSONDecodeError, OSError) as e:
+                            print(f"[WARN] Failed to read existing {output_file.name}, starting fresh: {e}")
+                            existing_records = []
                     
-                    with open(current_file, 'w', encoding='utf-8') as f:
-                        f.write('[\n')
-                        current_size += 2  # for '[\n'
+                    # Merge new records with existing ones
+                    all_records = existing_records + price_records
+                    
+                    # Write JSON files, splitting at 90MB if necessary
+                    current_file_num = file_number
+                    records_written = 0
+                    current_records = []
+                    current_size = 0
+                    
+                    for record in all_records:
+                        record_json = json.dumps(record, separators=(',', ':'), ensure_ascii=False)
+                        record_size = len(record_json.encode('utf-8')) + 4  # +4 for brackets and commas
                         
-                        for i, record in enumerate(price_records):
-                            record_json = json.dumps(record, separators=(',', ':'))
-                            record_bytes = ('  ' + record_json + ',\n').encode('utf-8')
-                            record_size = len(record_bytes)
-                            
-                            # Check if adding this record would exceed the limit
-                            if current_size + record_size + 2 > MAX_FILE_SIZE and not first_record_in_file:
-                                # Close current file
-                                f.seek(-2, 0)  # Remove trailing comma and newline
-                                f.write('\n]\n')
-                                f.close()
-                                
-                                # Open new file
-                                file_num += 1
-                                current_file = paths['output'] / f"{item_id}_{file_num}.json"
-                                f = open(current_file, 'w', encoding='utf-8')
-                                f.write('[\n')
-                                current_size = 2
-                                first_record_in_file = True
-                            
-                            # Write record
-                            f.write('  ' + record_json)
-                            if i < len(price_records) - 1:
-                                f.write(',\n')
-                            else:
+                        # Check if adding this record would exceed limit
+                        # Account for JSON structure: "[\n" (3 bytes), "\n]\n" (3 bytes), commas and indentation
+                        estimated_file_size = current_size + record_size + 50
+                        
+                        if estimated_file_size > MAX_FILE_SIZE and current_records:
+                            # Write current file and start new one
+                            current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
+                            with open(current_output, 'w', encoding='utf-8') as f:
+                                json.dump(current_records, f, indent=2, ensure_ascii=False)
                                 f.write('\n')
-                            current_size += record_size
-                            first_record_in_file = False
+                            
+                            print(f"[DEBUG] Split {item_id}: wrote {len(current_records)} records to file {current_file_num}")
+                            
+                            # Start new file
+                            current_file_num += 1
+                            current_records = []
+                            current_size = 0
                         
-                        # Close final file
-                        f.write(']\n')
+                        current_records.append(record)
+                        current_size += record_size
+                        records_written += 1
+                    
+                    # Write final file
+                    if current_records:
+                        if current_file_num == file_number:
+                            current_output = paths['output'] / f"{item_id}.json"
+                        else:
+                            current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
+                        
+                        with open(current_output, 'w', encoding='utf-8') as f:
+                            json.dump(current_records, f, indent=2, ensure_ascii=False)
+                            f.write('\n')
+                        
+                        if current_file_num > file_number:
+                            print(f"[DEBUG] Split {item_id}: wrote {len(current_records)} records to file {current_file_num}")
                 
                 except Exception as e:
                     print(f"[ERROR] Failed to write {item_id}: {e}")
@@ -507,9 +542,6 @@ def process_market_history_files(server_name: str):
             processed_count += 1
             
             print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {len(records):,} records) for {server_name}")
-            
-            # Exit after processing one file per run
-            break
         
         except Exception as e:
             print(f"[ERROR] Error processing {sql_file.name} for {server_name}: {e}")
@@ -519,62 +551,216 @@ def process_market_history_files(server_name: str):
     return processed_count
 
 
+def count_unprocessed_available_files(server_name: str) -> int:
+    """
+    Count how many unprocessed files are available to download from a server.
+    This checks the remote server's available files minus what's in .processed.txt
+    """
+    paths = get_paths_for_server(server_name)
+    base_url = SERVERS[server_name]
+    processed = load_processed_files(paths)
+    
+    try:
+        available = get_available_downloads(base_url)
+        if not available:
+            return 0
+        
+        # Count files that haven't been processed yet
+        unprocessed = [f for f in available if f not in processed]
+        return len(unprocessed)
+    except Exception as e:
+        print(f"[WARN] Error checking available files for {server_name}: {e}")
+        return 0
+
+
+def find_most_behind_server(servers: List[str]) -> str:
+    """Find which server has the most unprocessed files available for download."""
+    print(f"[INFO] Analyzing available files on each server...")
+    server_counts = {}
+    
+    for server in servers:
+        count = count_unprocessed_available_files(server)
+        server_counts[server] = count
+        print(f"[INFO] Server {server}: {count} unprocessed files available for download")
+    
+    # Return server with most unprocessed files
+    most_behind = max(servers, key=lambda s: server_counts[s])
+    print(f"[INFO] Most behind server: {most_behind} with {server_counts[most_behind]} unprocessed files")
+    
+    # If all servers are at 0, default to first server
+    if server_counts[most_behind] == 0:
+        print(f"[WARN] All servers up to date, defaulting to: {servers[0]}")
+        return servers[0]
+    
+    return most_behind
+
+
+
 def main():
-    """Main CI/CD process: download → extract → format for ONE server per run (priority: EU → East → West)"""
+    """
+    Main CI/CD process: Download and process as many files as possible within 5.5 hours.
+    
+    Logic:
+    1. Check all servers' processed.txt to find which needs the most work
+    2. Download and process that server's entire database within time window
+    3. If time remains, move to next behind server
+    """
     print("[INFO] Starting AODP CI processor...")
     print(f"[INFO] Project root: {PROJECT_ROOT}")
-    print(f"[INFO] Processing priority: {' → '.join(SERVERS_PRIORITY)}")
+    print(f"[INFO] Time window: 5.5 hours (19,800 seconds)")
+    print(f"[INFO] Processing priority: {' -> '.join(SERVERS_PRIORITY)}")
+    
+    # Set deadline: 5.5 hours from now (minus small buffer for cleanup)
+    start_time = time.time()
+    deadline_time = start_time + (5.5 * 3600)
+    
+    print(f"[INFO] Start time: {datetime.fromtimestamp(start_time)}")
+    print(f"[INFO] Deadline: {datetime.fromtimestamp(deadline_time)}")
 
     setup_directories()
 
-    # Process servers in priority order: EU first, then East, then West
-    # Stop after processing one server
-    for server_name in SERVERS_PRIORITY:
-        base_url = SERVERS[server_name]
-        print(f"\n{'='*60}")
-        print(f"[INFO] Checking server: {server_name}")
-        print(f"{'='*60}")
-        
-        # Step 1: Check if this server has unprocessed files
-        paths = get_paths_for_server(server_name)
-        processed = load_processed_files(paths)
-        available = get_available_downloads(base_url)
-        
-        if not available:
-            print(f"[SKIP] No market_history files available on {server_name}")
-            continue
-        
-        # Check if there are any unprocessed files for this server
-        has_unprocessed = False
-        for filename in available:
-            sql_name = filename[:-3]
-            if filename not in processed and not (paths['history'] / sql_name).exists():
-                has_unprocessed = True
-                break
-        
-        if not has_unprocessed:
-            print(f"[INFO] All files processed for {server_name}, checking next server...")
-            continue
-        
-        print(f"[INFO] Found unprocessed files on {server_name}, processing ONE file...")
-        
-        # Step 2: Download oldest unprocessed file for this server
-        downloaded = download_latest_exports(server_name, base_url)
-
-        # Step 3: Extract downloaded file
-        if downloaded:
-            extract_zip_files(downloaded, server_name)
-
-        # Step 4: Process the extracted file
-        processed_count = process_market_history_files(server_name)
-        print(f"[SUCCESS] {server_name}: {processed_count} files processed")
-        
-        # Exit after processing one server
-        print(f"\n[INFO] Processed one file from {server_name}. Will check other servers next month.")
-        return 0
+    # Phase 1: Determine which server is most behind
+    print(f"\n{'='*60}")
+    print(f"[PHASE 1] Checking which server needs the most work...")
+    print(f"{'='*60}")
     
-    print(f"\n[INFO] All servers up to date! No files to process.")
-    print(f"[INFO] Formatted JSON files available in: albion_data_dumps/{{europe,east,west}}/formatted/")
+    most_behind = find_most_behind_server(SERVERS_PRIORITY)
+    
+    # Phase 2: Process that server's files within time window
+    print(f"\n{'='*60}")
+    print(f"[PHASE 2] Processing server: {most_behind}")
+    print(f"{'='*60}")
+    
+    base_url = SERVERS[most_behind]
+    paths = get_paths_for_server(most_behind)
+    
+    # Check if this server has unprocessed files
+    available = get_available_downloads(base_url)
+    if not available:
+        print(f"[WARN] No market_history files available on {most_behind}")
+    else:
+        print(f"[INFO] Found {len(available)} total files on {most_behind}")
+        
+        # Download and process all available files until deadline
+        processed = load_processed_files(paths)
+        unprocessed_files = [f for f in sorted(available) if f not in processed]
+        
+        if unprocessed_files:
+            print(f"[INFO] {len(unprocessed_files)} unprocessed files to download")
+            
+            for filename in unprocessed_files:
+                # Check if we're running out of time
+                elapsed = time.time() - start_time
+                if elapsed > (5.5 * 3600 - 600):  # 10 minute buffer
+                    print(f"[INFO] Time limit approaching ({elapsed:.0f}s elapsed), stopping downloads")
+                    break
+                
+                # Download file
+                print(f"\n[DOWNLOAD] Downloading {filename}...")
+                try:
+                    url = base_url + filename
+                    local_path = paths['raw'] / filename
+                    
+                    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
+                        shutil.copyfileobj(resp, out)
+                    print(f"[SUCCESS] Downloaded {filename}")
+                    # Extract immediately after download
+                    print(f"[EXTRACT] Extracting {filename}...")
+                    print(f"[EXTRACT] Extracting {filename}...")
+                    extracted_path = paths['history'] / filename[:-3]  # Remove .gz
+                    try:
+                        if filename.endswith('.gz'):
+                            with gzip.open(local_path, 'rt', encoding='utf-8', errors='ignore') as f_in:
+                                with open(extracted_path, 'w', encoding='utf-8') as f_out:
+                                    f_out.write(f_in.read())
+                        else:
+                            with open(local_path, 'r', encoding='utf-8', errors='ignore') as f_in:
+                                with open(extracted_path, 'w', encoding='utf-8') as f_out:
+                                    f_out.write(f_in.read())
+                        print(f"[SUCCESS] Extracted to {extracted_path.name}")
+                    except Exception as e:
+                        print(f"[ERROR] Failed to extract {filename}: {e}")
+                        continue
+                
+                except Exception as e:
+                    print(f"[ERROR] Failed to download {filename}: {e}")
+                    continue
+        else:
+            print(f"[INFO] All files already processed on {most_behind}")
+    
+    # Phase 3: Process extracted files
+    print(f"\n{'='*60}")
+    print(f"[PHASE 3] Processing extracted files...")
+    print(f"{'='*60}")
+    
+    processed_count = process_market_history_files(most_behind, deadline_time)
+    print(f"[SUCCESS] {most_behind}: {processed_count} files processed")
+    
+    # Phase 4: Check time and process other servers if time permits
+    elapsed = time.time() - start_time
+    remaining = deadline_time - time.time()
+    print(f"\n{'='*60}")
+    print(f"[INFO] Elapsed time: {elapsed:.0f}s ({elapsed/3600:.1f}h)")
+    print(f"[INFO] Remaining time: {remaining:.0f}s ({remaining/3600:.1f}h)")
+    print(f"{'='*60}")
+    
+    if remaining > 1200:  # More than 20 minutes remaining
+        other_servers = [s for s in SERVERS_PRIORITY if s != most_behind]
+        for server_name in other_servers:
+            if time.time() > deadline_time - 600:  # 10 minute buffer
+                print(f"[INFO] Insufficient time to process {server_name}, stopping")
+                break
+            
+            print(f"\n[PHASE 4] Processing secondary server: {server_name}")
+            base_url = SERVERS[server_name]
+            paths = get_paths_for_server(server_name)
+            
+            available = get_available_downloads(base_url)
+            if available:
+                processed = load_processed_files(paths)
+                unprocessed_files = [f for f in sorted(available) if f not in processed]
+                
+                if unprocessed_files:
+                    # Download a few files
+                    for filename in unprocessed_files[:3]:  # Limit to 3 files per secondary server
+                        if time.time() > deadline_time - 600:
+                            print(f"[INFO] Time limit approaching, stopping")
+                            break
+                        
+                        try:
+                            url = base_url + filename
+                            local_path = paths['raw'] / filename
+                            
+                            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                            with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
+                                shutil.copyfileobj(resp, out)
+                            
+                            # Extract
+                            extracted_path = paths['history'] / filename[:-3]
+                            
+                            if filename.endswith('.gz'):
+                                with gzip.open(local_path, 'rt', encoding='utf-8', errors='ignore') as f_in:
+                                    with open(extracted_path, 'w', encoding='utf-8') as f_out:
+                                        f_out.write(f_in.read())
+                            else:
+                                with open(local_path, 'r', encoding='utf-8', errors='ignore') as f_in:
+                                    with open(extracted_path, 'w', encoding='utf-8') as f_out:
+                                        f_out.write(f_in.read())
+                            
+                            print(f"[SUCCESS] Downloaded and extracted {filename}")
+                        except Exception as e:
+                            print(f"[ERROR] Failed to process {filename}: {e}")
+                            continue
+                    
+                    # Process this server's files
+                    processed_count = process_market_history_files(server_name, deadline_time)
+                    print(f"[SUCCESS] {server_name}: {processed_count} files processed")
+    
+    print(f"\n{'='*60}")
+    print(f"[INFO] Total elapsed time: {time.time() - start_time:.0f}s")
+    print(f"[INFO] Processing complete. Formatted JSON files available in: albion_data_dumps/{{europe,east,west}}/formatted/")
+    print(f"{'='*60}")
     return 0
 
 
