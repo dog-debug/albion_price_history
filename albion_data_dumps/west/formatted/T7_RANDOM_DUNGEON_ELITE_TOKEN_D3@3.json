@@ -1,7 +1,47 @@
 [
-  {"timestamp":"2024-10-31T18:00:00Z","city":"lymhurst","quality":1,"server":"west","sellPrice":800000,"buyPrice":800000,"quantity":1},
-  {"timestamp":"2024-10-31T12:00:00Z","city":"lymhurst","quality":1,"server":"west","sellPrice":1499999,"buyPrice":1499999,"quantity":1},
-  {"timestamp":"2024-10-30T18:00:00Z","city":"lymhurst","quality":1,"server":"west","sellPrice":800003,"buyPrice":800003,"quantity":1},
-  {"timestamp":"2024-10-31T18:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":700000,"buyPrice":700000,"quantity":1},
-  {"timestamp":"2024-10-31T12:00:00Z","city":"unknown","quality":1,"server":"west","sellPrice":3200000,"buyPrice":3200000,"quantity":1}
+  {
+    "timestamp": "2026-04-28T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 113400,
+    "buyPrice": 113400,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-25T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 113337,
+    "buyPrice": 113337,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-22T00:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 113335,
+    "buyPrice": 113335,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-28T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 144519,
+    "buyPrice": 144519,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-26T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 209997,
+    "buyPrice": 209997,
+    "quantity": 1
+  }
 ]

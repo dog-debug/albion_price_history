@@ -1,0 +1,983 @@
+[
+  {
+    "timestamp": "2026-04-02T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 10714,
+    "buyPrice": 10714,
+    "quantity": 10
+  },
+  {
+    "timestamp": "2026-04-02T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 721,
+    "buyPrice": 721,
+    "quantity": 7
+  },
+  {
+    "timestamp": "2026-04-01T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 19849,
+    "buyPrice": 19849,
+    "quantity": 21
+  },
+  {
+    "timestamp": "2026-04-01T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 505,
+    "buyPrice": 505,
+    "quantity": 5
+  },
+  {
+    "timestamp": "2026-04-01T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 815,
+    "buyPrice": 815,
+    "quantity": 8
+  },
+  {
+    "timestamp": "2026-04-01T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1144,
+    "buyPrice": 1144,
+    "quantity": 11
+  },
+  {
+    "timestamp": "2026-04-02T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 625,
+    "buyPrice": 625,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-02T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 17000,
+    "buyPrice": 17000,
+    "quantity": 16
+  },
+  {
+    "timestamp": "2026-04-03T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 6404,
+    "buyPrice": 6404,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-03T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 18219,
+    "buyPrice": 18219,
+    "quantity": 17
+  },
+  {
+    "timestamp": "2026-04-04T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 5380,
+    "buyPrice": 5380,
+    "quantity": 5
+  },
+  {
+    "timestamp": "2026-04-04T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 11110,
+    "buyPrice": 11110,
+    "quantity": 10
+  },
+  {
+    "timestamp": "2026-04-05T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 17796,
+    "buyPrice": 17796,
+    "quantity": 16
+  },
+  {
+    "timestamp": "2026-04-15T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 48008,
+    "buyPrice": 48008,
+    "quantity": 8
+  },
+  {
+    "timestamp": "2026-04-15T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 84014,
+    "buyPrice": 84014,
+    "quantity": 14
+  },
+  {
+    "timestamp": "2026-04-14T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 102017,
+    "buyPrice": 102017,
+    "quantity": 17
+  },
+  {
+    "timestamp": "2026-04-14T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 42007,
+    "buyPrice": 42007,
+    "quantity": 7
+  },
+  {
+    "timestamp": "2026-04-13T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 132022,
+    "buyPrice": 132022,
+    "quantity": 22
+  },
+  {
+    "timestamp": "2026-04-13T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 186031,
+    "buyPrice": 186031,
+    "quantity": 31
+  },
+  {
+    "timestamp": "2026-04-12T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 222037,
+    "buyPrice": 222037,
+    "quantity": 37
+  },
+  {
+    "timestamp": "2026-04-12T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 108018,
+    "buyPrice": 108018,
+    "quantity": 18
+  },
+  {
+    "timestamp": "2026-04-11T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 168028,
+    "buyPrice": 168028,
+    "quantity": 28
+  },
+  {
+    "timestamp": "2026-04-11T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 107418,
+    "buyPrice": 107418,
+    "quantity": 50
+  },
+  {
+    "timestamp": "2026-04-10T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 22794,
+    "buyPrice": 22794,
+    "quantity": 20
+  },
+  {
+    "timestamp": "2026-04-10T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 16504,
+    "buyPrice": 16504,
+    "quantity": 11
+  },
+  {
+    "timestamp": "2026-04-09T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 53303,
+    "buyPrice": 53303,
+    "quantity": 32
+  },
+  {
+    "timestamp": "2026-04-09T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 21069,
+    "buyPrice": 21069,
+    "quantity": 14
+  },
+  {
+    "timestamp": "2026-04-08T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 26112,
+    "buyPrice": 26112,
+    "quantity": 17
+  },
+  {
+    "timestamp": "2026-04-05T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1200,
+    "buyPrice": 1200,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-30T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1245,
+    "buyPrice": 1245,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-30T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 8678,
+    "buyPrice": 8678,
+    "quantity": 7
+  },
+  {
+    "timestamp": "2026-04-29T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 7433,
+    "buyPrice": 7433,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-29T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 141563,
+    "buyPrice": 141563,
+    "quantity": 78
+  },
+  {
+    "timestamp": "2026-04-28T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 11025,
+    "buyPrice": 11025,
+    "quantity": 9
+  },
+  {
+    "timestamp": "2026-04-28T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 10949,
+    "buyPrice": 10949,
+    "quantity": 9
+  },
+  {
+    "timestamp": "2026-04-27T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1210,
+    "buyPrice": 1210,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-27T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 14402,
+    "buyPrice": 14402,
+    "quantity": 12
+  },
+  {
+    "timestamp": "2026-04-26T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 7137,
+    "buyPrice": 7137,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-26T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 19670,
+    "buyPrice": 19670,
+    "quantity": 16
+  },
+  {
+    "timestamp": "2026-04-25T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 3536,
+    "buyPrice": 3536,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2026-04-25T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 4696,
+    "buyPrice": 4696,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-24T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 8243,
+    "buyPrice": 8243,
+    "quantity": 7
+  },
+  {
+    "timestamp": "2026-04-24T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 5865,
+    "buyPrice": 5865,
+    "quantity": 5
+  },
+  {
+    "timestamp": "2026-04-23T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 8204,
+    "buyPrice": 8204,
+    "quantity": 7
+  },
+  {
+    "timestamp": "2026-04-23T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 18748,
+    "buyPrice": 18748,
+    "quantity": 16
+  },
+  {
+    "timestamp": "2026-04-22T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 4688,
+    "buyPrice": 4688,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-22T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 12917,
+    "buyPrice": 12917,
+    "quantity": 11
+  },
+  {
+    "timestamp": "2026-04-21T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 4696,
+    "buyPrice": 4696,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-21T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 320873,
+    "buyPrice": 320873,
+    "quantity": 104
+  },
+  {
+    "timestamp": "2026-04-20T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 8218,
+    "buyPrice": 8218,
+    "quantity": 7
+  },
+  {
+    "timestamp": "2026-04-20T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 19915,
+    "buyPrice": 19915,
+    "quantity": 17
+  },
+  {
+    "timestamp": "2026-04-19T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 4705,
+    "buyPrice": 4705,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-19T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 257128,
+    "buyPrice": 257128,
+    "quantity": 90
+  },
+  {
+    "timestamp": "2026-04-18T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 8204,
+    "buyPrice": 8204,
+    "quantity": 7
+  },
+  {
+    "timestamp": "2026-04-18T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 226258,
+    "buyPrice": 226258,
+    "quantity": 104
+  },
+  {
+    "timestamp": "2026-04-17T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 11630,
+    "buyPrice": 11630,
+    "quantity": 10
+  },
+  {
+    "timestamp": "2026-04-17T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 19698,
+    "buyPrice": 19698,
+    "quantity": 17
+  },
+  {
+    "timestamp": "2026-04-16T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 19576,
+    "buyPrice": 19576,
+    "quantity": 17
+  },
+  {
+    "timestamp": "2026-04-16T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 9196,
+    "buyPrice": 9196,
+    "quantity": 8
+  },
+  {
+    "timestamp": "2026-04-15T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 10322,
+    "buyPrice": 10322,
+    "quantity": 9
+  },
+  {
+    "timestamp": "2026-04-15T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 17145,
+    "buyPrice": 17145,
+    "quantity": 15
+  },
+  {
+    "timestamp": "2026-04-14T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 6841,
+    "buyPrice": 6841,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-14T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 6821,
+    "buyPrice": 6821,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-13T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 14763,
+    "buyPrice": 14763,
+    "quantity": 13
+  },
+  {
+    "timestamp": "2026-04-13T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 16642,
+    "buyPrice": 16642,
+    "quantity": 14
+  },
+  {
+    "timestamp": "2026-04-12T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 2406,
+    "buyPrice": 2406,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-12T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 13222,
+    "buyPrice": 13222,
+    "quantity": 11
+  },
+  {
+    "timestamp": "2026-04-11T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 7206,
+    "buyPrice": 7206,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-11T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 444024,
+    "buyPrice": 444024,
+    "quantity": 108
+  },
+  {
+    "timestamp": "2026-04-10T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1130,
+    "buyPrice": 1130,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-10T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 12392,
+    "buyPrice": 12392,
+    "quantity": 11
+  },
+  {
+    "timestamp": "2026-04-09T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 9008,
+    "buyPrice": 9008,
+    "quantity": 8
+  },
+  {
+    "timestamp": "2026-04-09T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 15752,
+    "buyPrice": 15752,
+    "quantity": 14
+  },
+  {
+    "timestamp": "2026-04-08T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 3369,
+    "buyPrice": 3369,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2026-04-08T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 10143,
+    "buyPrice": 10143,
+    "quantity": 9
+  },
+  {
+    "timestamp": "2026-04-07T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 5635,
+    "buyPrice": 5635,
+    "quantity": 5
+  },
+  {
+    "timestamp": "2026-04-07T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 15715,
+    "buyPrice": 15715,
+    "quantity": 14
+  },
+  {
+    "timestamp": "2026-04-06T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 5607,
+    "buyPrice": 5607,
+    "quantity": 5
+  },
+  {
+    "timestamp": "2026-04-06T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 145074,
+    "buyPrice": 145074,
+    "quantity": 63
+  },
+  {
+    "timestamp": "2026-04-05T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 3350,
+    "buyPrice": 3350,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2026-04-11T06:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1202,
+    "buyPrice": 1202,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-10T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1202,
+    "buyPrice": 1202,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-10T00:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1202,
+    "buyPrice": 1202,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-08T06:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1202,
+    "buyPrice": 1202,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-06T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 2404,
+    "buyPrice": 2404,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-30T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 2418,
+    "buyPrice": 2418,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-28T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1208,
+    "buyPrice": 1208,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-27T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1208,
+    "buyPrice": 1208,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-26T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 2859,
+    "buyPrice": 2859,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-24T06:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 2416,
+    "buyPrice": 2416,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-23T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1208,
+    "buyPrice": 1208,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-21T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1208,
+    "buyPrice": 1208,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-21T06:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 2416,
+    "buyPrice": 2416,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-20T00:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 2412,
+    "buyPrice": 2412,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-19T00:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1207,
+    "buyPrice": 1207,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-17T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1207,
+    "buyPrice": 1207,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-16T06:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 29554,
+    "buyPrice": 29554,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-13T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 1204,
+    "buyPrice": 1204,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-30T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 26408,
+    "buyPrice": 26408,
+    "quantity": 17
+  },
+  {
+    "timestamp": "2026-04-30T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 10014,
+    "buyPrice": 10014,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-29T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 24631,
+    "buyPrice": 24631,
+    "quantity": 16
+  },
+  {
+    "timestamp": "2026-04-29T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 18371,
+    "buyPrice": 18371,
+    "quantity": 12
+  },
+  {
+    "timestamp": "2026-04-28T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 21355,
+    "buyPrice": 21355,
+    "quantity": 14
+  },
+  {
+    "timestamp": "2026-04-28T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 5708,
+    "buyPrice": 5708,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-27T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 27141,
+    "buyPrice": 27141,
+    "quantity": 19
+  },
+  {
+    "timestamp": "2026-04-27T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 36589,
+    "buyPrice": 36589,
+    "quantity": 26
+  },
+  {
+    "timestamp": "2026-04-26T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 17224,
+    "buyPrice": 17224,
+    "quantity": 11
+  },
+  {
+    "timestamp": "2026-04-26T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 96787,
+    "buyPrice": 96787,
+    "quantity": 41
+  },
+  {
+    "timestamp": "2026-04-25T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 15810,
+    "buyPrice": 15810,
+    "quantity": 14
+  }
+]

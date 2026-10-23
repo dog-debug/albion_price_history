@@ -1,20 +1,794 @@
 [
-  {"timestamp":"2023-10-21T00:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":5200000,"buyPrice":5200000,"quantity":1},
-  {"timestamp":"2023-10-21T12:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":5500000,"buyPrice":5500000,"quantity":1},
-  {"timestamp":"2023-10-23T06:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":5100000,"buyPrice":5100000,"quantity":1},
-  {"timestamp":"2023-10-20T18:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":5250000,"buyPrice":5250000,"quantity":1},
-  {"timestamp":"2023-10-29T12:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":2600000,"buyPrice":2600000,"quantity":1},
-  {"timestamp":"2023-10-30T00:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":3000000,"buyPrice":3000000,"quantity":1},
-  {"timestamp":"2023-10-30T06:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":2999997,"buyPrice":2999997,"quantity":1},
-  {"timestamp":"2023-10-30T12:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":2800000,"buyPrice":2800000,"quantity":1},
-  {"timestamp":"2023-10-31T00:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":6400000,"buyPrice":6400000,"quantity":3},
-  {"timestamp":"2023-10-31T00:00:00Z","city":"caerleon","quality":4,"server":"west","sellPrice":3499999,"buyPrice":3499999,"quantity":1}
-],
-  {"timestamp":"2023-11-11T18:00:00Z","city":"caerleon","quality":1,"server":"west","sellPrice":1950000,"buyPrice":1950000,"quantity":1},
-  {"timestamp":"2023-11-15T00:00:00Z","city":"caerleon","quality":1,"server":"west","sellPrice":1500000,"buyPrice":1500000,"quantity":1},
-  {"timestamp":"2023-11-16T00:00:00Z","city":"caerleon","quality":1,"server":"west","sellPrice":1300000,"buyPrice":1300000,"quantity":1},
-  {"timestamp":"2023-11-16T12:00:00Z","city":"caerleon","quality":1,"server":"west","sellPrice":1190000,"buyPrice":1190000,"quantity":1},
-  {"timestamp":"2023-11-18T18:00:00Z","city":"caerleon","quality":1,"server":"west","sellPrice":1200000,"buyPrice":1200000,"quantity":1},
-  {"timestamp":"2023-11-19T12:00:00Z","city":"caerleon","quality":1,"server":"west","sellPrice":1500000,"buyPrice":1500000,"quantity":1},
-  {"timestamp":"2023-11-22T00:00:00Z","city":"caerleon","quality":1,"server":"west","sellPrice":1490000,"buyPrice":1490000,"quantity":1}
+  {
+    "timestamp": "2026-04-04T06:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 149988,
+    "buyPrice": 149988,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-03T06:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 299968,
+    "buyPrice": 299968,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-02T18:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 92063,
+    "buyPrice": 92063,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-02T06:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 299966,
+    "buyPrice": 299966,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-01T12:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 149967,
+    "buyPrice": 149967,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-01T00:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 299932,
+    "buyPrice": 299932,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-02T12:00:00Z",
+    "city": "martlock",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 170000,
+    "buyPrice": 170000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-02T18:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 574086,
+    "buyPrice": 574086,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-05T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 347934,
+    "buyPrice": 347934,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-01T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 169993,
+    "buyPrice": 169993,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-06T06:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 173968,
+    "buyPrice": 173968,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-02T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 499869,
+    "buyPrice": 499869,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2026-04-02T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 59002,
+    "buyPrice": 59002,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-08T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 189881,
+    "buyPrice": 189881,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-10T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 60602,
+    "buyPrice": 60602,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-11T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 189877,
+    "buyPrice": 189877,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-12T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 631229,
+    "buyPrice": 631229,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-13T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 189879,
+    "buyPrice": 189879,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-15T00:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 221100,
+    "buyPrice": 221100,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-13T18:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 290094,
+    "buyPrice": 290094,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2026-04-13T00:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 464973,
+    "buyPrice": 464973,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2026-04-12T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 140420,
+    "buyPrice": 140420,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-12T00:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 126000,
+    "buyPrice": 126000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-11T06:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 154992,
+    "buyPrice": 154992,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-09T06:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 154998,
+    "buyPrice": 154998,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-08T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 222999,
+    "buyPrice": 222999,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-06T18:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 581201,
+    "buyPrice": 581201,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-05T18:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 695861,
+    "buyPrice": 695861,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-05T06:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 99999,
+    "buyPrice": 99999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-04T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 347939,
+    "buyPrice": 347939,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-04T00:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 443969,
+    "buyPrice": 443969,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2026-04-03T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 339994,
+    "buyPrice": 339994,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-03T00:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 169999,
+    "buyPrice": 169999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-02T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 64101,
+    "buyPrice": 64101,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-01T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 339997,
+    "buyPrice": 339997,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-10T06:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 309984,
+    "buyPrice": 309984,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-11T06:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 66107,
+    "buyPrice": 66107,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-11T18:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 145000,
+    "buyPrice": 145000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-12T18:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 154988,
+    "buyPrice": 154988,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-14T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 67102,
+    "buyPrice": 67102,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-15T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 154995,
+    "buyPrice": 154995,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-15T18:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 66107,
+    "buyPrice": 66107,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-06T00:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 145499,
+    "buyPrice": 145499,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-09T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 129998,
+    "buyPrice": 129998,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-10T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 124999,
+    "buyPrice": 124999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-13T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 124990,
+    "buyPrice": 124990,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-16T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 105000,
+    "buyPrice": 105000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-18T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 120999,
+    "buyPrice": 120999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-21T00:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 22721,
+    "buyPrice": 22721,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-21T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 120999,
+    "buyPrice": 120999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-22T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 22721,
+    "buyPrice": 22721,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-03T00:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 49954,
+    "buyPrice": 49954,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-17T12:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 270000,
+    "buyPrice": 270000,
+    "quantity": 5
+  },
+  {
+    "timestamp": "2026-04-04T00:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 49954,
+    "buyPrice": 49954,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-23T06:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 55552,
+    "buyPrice": 55552,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-01T06:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 40500,
+    "buyPrice": 40500,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-12T12:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 306000,
+    "buyPrice": 306000,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2026-04-21T18:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 55551,
+    "buyPrice": 55551,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-22T06:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 55500,
+    "buyPrice": 55500,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-26T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 231920,
+    "buyPrice": 231920,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-24T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 171217,
+    "buyPrice": 171217,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-23T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 141221,
+    "buyPrice": 141221,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-21T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 188989,
+    "buyPrice": 188989,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-20T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 159998,
+    "buyPrice": 159998,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-20T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 61609,
+    "buyPrice": 61609,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-26T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 189999,
+    "buyPrice": 189999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-25T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 189999,
+    "buyPrice": 189999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-21T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 189999,
+    "buyPrice": 189999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-29T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 116995,
+    "buyPrice": 116995,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-28T18:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 116999,
+    "buyPrice": 116999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-27T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 144899,
+    "buyPrice": 144899,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-27T00:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 577971,
+    "buyPrice": 577971,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-26T12:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 143990,
+    "buyPrice": 143990,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-24T06:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 144991,
+    "buyPrice": 144991,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-23T18:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 66599,
+    "buyPrice": 66599,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-30T18:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 39000,
+    "buyPrice": 39000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-29T00:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 148657,
+    "buyPrice": 148657,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-28T00:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 148658,
+    "buyPrice": 148658,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-26T12:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 166014,
+    "buyPrice": 166014,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-25T12:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 297325,
+    "buyPrice": 297325,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-24T06:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 140670,
+    "buyPrice": 140670,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-23T18:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 541968,
+    "buyPrice": 541968,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2026-04-29T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 227991,
+    "buyPrice": 227991,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-28T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 155000,
+    "buyPrice": 155000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-27T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 83001,
+    "buyPrice": 83001,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-26T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 100040,
+    "buyPrice": 100040,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-25T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 110000,
+    "buyPrice": 110000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-23T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 146651,
+    "buyPrice": 146651,
+    "quantity": 1
+  }
 ]

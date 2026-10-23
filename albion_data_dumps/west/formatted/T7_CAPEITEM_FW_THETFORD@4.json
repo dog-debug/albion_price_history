@@ -1,17 +1,29 @@
 [
-  {"timestamp":"2023-03-25T12:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":3000000,"buyPrice":3000000,"quantity":1}
-],
-  {"timestamp":"2023-04-01T06:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":3000000,"buyPrice":3000000,"quantity":1},
-  {"timestamp":"2023-04-04T12:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":3749024,"buyPrice":3749024,"quantity":1},
-  {"timestamp":"2023-04-21T18:00:00Z","city":"martlock","quality":1,"server":"west","sellPrice":9999999,"buyPrice":9999999,"quantity":1}
-],
-  {"timestamp":"2023-05-03T06:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":4247312,"buyPrice":4247312,"quantity":1},
-  {"timestamp":"2023-05-07T06:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1933832,"buyPrice":1933832,"quantity":1},
-  {"timestamp":"2023-05-11T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1999999,"buyPrice":1999999,"quantity":1}
-],
-  {"timestamp":"2023-07-07T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":3262600,"buyPrice":3262600,"quantity":1}
-],
-  {"timestamp":"2023-10-13T06:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1910104,"buyPrice":1910104,"quantity":1},
-  {"timestamp":"2023-10-20T12:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":2633808,"buyPrice":2633808,"quantity":1},
-  {"timestamp":"2023-10-22T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":2823632,"buyPrice":2823632,"quantity":1}
+  {
+    "timestamp": "2026-04-26T06:00:00Z",
+    "city": "bridgewatch",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 4589999,
+    "buyPrice": 4589999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-29T12:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 4403256,
+    "buyPrice": 4403256,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-12T18:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 4777776,
+    "buyPrice": 4777776,
+    "quantity": 1
+  }
 ]

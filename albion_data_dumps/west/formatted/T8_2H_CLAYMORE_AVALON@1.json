@@ -1,25 +1,65 @@
 [
-  {"timestamp":"2020-10-01T12:00:00Z","city":"lymhurst","quality":3,"server":"west","sellPrice":1350000,"buyPrice":1350000,"quantity":1},
-  {"timestamp":"2020-10-08T06:00:00Z","city":"lymhurst","quality":3,"server":"west","sellPrice":1600000,"buyPrice":1600000,"quantity":1}
-],
-  {"timestamp":"2020-12-28T00:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":3838992,"buyPrice":3838992,"quantity":2},
-  {"timestamp":"2020-12-28T06:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1919450,"buyPrice":1919450,"quantity":1}
-],
-  {"timestamp":"2021-01-02T00:00:00Z","city":"lymhurst","quality":1,"server":"west","sellPrice":1799999,"buyPrice":1799999,"quantity":1},
-  {"timestamp":"2021-01-10T00:00:00Z","city":"lymhurst","quality":1,"server":"west","sellPrice":1634999,"buyPrice":1634999,"quantity":1},
-  {"timestamp":"2021-01-17T12:00:00Z","city":"lymhurst","quality":1,"server":"west","sellPrice":1550000,"buyPrice":1550000,"quantity":1}
-],
-  {"timestamp":"2021-06-26T12:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1800000,"buyPrice":1800000,"quantity":1}
-],
-  {"timestamp":"2022-12-19T00:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":2999999,"buyPrice":2999999,"quantity":1}
-],
-  {"timestamp":"2023-02-18T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1299999,"buyPrice":1299999,"quantity":1}
-],
-  {"timestamp":"2023-03-05T00:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1000000,"buyPrice":1000000,"quantity":1}
-],
-  {"timestamp":"2023-07-25T18:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":2190999,"buyPrice":2190999,"quantity":1},
-  {"timestamp":"2023-07-28T18:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":2700000,"buyPrice":2700000,"quantity":1},
-  {"timestamp":"2023-07-30T00:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":2555000,"buyPrice":2555000,"quantity":1}
-],
-  {"timestamp":"2023-10-03T12:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1804356,"buyPrice":1804356,"quantity":1}
+  {
+    "timestamp": "2026-04-04T18:00:00Z",
+    "city": "martlock",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 2289996,
+    "buyPrice": 2289996,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-02T12:00:00Z",
+    "city": "martlock",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 2313327,
+    "buyPrice": 2313327,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-01T12:00:00Z",
+    "city": "martlock",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1999984,
+    "buyPrice": 1999984,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-22T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1899990,
+    "buyPrice": 1899990,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-23T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 3959992,
+    "buyPrice": 3959992,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2026-04-24T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1980000,
+    "buyPrice": 1980000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-30T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 4339994,
+    "buyPrice": 4339994,
+    "quantity": 2
+  }
 ]

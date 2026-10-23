@@ -1,35 +1,29 @@
 [
-  {"timestamp":"2023-01-11T06:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":909016,"buyPrice":909016,"quantity":1},
-  {"timestamp":"2023-01-18T06:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":919968,"buyPrice":919968,"quantity":1}
-],
-  {"timestamp":"2023-02-26T12:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1051392,"buyPrice":1051392,"quantity":1}
-],
-  {"timestamp":"2023-03-13T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1140000,"buyPrice":1140000,"quantity":1},
-  {"timestamp":"2023-03-09T12:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1900000,"buyPrice":1900000,"quantity":1},
-  {"timestamp":"2023-03-12T18:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":999994,"buyPrice":999994,"quantity":1},
-  {"timestamp":"2023-03-16T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1024012,"buyPrice":1024012,"quantity":1}
-],
-  {"timestamp":"2023-04-01T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":899996,"buyPrice":899996,"quantity":1},
-  {"timestamp":"2023-04-06T00:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":894990,"buyPrice":894990,"quantity":1}
-],
-  {"timestamp":"2023-05-04T00:00:00Z","city":"bridgewatch","quality":3,"server":"west","sellPrice":969252,"buyPrice":969252,"quantity":1},
-  {"timestamp":"2023-05-05T18:00:00Z","city":"bridgewatch","quality":3,"server":"west","sellPrice":859732,"buyPrice":859732,"quantity":1},
-  {"timestamp":"2023-05-07T12:00:00Z","city":"bridgewatch","quality":3,"server":"west","sellPrice":900000,"buyPrice":900000,"quantity":1}
-],
-  {"timestamp":"2023-06-11T00:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":10018,"buyPrice":10018,"quantity":1},
-  {"timestamp":"2023-06-11T12:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":510016,"buyPrice":510016,"quantity":2},
-  {"timestamp":"2023-06-10T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":988510,"buyPrice":988510,"quantity":1},
-  {"timestamp":"2023-06-20T18:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1924903,"buyPrice":1924903,"quantity":2}
-],
-  {"timestamp":"2023-07-01T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":969252,"buyPrice":969252,"quantity":1},
-  {"timestamp":"2023-07-01T06:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":859732,"buyPrice":859732,"quantity":1},
-  {"timestamp":"2023-07-06T06:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":800000,"buyPrice":800000,"quantity":1},
-  {"timestamp":"2023-07-01T06:00:00Z","city":"blackmarket","quality":2,"server":"west","sellPrice":610000,"buyPrice":610000,"quantity":1}
-],
-  {"timestamp":"2023-10-10T00:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":742974,"buyPrice":742974,"quantity":1}
-],
-  {"timestamp":"2023-11-03T18:00:00Z","city":"unknown","quality":3,"server":"west","sellPrice":750000,"buyPrice":750000,"quantity":1},
-  {"timestamp":"2023-11-26T06:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":761164,"buyPrice":761164,"quantity":1},
-  {"timestamp":"2023-11-27T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":717356,"buyPrice":717356,"quantity":1},
-  {"timestamp":"2023-11-29T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":800000,"buyPrice":800000,"quantity":1}
+  {
+    "timestamp": "2026-04-11T00:00:00Z",
+    "city": "unknown",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 802001,
+    "buyPrice": 802001,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-13T00:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 738972,
+    "buyPrice": 738972,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-23T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1252122,
+    "buyPrice": 1252122,
+    "quantity": 1
+  }
 ]

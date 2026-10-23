@@ -1,9 +1,47 @@
 [
-  {"timestamp":"2025-03-30T12:00:00Z","city":"martlock","quality":3,"server":"west","sellPrice":1288998,"buyPrice":1288998,"quantity":1},
-  {"timestamp":"2025-03-30T06:00:00Z","city":"martlock","quality":3,"server":"west","sellPrice":1288998,"buyPrice":1288998,"quantity":1},
-  {"timestamp":"2025-03-28T00:00:00Z","city":"martlock","quality":3,"server":"west","sellPrice":1288997,"buyPrice":1288997,"quantity":1},
-  {"timestamp":"2025-03-19T12:00:00Z","city":"martlock","quality":3,"server":"west","sellPrice":1288997,"buyPrice":1288997,"quantity":1},
-  {"timestamp":"2025-03-31T00:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1350000,"buyPrice":1350000,"quantity":1},
-  {"timestamp":"2025-03-30T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1349999,"buyPrice":1349999,"quantity":1},
-  {"timestamp":"2025-03-25T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1330000,"buyPrice":1330000,"quantity":1}
+  {
+    "timestamp": "2026-04-24T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1632217,
+    "buyPrice": 1632217,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-25T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1699995,
+    "buyPrice": 1699995,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-11T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1255000,
+    "buyPrice": 1255000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-22T06:00:00Z",
+    "city": "martlock",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1522218,
+    "buyPrice": 1522218,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-30T18:00:00Z",
+    "city": "martlock",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 300316,
+    "buyPrice": 300316,
+    "quantity": 1
+  }
 ]

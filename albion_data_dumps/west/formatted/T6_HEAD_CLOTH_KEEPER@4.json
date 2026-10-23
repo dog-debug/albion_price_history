@@ -1,49 +1,38 @@
 [
-  {"timestamp":"2023-03-17T12:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":978780,"buyPrice":978780,"quantity":1},
-  {"timestamp":"2023-03-03T06:00:00Z","city":"bridgewatch","quality":4,"server":"west","sellPrice":1631300,"buyPrice":1631300,"quantity":1},
-  {"timestamp":"2023-03-10T00:00:00Z","city":"bridgewatch","quality":4,"server":"west","sellPrice":1233856,"buyPrice":1233856,"quantity":1},
-  {"timestamp":"2023-03-12T00:00:00Z","city":"bridgewatch","quality":4,"server":"west","sellPrice":1631300,"buyPrice":1631300,"quantity":1},
-  {"timestamp":"2023-03-13T18:00:00Z","city":"bridgewatch","quality":4,"server":"west","sellPrice":1204196,"buyPrice":1204196,"quantity":1},
-  {"timestamp":"2023-03-16T00:00:00Z","city":"bridgewatch","quality":4,"server":"west","sellPrice":1761804,"buyPrice":1761804,"quantity":1},
-  {"timestamp":"2023-03-18T00:00:00Z","city":"bridgewatch","quality":4,"server":"west","sellPrice":1216060,"buyPrice":1216060,"quantity":1},
-  {"timestamp":"2023-03-20T18:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1600000,"buyPrice":1600000,"quantity":1},
-  {"timestamp":"2023-03-26T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1650000,"buyPrice":1650000,"quantity":1},
-  {"timestamp":"2023-03-28T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1690000,"buyPrice":1690000,"quantity":1}
-],
-  {"timestamp":"2023-04-07T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1399999,"buyPrice":1399999,"quantity":1},
-  {"timestamp":"2023-04-08T06:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1221992,"buyPrice":1221992,"quantity":1},
-  {"timestamp":"2023-04-09T18:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1399999,"buyPrice":1399999,"quantity":1}
-],
-  {"timestamp":"2023-05-28T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1000000,"buyPrice":1000000,"quantity":1},
-  {"timestamp":"2023-05-30T12:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1211111,"buyPrice":1211111,"quantity":1},
-  {"timestamp":"2023-05-30T06:00:00Z","city":"unknown","quality":2,"server":"west","sellPrice":580999,"buyPrice":580999,"quantity":1}
-],
-  {"timestamp":"2023-06-04T06:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1168604,"buyPrice":1168604,"quantity":1},
-  {"timestamp":"2023-06-01T06:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1115216,"buyPrice":1115216,"quantity":1},
-  {"timestamp":"2023-06-07T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":970000,"buyPrice":970000,"quantity":1},
-  {"timestamp":"2023-06-05T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1091488,"buyPrice":1091488,"quantity":1},
-  {"timestamp":"2023-06-04T00:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1190000,"buyPrice":1190000,"quantity":1},
-  {"timestamp":"2023-06-20T18:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1210128,"buyPrice":1210128,"quantity":1},
-  {"timestamp":"2023-06-22T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1300000,"buyPrice":1300000,"quantity":1},
-  {"timestamp":"2023-06-29T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1595708,"buyPrice":1595708,"quantity":1},
-  {"timestamp":"2023-06-29T18:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1441476,"buyPrice":1441476,"quantity":1}
-],
-  {"timestamp":"2023-08-06T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1600000,"buyPrice":1600000,"quantity":1},
-  {"timestamp":"2023-08-04T06:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1198264,"buyPrice":1198264,"quantity":1}
-],
-  {"timestamp":"2023-11-19T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":950000,"buyPrice":950000,"quantity":1},
-  {"timestamp":"2023-11-21T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1417748,"buyPrice":1417748,"quantity":1},
-  {"timestamp":"2023-11-29T18:00:00Z","city":"bridgewatch","quality":1,"server":"west","sellPrice":1174536,"buyPrice":1174536,"quantity":1},
-  {"timestamp":"2023-11-05T18:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1275380,"buyPrice":1275380,"quantity":1},
-  {"timestamp":"2023-11-07T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1346564,"buyPrice":1346564,"quantity":1},
-  {"timestamp":"2023-11-08T06:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1815192,"buyPrice":1815192,"quantity":1},
-  {"timestamp":"2023-11-10T18:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1755872,"buyPrice":1755872,"quantity":1},
-  {"timestamp":"2023-11-13T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1797396,"buyPrice":1797396,"quantity":1},
-  {"timestamp":"2023-11-17T00:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1299108,"buyPrice":1299108,"quantity":1},
-  {"timestamp":"2023-11-18T18:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1364360,"buyPrice":1364360,"quantity":1},
-  {"timestamp":"2023-11-21T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1192000,"buyPrice":1192000,"quantity":1},
-  {"timestamp":"2023-11-25T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1127080,"buyPrice":1127080,"quantity":1},
-  {"timestamp":"2023-11-26T12:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":1026236,"buyPrice":1026236,"quantity":1},
-  {"timestamp":"2023-11-17T12:00:00Z","city":"bridgewatch","quality":4,"server":"west","sellPrice":1281312,"buyPrice":1281312,"quantity":1},
-  {"timestamp":"2023-11-27T00:00:00Z","city":"bridgewatch","quality":4,"server":"west","sellPrice":1257584,"buyPrice":1257584,"quantity":1}
+  {
+    "timestamp": "2026-04-27T06:00:00Z",
+    "city": "martlock",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1699993,
+    "buyPrice": 1699993,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-28T00:00:00Z",
+    "city": "martlock",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1699992,
+    "buyPrice": 1699992,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-29T18:00:00Z",
+    "city": "martlock",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1699992,
+    "buyPrice": 1699992,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2026-04-26T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 2099984,
+    "buyPrice": 2099984,
+    "quantity": 1
+  }
 ]

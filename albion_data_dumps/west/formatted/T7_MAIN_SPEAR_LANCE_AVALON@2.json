@@ -1,87 +1,11 @@
 [
-  {"timestamp":"2020-11-08T06:00:00Z","city":"unknown","quality":2,"server":"west","sellPrice":1533327,"buyPrice":1533327,"quantity":1},
-  {"timestamp":"2020-11-16T12:00:00Z","city":"unknown","quality":2,"server":"west","sellPrice":1499999,"buyPrice":1499999,"quantity":1}
-],
-  {"timestamp":"2020-12-21T18:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":999992,"buyPrice":999992,"quantity":1},
-  {"timestamp":"2020-12-30T06:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1200000,"buyPrice":1200000,"quantity":1},
-  {"timestamp":"2020-12-30T00:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1199950,"buyPrice":1199950,"quantity":1},
-  {"timestamp":"2020-12-28T00:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1000000,"buyPrice":1000000,"quantity":1},
-  {"timestamp":"2020-12-27T06:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1000000,"buyPrice":1000000,"quantity":1},
-  {"timestamp":"2020-12-26T12:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1100000,"buyPrice":1100000,"quantity":1},
-  {"timestamp":"2020-12-25T18:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1099909,"buyPrice":1099909,"quantity":1},
-  {"timestamp":"2020-12-24T18:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1088998,"buyPrice":1088998,"quantity":1},
-  {"timestamp":"2020-12-24T00:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":990000,"buyPrice":990000,"quantity":1},
-  {"timestamp":"2020-12-23T12:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":2000000,"buyPrice":2000000,"quantity":2},
-  {"timestamp":"2020-12-23T00:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":850000,"buyPrice":850000,"quantity":1},
-  {"timestamp":"2020-12-27T18:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1000000,"buyPrice":1000000,"quantity":1},
-  {"timestamp":"2020-12-29T12:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":2000000,"buyPrice":2000000,"quantity":1}
-],
-  {"timestamp":"2021-01-05T12:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":2780000,"buyPrice":2780000,"quantity":2},
-  {"timestamp":"2021-01-03T18:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1000000,"buyPrice":1000000,"quantity":1},
-  {"timestamp":"2021-01-03T12:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":999996,"buyPrice":999996,"quantity":1},
-  {"timestamp":"2021-01-02T18:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1189999,"buyPrice":1189999,"quantity":1},
-  {"timestamp":"2021-01-02T06:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1190000,"buyPrice":1190000,"quantity":1},
-  {"timestamp":"2021-01-11T12:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1200000,"buyPrice":1200000,"quantity":1},
-  {"timestamp":"2021-01-14T18:00:00Z","city":"lymhurst","quality":2,"server":"west","sellPrice":1099000,"buyPrice":1099000,"quantity":1}
-],
-  {"timestamp":"2021-02-04T06:00:00Z","city":"bridgewatch","quality":2,"server":"west","sellPrice":937560,"buyPrice":937560,"quantity":1}
-],
-  {"timestamp":"2021-03-21T00:00:00Z","city":"blackmarket","quality":2,"server":"west","sellPrice":400000,"buyPrice":400000,"quantity":1}
-],
-  {"timestamp":"2021-06-04T06:00:00Z","city":"caerleon","quality":2,"server":"west","sellPrice":650000,"buyPrice":650000,"quantity":1},
-  {"timestamp":"2021-06-09T18:00:00Z","city":"caerleon","quality":2,"server":"west","sellPrice":480000,"buyPrice":480000,"quantity":1},
-  {"timestamp":"2021-06-25T18:00:00Z","city":"bridgewatch","quality":3,"server":"west","sellPrice":396660,"buyPrice":396660,"quantity":1}
-],
-  {"timestamp":"2022-01-16T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1324500,"buyPrice":1324500,"quantity":1},
-  {"timestamp":"2022-01-17T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1328500,"buyPrice":1328500,"quantity":1},
-  {"timestamp":"2022-01-09T12:00:00Z","city":"blackmarket","quality":3,"server":"west","sellPrice":666671,"buyPrice":666671,"quantity":1},
-  {"timestamp":"2022-01-10T18:00:00Z","city":"blackmarket","quality":3,"server":"west","sellPrice":666666,"buyPrice":666666,"quantity":1},
-  {"timestamp":"2022-01-14T00:00:00Z","city":"blackmarket","quality":3,"server":"west","sellPrice":1699965,"buyPrice":1699965,"quantity":2}
-],
-  {"timestamp":"2022-02-19T06:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1299999,"buyPrice":1299999,"quantity":1},
-  {"timestamp":"2022-02-22T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1200000,"buyPrice":1200000,"quantity":1},
-  {"timestamp":"2022-02-11T12:00:00Z","city":"blackmarket","quality":2,"server":"west","sellPrice":361084,"buyPrice":361084,"quantity":1}
-],
-  {"timestamp":"2022-03-27T06:00:00Z","city":"martlock","quality":3,"server":"west","sellPrice":900000,"buyPrice":900000,"quantity":1},
-  {"timestamp":"2022-03-25T00:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":619629,"buyPrice":619629,"quantity":1},
-  {"timestamp":"2022-03-27T06:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":997500,"buyPrice":997500,"quantity":1},
-  {"timestamp":"2022-03-27T12:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":1976000,"buyPrice":1976000,"quantity":2},
-  {"timestamp":"2022-03-28T00:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":621277,"buyPrice":621277,"quantity":1},
-  {"timestamp":"2022-03-29T06:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":620042,"buyPrice":620042,"quantity":1},
-  {"timestamp":"2022-03-30T00:00:00Z","city":"martlock","quality":4,"server":"west","sellPrice":790000,"buyPrice":790000,"quantity":1},
-  {"timestamp":"2022-03-26T06:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":849998,"buyPrice":849998,"quantity":1},
-  {"timestamp":"2022-03-28T12:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":820000,"buyPrice":820000,"quantity":1},
-  {"timestamp":"2022-03-29T12:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":510154,"buyPrice":510154,"quantity":1}
-],
-  {"timestamp":"2022-04-02T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":999990,"buyPrice":999990,"quantity":1},
-  {"timestamp":"2022-04-03T12:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":999989,"buyPrice":999989,"quantity":1},
-  {"timestamp":"2022-04-06T12:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":3345997,"buyPrice":3345997,"quantity":3},
-  {"timestamp":"2022-04-06T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":850000,"buyPrice":850000,"quantity":1},
-  {"timestamp":"2022-04-07T12:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":450035,"buyPrice":450035,"quantity":1},
-  {"timestamp":"2022-04-16T00:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1171875,"buyPrice":1171875,"quantity":1},
-  {"timestamp":"2022-04-18T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":899999,"buyPrice":899999,"quantity":1}
-],
-  {"timestamp":"2022-07-27T12:00:00Z","city":"unknown","quality":4,"server":"west","sellPrice":999999,"buyPrice":999999,"quantity":1}
-],
-  {"timestamp":"2022-08-30T18:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":998990,"buyPrice":998990,"quantity":1},
-  {"timestamp":"2022-08-31T12:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":632087,"buyPrice":632087,"quantity":1}
-],
-  {"timestamp":"2022-10-10T12:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1189999,"buyPrice":1189999,"quantity":1},
-  {"timestamp":"2022-10-27T00:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1190000,"buyPrice":1190000,"quantity":1}
-],
-  {"timestamp":"2023-02-06T06:00:00Z","city":"unknown","quality":3,"server":"west","sellPrice":2180417,"buyPrice":2180417,"quantity":2},
-  {"timestamp":"2023-02-17T00:00:00Z","city":"blackmarket","quality":4,"server":"west","sellPrice":1399965,"buyPrice":1399965,"quantity":1}
-],
-  {"timestamp":"2023-03-11T00:00:00Z","city":"blackmarket","quality":3,"server":"west","sellPrice":1000000,"buyPrice":1000000,"quantity":1}
-],
-  {"timestamp":"2023-06-06T00:00:00Z","city":"lymhurst","quality":4,"server":"west","sellPrice":1799999,"buyPrice":1799999,"quantity":1},
-  {"timestamp":"2023-06-06T12:00:00Z","city":"lymhurst","quality":4,"server":"west","sellPrice":800000,"buyPrice":800000,"quantity":1},
-  {"timestamp":"2023-06-07T18:00:00Z","city":"lymhurst","quality":4,"server":"west","sellPrice":1400000,"buyPrice":1400000,"quantity":1},
-  {"timestamp":"2023-06-09T12:00:00Z","city":"lymhurst","quality":4,"server":"west","sellPrice":1350000,"buyPrice":1350000,"quantity":1},
-  {"timestamp":"2023-06-13T12:00:00Z","city":"lymhurst","quality":4,"server":"west","sellPrice":1249998,"buyPrice":1249998,"quantity":1},
-  {"timestamp":"2023-06-13T18:00:00Z","city":"lymhurst","quality":4,"server":"west","sellPrice":1249999,"buyPrice":1249999,"quantity":1},
-  {"timestamp":"2023-06-22T18:00:00Z","city":"lymhurst","quality":4,"server":"west","sellPrice":1100000,"buyPrice":1100000,"quantity":1}
-],
-  {"timestamp":"2023-07-06T00:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":1299997,"buyPrice":1299997,"quantity":1},
-  {"timestamp":"2023-07-12T00:00:00Z","city":"martlock","quality":2,"server":"west","sellPrice":1200000,"buyPrice":1200000,"quantity":1}
+  {
+    "timestamp": "2026-04-27T12:00:00Z",
+    "city": "unknown",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 3799995,
+    "buyPrice": 3799995,
+    "quantity": 2
+  }
 ]
