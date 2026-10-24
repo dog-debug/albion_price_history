@@ -43,17 +43,14 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Check if there are changes to commit
-          if git diff --quiet; then
+          git add -A
+          if git diff --cached --quiet; then
             echo "[INFO] No changes to commit (data already clean)"
           else
-            git add -A
             git commit -m "chore: wipe price history data for fresh start
 
-- Removed albion_data_dumps/ directory
-- Removed .processed_*.txt tracking files
-- Workflow will start completely fresh on next run"
+Removed albion_data_dumps/ directory and .processed_*.txt tracking files.
+Workflow will start completely fresh on next run."
             git push origin main
             echo "[SUCCESS] Changes committed and pushed to main"
           fi
