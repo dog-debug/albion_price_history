@@ -9,11 +9,13 @@ permissions:
 jobs:
   wipe-data:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 330
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Remove price history data
         run: |
@@ -47,7 +49,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "[INFO] No changes to commit (data already clean)"
           else
-            git commit -m "chore: wipe price history data for fresh start - ready for clean run"
-            git push origin main
+            git commit -m "chore: wipe price history data for fresh start"
+            git push origin main --force-with-lease
             echo "[SUCCESS] Changes committed and pushed to main"
           fi
+
