@@ -117,8 +117,11 @@ def setup_directories():
             path.mkdir(parents=True, exist_ok=True)
 
 
-def download_latest_exports(server_name: str, base_url: str) -> List[Path]:
+def download_latest_exports(server_name: str, base_url: str, start_time: float = None) -> List[Path]:
     """Scrape AODP page, skip already extracted or processed files, download the rest to raw/"""
+    if start_time is None:
+        start_time = time.time()
+    
     paths = get_paths_for_server(server_name)
     print(f"[INFO] Checking for new market history files on {server_name}...")
 
@@ -148,29 +151,35 @@ def download_latest_exports(server_name: str, base_url: str) -> List[Path]:
 
     print(f"[INFO] {len(to_download)} new file(s) available to download on {server_name}")
     
-    # Download only the OLDEST unprocessed file
+    # Download all unprocessed files within time window
     if not to_download:
         print(f"[INFO] No new files to download on {server_name}")
         return []
     
     to_download.sort()  # Sort chronologically (oldest first)
-    filename = to_download[0]  # Get the oldest one
     
     downloaded_files = []
-    url = base_url + filename
-    local_path = paths['raw'] / filename
+    for filename in to_download:
+        # Check if we're running out of time
+        elapsed = time.time() - start_time
+        if elapsed > (5.5 * 3600 - 600):  # 10 minute buffer before deadline
+            print(f"[INFO] Time limit approaching ({elapsed:.0f}s elapsed), stopping downloads")
+            break
+        
+        url = base_url + filename
+        local_path = paths['raw'] / filename
 
-    try:
-        print(f"[DOWNLOAD] {filename} from {server_name} (oldest unprocessed)...")
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
-            shutil.copyfileobj(resp, out)
-        print(f"[SUCCESS] Downloaded {filename} to {server_name}/raw/")
-        downloaded_files.append(local_path)
-    except urllib.error.HTTPError as e:
-        print(f"[ERROR] HTTP {e.code} downloading {filename} from {server_name}")
-    except Exception as e:
-        print(f"[ERROR] Error downloading {filename} from {server_name}: {e}")
+        try:
+            print(f"[DOWNLOAD] {filename} from {server_name}...")
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
+                shutil.copyfileobj(resp, out)
+            print(f"[SUCCESS] Downloaded {filename} to {server_name}/raw/")
+            downloaded_files.append(local_path)
+        except urllib.error.HTTPError as e:
+            print(f"[ERROR] HTTP {e.code} downloading {filename} from {server_name}")
+        except Exception as e:
+            print(f"[ERROR] Error downloading {filename} from {server_name}: {e}")
 
     return downloaded_files
 
