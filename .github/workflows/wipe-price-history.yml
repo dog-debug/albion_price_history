@@ -47,10 +47,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "[INFO] No changes to commit (data already clean)"
           else
-            git commit -m "chore: wipe price history data for fresh start
-
-Removed albion_data_dumps/ directory and .processed_*.txt tracking files.
-Workflow will start completely fresh on next run."
+            git commit -m "chore: wipe price history data for fresh start - ready for clean run"
             git push origin main
             echo "[SUCCESS] Changes committed and pushed to main"
           fi
