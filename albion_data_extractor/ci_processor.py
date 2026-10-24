@@ -492,32 +492,40 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                     current_file_num = file_number
                     records_written = 0
                     current_records = []
-                    current_size = 0
                     
                     for record in all_records:
-                        record_json = json.dumps(record, separators=(',', ':'), ensure_ascii=False)
-                        record_size = len(record_json.encode('utf-8')) + 4  # +4 for brackets and commas
-                        
-                        # Check if adding this record would exceed limit
-                        # Account for JSON structure: "[\n" (3 bytes), "\n]\n" (3 bytes), commas and indentation
-                        estimated_file_size = current_size + record_size + 50
-                        
-                        if estimated_file_size > MAX_FILE_SIZE and current_records:
-                            # Write current file and start new one
-                            current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
-                            with open(current_output, 'w', encoding='utf-8') as f:
-                                json.dump(current_records, f, indent=2, ensure_ascii=False)
-                                f.write('\n')
-                            
-                            print(f"[DEBUG] Split {item_id}: wrote {len(current_records)} records to file {current_file_num}")
-                            
-                            # Start new file
-                            current_file_num += 1
-                            current_records = []
-                            current_size = 0
-                        
                         current_records.append(record)
-                        current_size += record_size
+                        
+                        # Check actual JSON size every 100 records or after each record for large items
+                        if len(current_records) % 100 == 0 or len(current_records) <= 10:
+                            # Estimate file size by serializing current records
+                            temp_json = json.dumps(current_records, indent=2, ensure_ascii=False)
+                            current_size = len(temp_json.encode('utf-8'))
+                            
+                            # If this batch would exceed limit, write previous records and start new file
+                            if current_size > MAX_FILE_SIZE and len(current_records) > 1:
+                                # Remove the last record and write file
+                                previous_records = current_records[:-1]
+                                
+                                # Write current file
+                                if current_file_num == file_number:
+                                    current_output = paths['output'] / f"{item_id}.json"
+                                else:
+                                    current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
+                                
+                                with open(current_output, 'w', encoding='utf-8') as f:
+                                    json.dump(previous_records, f, indent=2, ensure_ascii=False)
+                                    f.write('\n')
+                                
+                                # Check ACTUAL written file size from disk
+                                actual_size_bytes = current_output.stat().st_size
+                                actual_size_mb = actual_size_bytes / (1024 * 1024)
+                                print(f"[DEBUG] Split {item_id}: wrote {len(previous_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
+                                
+                                # Start new file with last record
+                                current_file_num += 1
+                                current_records = [current_records[-1]]
+                        
                         records_written += 1
                     
                     # Write final file
@@ -531,8 +539,14 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                             json.dump(current_records, f, indent=2, ensure_ascii=False)
                             f.write('\n')
                         
-                        if current_file_num > file_number:
-                            print(f"[DEBUG] Split {item_id}: wrote {len(current_records)} records to file {current_file_num}")
+                        # Check ACTUAL written file size from disk
+                        actual_size_bytes = current_output.stat().st_size
+                        actual_size_mb = actual_size_bytes / (1024 * 1024)
+                        
+                        if actual_size_mb > 0.5:  # Only log if > 0.5 MB
+                            print(f"[DEBUG] File {item_id}: wrote {len(current_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
+
+
                 
                 except Exception as e:
                     print(f"[ERROR] Failed to write {item_id}: {e}")
