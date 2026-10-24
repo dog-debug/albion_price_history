@@ -1,0 +1,59 @@
+name: Wipe Price History Data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wipe-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Remove price history data
+        run: |
+          echo "[WIPE] Removing price history data..."
+          
+          # Remove albion_data_dumps directory
+          if [ -d "albion_data_dumps" ]; then
+            echo "[REMOVE] Directory: albion_data_dumps/"
+            rm -rf albion_data_dumps
+          else
+            echo "[SKIP] Directory not found: albion_data_dumps/"
+          fi
+          
+          # Remove .processed_*.txt files
+          for file in .processed_europe.txt .processed_east.txt .processed_west.txt; do
+            if [ -f "albion_data_extractor/$file" ]; then
+              echo "[REMOVE] File: $file"
+              rm "albion_data_extractor/$file"
+            else
+              echo "[SKIP] File not found: $file"
+            fi
+          done
+          
+          echo "[SUCCESS] Price history data wiped successfully!"
+      
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if there are changes to commit
+          if git diff --quiet; then
+            echo "[INFO] No changes to commit (data already clean)"
+          else
+            git add -A
+            git commit -m "chore: wipe price history data for fresh start
+
+- Removed albion_data_dumps/ directory
+- Removed .processed_*.txt tracking files
+- Workflow will start completely fresh on next run"
+            git push origin main
+            echo "[SUCCESS] Changes committed and pushed to main"
+          fi
