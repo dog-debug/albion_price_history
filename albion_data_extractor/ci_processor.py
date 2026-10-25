@@ -471,89 +471,108 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                     print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
                 
                 try:
-                    # Find next available file number to avoid overwriting existing splits
-                    base_name = f"{item_id}.json"
-                    file_number = 1
-                    output_file = paths['output'] / base_name
+                    # ALWAYS append to item.json - never skip or create new numbered files
+                    base_output = paths['output'] / f"{item_id}.json"
                     
-                    if output_file.exists():
-                        file_number = 2
-                        while (paths['output'] / f"{item_id}_{file_number}.json").exists():
-                            file_number += 1
-                        output_file = paths['output'] / f"{item_id}_{file_number}.json"
-                    
-                    # Load existing records if file exists
+                    # Load existing records from base file (or empty if doesn't exist)
                     existing_records = []
-                    if output_file.exists():
+                    if base_output.exists():
                         try:
-                            with open(output_file, 'r', encoding='utf-8') as f:
+                            with open(base_output, 'r', encoding='utf-8') as f:
                                 existing_records = json.load(f)
                                 if not isinstance(existing_records, list):
                                     existing_records = []
                         except (json.JSONDecodeError, OSError) as e:
-                            print(f"[WARN] Failed to read existing {output_file.name}, starting fresh: {e}")
+                            print(f"[WARN] Failed to read existing {base_output.name}, starting fresh: {e}")
                             existing_records = []
                     
-                    # Merge new records with existing ones
-                    all_records = existing_records + price_records
+                    # Merge new records with existing ones (no duplicates by timestamp+city+quality)
+                    existing_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_records if isinstance(r, dict)}
+                    unique_new_records = [r for r in price_records if (r['timestamp'], r['city'], r['quality']) not in existing_keys]
                     
-                    # Write JSON files, splitting at 90MB if necessary
-                    current_file_num = file_number
-                    records_written = 0
+                    # Combine all records
+                    all_records = existing_records + unique_new_records
+                    
+                    # Write to base file (may split if over 90MB)
+                    current_file_num = 1
                     current_records = []
                     
                     for record in all_records:
                         current_records.append(record)
                         
-                        # Check actual JSON size every 100 records or after each record for large items
-                        if len(current_records) % 100 == 0 or len(current_records) <= 10:
-                            # Estimate file size by serializing current records
+                        # Check actual JSON size every 100 records
+                        if len(current_records) % 100 == 0:
                             temp_json = json.dumps(current_records, indent=2, ensure_ascii=False)
                             current_size = len(temp_json.encode('utf-8'))
                             
-                            # If this batch would exceed limit, write previous records and start new file
+                            # If would exceed 90MB, write current file and start new numbered file
                             if current_size > MAX_FILE_SIZE and len(current_records) > 1:
-                                # Remove the last record and write file
                                 previous_records = current_records[:-1]
                                 
-                                # Write current file
-                                if current_file_num == file_number:
+                                # Determine output filename
+                                if current_file_num == 1:
                                     current_output = paths['output'] / f"{item_id}.json"
                                 else:
                                     current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
                                 
+                                # APPEND to file if it exists, don't overwrite
+                                existing_in_file = []
+                                if current_output.exists():
+                                    try:
+                                        with open(current_output, 'r', encoding='utf-8') as f:
+                                            existing_in_file = json.load(f)
+                                            if not isinstance(existing_in_file, list):
+                                                existing_in_file = []
+                                    except (json.JSONDecodeError, OSError):
+                                        existing_in_file = []
+                                
+                                # Only write new records not already in file
+                                file_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_in_file if isinstance(r, dict)}
+                                final_records = existing_in_file + [r for r in previous_records if (r['timestamp'], r['city'], r['quality']) not in file_keys]
+                                
                                 with open(current_output, 'w', encoding='utf-8') as f:
-                                    json.dump(previous_records, f, indent=2, ensure_ascii=False)
+                                    json.dump(final_records, f, indent=2, ensure_ascii=False)
                                     f.write('\n')
                                 
-                                # Check ACTUAL written file size from disk
                                 actual_size_bytes = current_output.stat().st_size
                                 actual_size_mb = actual_size_bytes / (1024 * 1024)
-                                print(f"[DEBUG] Split {item_id}: wrote {len(previous_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
+                                print(f"[DEBUG] Split {item_id}: wrote {len(final_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
                                 
-                                # Start new file with last record
+                                # Move last record to next file
                                 current_file_num += 1
                                 current_records = [current_records[-1]]
-                        
-                        records_written += 1
                     
-                    # Write final file
+                    # Write final batch
                     if current_records:
-                        if current_file_num == file_number:
+                        if current_file_num == 1:
                             current_output = paths['output'] / f"{item_id}.json"
                         else:
                             current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
                         
+                        # APPEND to file if it exists
+                        existing_in_file = []
+                        if current_output.exists():
+                            try:
+                                with open(current_output, 'r', encoding='utf-8') as f:
+                                    existing_in_file = json.load(f)
+                                    if not isinstance(existing_in_file, list):
+                                        existing_in_file = []
+                            except (json.JSONDecodeError, OSError):
+                                existing_in_file = []
+                        
+                        # Only write new records not already in file
+                        file_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_in_file if isinstance(r, dict)}
+                        final_records = existing_in_file + [r for r in current_records if (r['timestamp'], r['city'], r['quality']) not in file_keys]
+                        
                         with open(current_output, 'w', encoding='utf-8') as f:
-                            json.dump(current_records, f, indent=2, ensure_ascii=False)
+                            json.dump(final_records, f, indent=2, ensure_ascii=False)
                             f.write('\n')
                         
-                        # Check ACTUAL written file size from disk
                         actual_size_bytes = current_output.stat().st_size
                         actual_size_mb = actual_size_bytes / (1024 * 1024)
                         
-                        if actual_size_mb > 0.5:  # Only log if > 0.5 MB
-                            print(f"[DEBUG] File {item_id}: wrote {len(current_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
+                        if actual_size_mb > 0.5:
+                            print(f"[DEBUG] File {item_id}: wrote {len(final_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
 
 
                 
