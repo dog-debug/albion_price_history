@@ -803,6 +803,40 @@ def main():
     print(f"[INFO] Total elapsed time: {time.time() - start_time:.0f}s")
     print(f"[INFO] Processing complete. Formatted JSON files available in: albion_data_dumps/{{europe,east,west}}/formatted/")
     print(f"{'='*60}")
+    
+    # COMMIT AND PUSH TO GITHUB
+    print(f"\n{'='*60}")
+    print(f"[COMMIT] Committing changes to repository...")
+    print(f"{'='*60}")
+    
+    try:
+        import subprocess
+        
+        # Stage all changes
+        subprocess.run(['git', 'add', '-A'], cwd=PROJECT_ROOT, check=True, capture_output=True)
+        
+        # Check if there are changes to commit
+        result = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=PROJECT_ROOT)
+        if result.returncode != 0:  # There are changes
+            # Commit
+            commit_msg = f"Market history update - {len(SERVERS_PRIORITY)} servers processed at {datetime.now().isoformat()}"
+            subprocess.run(['git', 'commit', '-m', commit_msg], cwd=PROJECT_ROOT, check=True, capture_output=True)
+            print(f"[SUCCESS] Committed changes: {commit_msg}")
+            
+            # Push to GitHub
+            print(f"[PUSH] Pushing to GitHub...")
+            subprocess.run(['git', 'push', 'origin', 'main'], cwd=PROJECT_ROOT, check=True, capture_output=True)
+            print(f"[SUCCESS] Pushed to GitHub successfully!")
+        else:
+            print(f"[INFO] No changes to commit (data already current)")
+    
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Git operation failed: {e}")
+        print(f"[WARN] Data was processed but not committed/pushed to GitHub")
+    except Exception as e:
+        print(f"[ERROR] Unexpected error during commit/push: {e}")
+        print(f"[WARN] Data was processed but not committed/pushed to GitHub")
+    
     return 0
 
 
