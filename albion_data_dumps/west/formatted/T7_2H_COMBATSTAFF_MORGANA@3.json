@@ -1393,5 +1393,41 @@
     "sellPrice": 2100000,
     "buyPrice": 2100000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2021-02-12T18:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 2499989,
+    "buyPrice": 2499989,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-04-18T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 2000000,
+    "buyPrice": 2000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-04-25T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 800002,
+    "buyPrice": 800002,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-04-15T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 700000,
+    "buyPrice": 700000,
+    "quantity": 1
   }
 ]
