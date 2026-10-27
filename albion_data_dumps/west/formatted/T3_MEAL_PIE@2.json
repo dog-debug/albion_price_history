@@ -142,5 +142,68 @@
     "sellPrice": 33000,
     "buyPrice": 33000,
     "quantity": 3
+  },
+  {
+    "timestamp": "2021-06-21T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 8495,
+    "buyPrice": 8495,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-06-23T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 8495,
+    "buyPrice": 8495,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-06-23T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 16990,
+    "buyPrice": 16990,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2021-06-24T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 16990,
+    "buyPrice": 16990,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2021-07-03T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 10000,
+    "buyPrice": 10000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-07-03T18:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 30000,
+    "buyPrice": 30000,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2021-07-04T18:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 20000,
+    "buyPrice": 20000,
+    "quantity": 2
   }
 ]
