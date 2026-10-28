@@ -46,6 +46,9 @@ jobs:
       - name: Run AODP CI Processor
         env:
           ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
+          ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
+          ALBION_MAX_RUNTIME_SECONDS: '19800'
+          ALBION_RUNTIME_BUFFER_SECONDS: '0'
         run: python albion_data_extractor/ci_processor.py
 
       - name: Clean up temporary directories
