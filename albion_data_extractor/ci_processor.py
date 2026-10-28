@@ -21,6 +21,11 @@ from collections import defaultdict
 import zipfile
 import shutil
 
+try:
+    import orjson
+except ImportError:  # pragma: no cover - optional dependency fallback
+    orjson = None
+
 # Location ID to city name mapping
 LOCATION_ID_TO_CITY = {
     3003: 'bridgewatch',
@@ -94,10 +99,10 @@ def should_stop_for_deadline(deadline_time: float, reserve_seconds: int = DEFAUL
 
 def atomic_write_json(path: Path, data: List[Dict[str, Any]]) -> None:
     """Write JSON to a temporary file and atomically replace the target."""
+    payload = dump_json_bytes(data)
     tmp_path = path.parent / f'.{path.name}.tmp'
-    with open(tmp_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.write('\n')
+    with open(tmp_path, 'wb') as f:
+        f.write(payload)
     os.replace(tmp_path, path)
 
 
@@ -320,16 +325,16 @@ def save_processed_file(filename: str, paths: Dict[str, Path]):
 
 
 def parse_sql_insert(line: str) -> List[Any]:
-    """Parse VALUES tuple from SQL INSERT"""
+    """Parse VALUES tuple from SQL INSERT."""
     match = re.search(r'\((.*)\)(?:,|\s|;|$)', line)
     if not match:
         return None
-    
+
     content = match.group(1)
     values = []
     current = ""
     in_quotes = False
-    
+
     for char in content:
         if char == "'" and (not current or current[-1] != '\\'):
             in_quotes = not in_quotes
@@ -339,10 +344,10 @@ def parse_sql_insert(line: str) -> List[Any]:
             current = ""
         else:
             current += char
-    
+
     if current:
         values.append(current.strip())
-    
+
     result = []
     for val in values:
         val = val.strip()
@@ -353,25 +358,21 @@ def parse_sql_insert(line: str) -> List[Any]:
         else:
             try:
                 result.append(int(val) if '.' not in val else float(val))
-            except:
+            except Exception:
                 result.append(val)
-    
+
     return result if len(result) >= 8 else None
 
 
-def read_sql_file(filepath: Path) -> List[Tuple]:
-    """Extract all market_history records from SQL file without loading the whole file into memory."""
-    records = []
-
+def iter_sql_records(filepath: Path):
+    """Yield market_history records without building the entire file in memory."""
+    print(f"[DEBUG] Reading {filepath.name}...")
     try:
-        print(f"[DEBUG] Reading {filepath.name}...")
-
         opener = gzip.open if filepath.suffix == '.gz' else open
-        mode = 'rt'
-
-        with opener(filepath, mode, encoding='utf-8', errors='ignore') as f:
+        with opener(filepath, 'rt', encoding='utf-8', errors='ignore') as f:
             buffer = ''
             in_insert = False
+            found_records = 0
 
             for raw_line in f:
                 line = raw_line.strip()
@@ -394,7 +395,8 @@ def read_sql_file(filepath: Path) -> List[Tuple]:
                             tuple_str = '(' + tuple_match.group(1) + ')'
                             values = parse_sql_insert(tuple_str)
                             if values and len(values) >= 8:
-                                records.append(tuple(values[:8]))
+                                found_records += 1
+                                yield tuple(values[:8])
                     in_insert = False
                     buffer = ''
 
@@ -407,14 +409,48 @@ def read_sql_file(filepath: Path) -> List[Tuple]:
                         tuple_str = '(' + tuple_match.group(1) + ')'
                         values = parse_sql_insert(tuple_str)
                         if values and len(values) >= 8:
-                            records.append(tuple(values[:8]))
+                            found_records += 1
+                            yield tuple(values[:8])
 
-        print(f"[DEBUG] Extracted {len(records)} records from {filepath.name}")
-        return records
+        print(f"[DEBUG] Extracted {found_records} records from {filepath.name}")
 
     except Exception as e:
         print(f"[ERROR] Error reading {filepath.name}: {e}")
-        return records
+
+
+def read_sql_file(filepath: Path) -> List[Tuple]:
+    """Compatibility wrapper for callers expecting a list of records."""
+    return list(iter_sql_records(filepath))
+
+
+def dump_json_bytes(data: Any) -> bytes:
+    """Dump JSON with the fastest available encoder while keeping a Python fallback."""
+    if orjson is not None:
+        return orjson.dumps(data, option=orjson.OPT_INDENT_2)
+    return (json.dumps(data, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
+
+
+def load_json_file(path: Path) -> List[Dict[str, Any]]:
+    """Load a JSON list safely from disk."""
+    if not path.exists():
+        return []
+    try:
+        with open(path, 'rb') as f:
+            payload = orjson.loads(f.read()) if orjson is not None else json.load(f)
+        if isinstance(payload, list):
+            return payload
+    except (json.JSONDecodeError, OSError, TypeError, ValueError):
+        pass
+    return []
+
+
+def write_json_file(path: Path, records: List[Dict[str, Any]]) -> None:
+    """Write JSON records atomically using the fastest available encoder."""
+    payload = dump_json_bytes(records)
+    tmp_path = path.parent / f'.{path.name}.tmp'
+    with open(tmp_path, 'wb') as f:
+        f.write(payload)
+    os.replace(tmp_path, path)
 
 
 def transform_record(rec: Tuple, server_name: str) -> Dict[str, Any]:
@@ -495,33 +531,32 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
 
         try:
             print(f"\n[PROCESS] Processing {sql_file.name} for {server_name}...")
-            records = read_sql_file(sql_file)
 
-            if not records:
-                print(f"[WARN] No records found in {sql_file.name}")
-                save_processed_file(sql_file.name, paths)
-                processed_count += 1
-                continue
-
-            # Group records by item_id in memory
             file_items: Dict[str, List[Dict]] = defaultdict(list)
+            record_count = 0
 
-            for i, rec in enumerate(records):
-                if i % 500000 == 0 and i > 0:
-                    print(f"[DEBUG] Processed {i:,}/{len(records):,} records...")
-
+            for rec in iter_sql_records(sql_file):
+                record_count += 1
                 if len(rec) >= 8:
-                    item_id = rec[3]  # item_id is at index 3
+                    item_id = rec[3]
                     transformed = transform_record(rec, server_name)
-
                     if transformed:
                         if should_stop_for_deadline(deadline_time, reserve_seconds=0):
                             print(f"[INFO] Deadline reached while reading {sql_file.name}; leaving current SQL file unmarked as processed.")
                             return processed_count
                         file_items[item_id].append(transformed)
 
+                if record_count % 500000 == 0:
+                    print(f"[DEBUG] Processed {record_count:,} records...")
+
+            if record_count == 0:
+                print(f"[WARN] No records found in {sql_file.name}")
+                save_processed_file(sql_file.name, paths)
+                processed_count += 1
+                continue
+
             # Write items to individual JSON files with splitting at 90MB
-            MAX_FILE_SIZE = 90 * 1024 * 1024  # 90MB safe limit
+            MAX_FILE_SIZE = 90 * 1024 * 1024
             print(f"[DEBUG] Writing {len(file_items):,} items to JSON files for {server_name}...")
 
             for item_idx, (item_id, price_records) in enumerate(file_items.items()):
@@ -533,62 +568,27 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                     return processed_count
 
                 try:
-                    # ALWAYS append to item.json - never skip or create new numbered files
                     base_output = paths['output'] / f"{item_id}.json"
+                    existing_records = load_json_file(base_output)
 
-                    # Load existing records from base file (or empty if doesn't exist)
-                    existing_records = []
-                    if base_output.exists():
-                        try:
-                            with open(base_output, 'r', encoding='utf-8') as f:
-                                existing_records = json.load(f)
-                                if not isinstance(existing_records, list):
-                                    existing_records = []
-                        except (json.JSONDecodeError, OSError) as e:
-                            print(f"[WARN] Failed to read existing {base_output.name}, starting fresh: {e}")
-                            existing_records = []
-
-                    # Merge new records with existing ones (no duplicates by timestamp+city+quality)
                     existing_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_records if isinstance(r, dict)}
                     unique_new_records = [r for r in price_records if (r['timestamp'], r['city'], r['quality']) not in existing_keys]
-
-                    # Combine all records
                     all_records = existing_records + unique_new_records
 
-                    # Write to base file (may split if over 90MB)
                     current_file_num = 1
                     current_records = []
 
                     for record in all_records:
                         current_records.append(record)
 
-                        # Check actual JSON size every 100 records
                         if len(current_records) % 100 == 0:
-                            temp_json = json.dumps(current_records, indent=2, ensure_ascii=False)
-                            current_size = len(temp_json.encode('utf-8'))
+                            temp_json = dump_json_bytes(current_records)
+                            current_size = len(temp_json)
 
-                            # If would exceed 90MB, write current file and start new numbered file
                             if current_size > MAX_FILE_SIZE and len(current_records) > 1:
                                 previous_records = current_records[:-1]
-
-                                # Determine output filename
-                                if current_file_num == 1:
-                                    current_output = paths['output'] / f"{item_id}.json"
-                                else:
-                                    current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
-
-                                # APPEND to file if it exists, don't overwrite
-                                existing_in_file = []
-                                if current_output.exists():
-                                    try:
-                                        with open(current_output, 'r', encoding='utf-8') as f:
-                                            existing_in_file = json.load(f)
-                                            if not isinstance(existing_in_file, list):
-                                                existing_in_file = []
-                                    except (json.JSONDecodeError, OSError):
-                                        existing_in_file = []
-
-                                # Only write new records not already in file
+                                current_output = paths['output'] / (f"{item_id}.json" if current_file_num == 1 else f"{item_id}_{current_file_num}.json")
+                                existing_in_file = load_json_file(current_output)
                                 file_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_in_file if isinstance(r, dict)}
                                 final_records = existing_in_file + [r for r in previous_records if (r['timestamp'], r['city'], r['quality']) not in file_keys]
                                 atomic_write_json(current_output, final_records)
@@ -597,47 +597,27 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                                 actual_size_mb = actual_size_bytes / (1024 * 1024)
                                 print(f"[DEBUG] Split {item_id}: wrote {len(final_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
 
-                                # Move last record to next file
                                 current_file_num += 1
                                 current_records = [current_records[-1]]
 
-                    # Write final batch
                     if current_records:
-                        if current_file_num == 1:
-                            current_output = paths['output'] / f"{item_id}.json"
-                        else:
-                            current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
-
-                        # APPEND to file if it exists
-                        existing_in_file = []
-                        if current_output.exists():
-                            try:
-                                with open(current_output, 'r', encoding='utf-8') as f:
-                                    existing_in_file = json.load(f)
-                                    if not isinstance(existing_in_file, list):
-                                        existing_in_file = []
-                            except (json.JSONDecodeError, OSError):
-                                existing_in_file = []
-
-                        # Only write new records not already in file
+                        current_output = paths['output'] / (f"{item_id}.json" if current_file_num == 1 else f"{item_id}_{current_file_num}.json")
+                        existing_in_file = load_json_file(current_output)
                         file_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_in_file if isinstance(r, dict)}
                         final_records = existing_in_file + [r for r in current_records if (r['timestamp'], r['city'], r['quality']) not in file_keys]
                         atomic_write_json(current_output, final_records)
 
                         actual_size_bytes = current_output.stat().st_size
                         actual_size_mb = actual_size_bytes / (1024 * 1024)
-
                         if actual_size_mb > 0.5:
                             print(f"[DEBUG] File {item_id}: wrote {len(final_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
 
                 except Exception as e:
                     print(f"[ERROR] Failed to write {item_id}: {e}")
 
-            # Mark as processed only after the entire SQL file completes successfully
             save_processed_file(sql_file.name, paths)
             processed_count += 1
-
-            print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {len(records):,} records) for {server_name}")
+            print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {record_count:,} records) for {server_name}")
 
         except Exception as e:
             print(f"[ERROR] Error processing {sql_file.name} for {server_name}: {e}")
