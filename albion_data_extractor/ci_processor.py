@@ -2,7 +2,7 @@
 """
 CI/CD processor for downloading and extracting AODP market history.
 Runs headless without GUI, suitable for GitHub Actions.
-Processes as many files as possible within a 5.5 hour time window.
+Processes as many files as possible within a configurable runtime window.
 """
 
 import os
@@ -51,6 +51,63 @@ SERVERS = {
 
 # Use relative paths from project root
 PROJECT_ROOT = Path(__file__).parent.parent
+DEFAULT_MAX_RUNTIME_SECONDS = int(os.getenv('ALBION_MAX_RUNTIME_SECONDS', '19800'))
+DEFAULT_RUNTIME_BUFFER_SECONDS = int(os.getenv('ALBION_RUNTIME_BUFFER_SECONDS', '0'))
+
+
+def get_run_start_time() -> float:
+    """Return the workflow start timestamp when available, otherwise fall back to process start."""
+    raw = os.getenv('ALBION_JOB_STARTED_AT')
+    if raw:
+        try:
+            value = raw.strip()
+            if value.endswith('Z'):
+                value = value[:-1] + '+00:00'
+            dt = datetime.fromisoformat(value)
+            # Ignore timezone offsets; GitHub provides UTC timestamps.
+            return dt.timestamp()
+        except ValueError:
+            pass
+    return time.time()
+
+
+def get_max_runtime_seconds() -> int:
+    """Read the total runtime budget from the environment; default is 5.5 hours."""
+    try:
+        max_runtime = int(os.getenv('ALBION_MAX_RUNTIME_SECONDS', str(DEFAULT_MAX_RUNTIME_SECONDS)))
+    except ValueError:
+        max_runtime = DEFAULT_MAX_RUNTIME_SECONDS
+
+    if max_runtime <= 0:
+        return DEFAULT_MAX_RUNTIME_SECONDS
+    return max_runtime
+
+
+def should_stop_for_deadline(deadline_time: float, reserve_seconds: int = DEFAULT_RUNTIME_BUFFER_SECONDS) -> bool:
+    """Return True when we should stop before starting the next work item.
+
+    By default the processor stops at the 330-minute processing deadline; the remaining
+    30 minutes in the 360-minute Actions job are reserved for commit/push/cleanup.
+    """
+    return time.time() >= (deadline_time - reserve_seconds)
+
+
+def atomic_write_json(path: Path, data: List[Dict[str, Any]]) -> None:
+    """Write JSON to a temporary file and atomically replace the target."""
+    tmp_path = path.parent / f'.{path.name}.tmp'
+    with open(tmp_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write('\n')
+    os.replace(tmp_path, path)
+
+
+def atomic_write_text(path: Path, content: str) -> None:
+    """Write text to a temporary file and atomically replace the target."""
+    tmp_path = path.parent / f'.{path.name}.tmp'
+    with open(tmp_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    os.replace(tmp_path, path)
+
 
 def get_paths_for_server(server_name: str) -> Dict[str, Path]:
     """Get directory paths for a specific server (each server has its own folder structure)"""
@@ -162,7 +219,7 @@ def download_latest_exports(server_name: str, base_url: str, start_time: float =
     for filename in to_download:
         # Check if we're running out of time
         elapsed = time.time() - start_time
-        if elapsed > (5.5 * 3600 - 600):  # 10 minute buffer before deadline
+        if elapsed > (get_max_runtime_seconds() - 600):  # 10 minute buffer before deadline
             print(f"[INFO] Time limit approaching ({elapsed:.0f}s elapsed), stopping downloads")
             break
         
@@ -252,15 +309,12 @@ def load_processed_files(paths: Dict[str, Path]) -> Set[str]:
 
 
 def save_processed_file(filename: str, paths: Dict[str, Path]):
-    """Add file to processed list for a specific server"""
+    """Add file to processed list for a specific server without corrupting the checkpoint file."""
     try:
         processed_file = paths['output'] / '.processed.txt'
         processed = load_processed_files(paths)
         processed.add(filename)
-        
-        with open(processed_file, 'w') as f:
-            for name in sorted(processed):
-                f.write(name + '\n')
+        atomic_write_text(processed_file, ''.join(f'{name}\n' for name in sorted(processed)))
     except Exception as e:
         print(f"[ERROR] Failed to save processed file: {e}")
 
@@ -427,53 +481,61 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
     processed = load_processed_files(paths)
     processed_count = 0
     
-    # Process multiple files until deadline
+    # Process multiple files until deadline.
     for sql_file in sql_files:
-        # Check if we're running out of time (leave 5 minute buffer for cleanup)
-        if time.time() > deadline_time - 300:
-            print(f"[INFO] Approaching deadline, stopping processing to allow time for commit/push")
+        # Stop processing at the 330-minute mark; the remaining 30 minutes in the 360-minute
+        # Actions job are reserved for commit/push and final cleanup.
+        if should_stop_for_deadline(deadline_time, reserve_seconds=0):
+            print(f"[INFO] Processing deadline reached at 330 minutes; stopping work and moving to commit/push")
             break
-        
+
         if sql_file.name in processed:
             print(f"[SKIP] {sql_file.name} already processed for {server_name}")
             continue
-        
+
         try:
             print(f"\n[PROCESS] Processing {sql_file.name} for {server_name}...")
             records = read_sql_file(sql_file)
-            
+
             if not records:
                 print(f"[WARN] No records found in {sql_file.name}")
                 save_processed_file(sql_file.name, paths)
                 processed_count += 1
                 continue
-            
+
             # Group records by item_id in memory
             file_items: Dict[str, List[Dict]] = defaultdict(list)
-            
+
             for i, rec in enumerate(records):
                 if i % 500000 == 0 and i > 0:
                     print(f"[DEBUG] Processed {i:,}/{len(records):,} records...")
-                
+
                 if len(rec) >= 8:
                     item_id = rec[3]  # item_id is at index 3
                     transformed = transform_record(rec, server_name)
-                    
+
                     if transformed:
+                        if should_stop_for_deadline(deadline_time, reserve_seconds=0):
+                            print(f"[INFO] Deadline reached while reading {sql_file.name}; leaving current SQL file unmarked as processed.")
+                            return processed_count
                         file_items[item_id].append(transformed)
-            
+
             # Write items to individual JSON files with splitting at 90MB
             MAX_FILE_SIZE = 90 * 1024 * 1024  # 90MB safe limit
             print(f"[DEBUG] Writing {len(file_items):,} items to JSON files for {server_name}...")
-            
+
             for item_idx, (item_id, price_records) in enumerate(file_items.items()):
                 if item_idx % 1000 == 0 and item_idx > 0:
                     print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
-                
+
+                if should_stop_for_deadline(deadline_time, reserve_seconds=0):
+                    print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; leaving current SQL file unmarked as processed.")
+                    return processed_count
+
                 try:
                     # ALWAYS append to item.json - never skip or create new numbered files
                     base_output = paths['output'] / f"{item_id}.json"
-                    
+
                     # Load existing records from base file (or empty if doesn't exist)
                     existing_records = []
                     if base_output.exists():
@@ -485,36 +547,36 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                         except (json.JSONDecodeError, OSError) as e:
                             print(f"[WARN] Failed to read existing {base_output.name}, starting fresh: {e}")
                             existing_records = []
-                    
+
                     # Merge new records with existing ones (no duplicates by timestamp+city+quality)
                     existing_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_records if isinstance(r, dict)}
                     unique_new_records = [r for r in price_records if (r['timestamp'], r['city'], r['quality']) not in existing_keys]
-                    
+
                     # Combine all records
                     all_records = existing_records + unique_new_records
-                    
+
                     # Write to base file (may split if over 90MB)
                     current_file_num = 1
                     current_records = []
-                    
+
                     for record in all_records:
                         current_records.append(record)
-                        
+
                         # Check actual JSON size every 100 records
                         if len(current_records) % 100 == 0:
                             temp_json = json.dumps(current_records, indent=2, ensure_ascii=False)
                             current_size = len(temp_json.encode('utf-8'))
-                            
+
                             # If would exceed 90MB, write current file and start new numbered file
                             if current_size > MAX_FILE_SIZE and len(current_records) > 1:
                                 previous_records = current_records[:-1]
-                                
+
                                 # Determine output filename
                                 if current_file_num == 1:
                                     current_output = paths['output'] / f"{item_id}.json"
                                 else:
                                     current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
-                                
+
                                 # APPEND to file if it exists, don't overwrite
                                 existing_in_file = []
                                 if current_output.exists():
@@ -525,30 +587,27 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                                                 existing_in_file = []
                                     except (json.JSONDecodeError, OSError):
                                         existing_in_file = []
-                                
+
                                 # Only write new records not already in file
                                 file_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_in_file if isinstance(r, dict)}
                                 final_records = existing_in_file + [r for r in previous_records if (r['timestamp'], r['city'], r['quality']) not in file_keys]
-                                
-                                with open(current_output, 'w', encoding='utf-8') as f:
-                                    json.dump(final_records, f, indent=2, ensure_ascii=False)
-                                    f.write('\n')
-                                
+                                atomic_write_json(current_output, final_records)
+
                                 actual_size_bytes = current_output.stat().st_size
                                 actual_size_mb = actual_size_bytes / (1024 * 1024)
                                 print(f"[DEBUG] Split {item_id}: wrote {len(final_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
-                                
+
                                 # Move last record to next file
                                 current_file_num += 1
                                 current_records = [current_records[-1]]
-                    
+
                     # Write final batch
                     if current_records:
                         if current_file_num == 1:
                             current_output = paths['output'] / f"{item_id}.json"
                         else:
                             current_output = paths['output'] / f"{item_id}_{current_file_num}.json"
-                        
+
                         # APPEND to file if it exists
                         existing_in_file = []
                         if current_output.exists():
@@ -559,39 +618,33 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                                         existing_in_file = []
                             except (json.JSONDecodeError, OSError):
                                 existing_in_file = []
-                        
+
                         # Only write new records not already in file
                         file_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_in_file if isinstance(r, dict)}
                         final_records = existing_in_file + [r for r in current_records if (r['timestamp'], r['city'], r['quality']) not in file_keys]
-                        
-                        with open(current_output, 'w', encoding='utf-8') as f:
-                            json.dump(final_records, f, indent=2, ensure_ascii=False)
-                            f.write('\n')
-                        
+                        atomic_write_json(current_output, final_records)
+
                         actual_size_bytes = current_output.stat().st_size
                         actual_size_mb = actual_size_bytes / (1024 * 1024)
-                        
+
                         if actual_size_mb > 0.5:
                             print(f"[DEBUG] File {item_id}: wrote {len(final_records)} records ({actual_size_mb:.2f}MB) to {current_output.name}")
 
-
-                
                 except Exception as e:
                     print(f"[ERROR] Failed to write {item_id}: {e}")
-            
-            # Mark as processed
+
+            # Mark as processed only after the entire SQL file completes successfully
             save_processed_file(sql_file.name, paths)
             processed_count += 1
-            
+
             print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {len(records):,} records) for {server_name}")
-        
+
         except Exception as e:
             print(f"[ERROR] Error processing {sql_file.name} for {server_name}: {e}")
             import traceback
             traceback.print_exc()
-    
-    return processed_count
 
+    return processed_count
 
 def count_unprocessed_available_files(server_name: str) -> int:
     """
@@ -640,23 +693,24 @@ def find_most_behind_server(servers: List[str]) -> str:
 
 def main():
     """
-    Main CI/CD process: Download and process as many files as possible within 5.5 hours.
-    
+    Main CI/CD process: Download and process as many files as possible within the configured runtime budget.
+
     Logic:
     1. Check all servers' processed.txt to find which needs the most work
     2. Download and process that server's entire database within time window
     3. If time remains, move to next behind server
     """
+    max_runtime_seconds = get_max_runtime_seconds()
     print("[INFO] Starting AODP CI processor...")
     print(f"[INFO] Project root: {PROJECT_ROOT}")
-    print(f"[INFO] Time window: 5.5 hours (19,800 seconds)")
+    print(f"[INFO] Time window: {max_runtime_seconds / 60:.0f} minutes ({max_runtime_seconds} seconds)")
     print(f"[INFO] Processing priority: {' -> '.join(SERVERS_PRIORITY)}")
-    
-    # Set deadline: 5.5 hours from now (minus small buffer for cleanup)
-    start_time = time.time()
-    deadline_time = start_time + (5.5 * 3600)
-    
-    print(f"[INFO] Start time: {datetime.fromtimestamp(start_time)}")
+
+    # Use the workflow start time when available so the processor counts the full job runtime.
+    start_time = get_run_start_time()
+    deadline_time = start_time + max_runtime_seconds
+
+    print(f"[INFO] Workflow start time: {datetime.fromtimestamp(start_time)}")
     print(f"[INFO] Deadline: {datetime.fromtimestamp(deadline_time)}")
 
     setup_directories()
@@ -693,8 +747,8 @@ def main():
             for filename in unprocessed_files:
                 # Check if we're running out of time
                 elapsed = time.time() - start_time
-                if elapsed > (5.5 * 3600 - 600):  # 10 minute buffer
-                    print(f"[INFO] Time limit approaching ({elapsed:.0f}s elapsed), stopping downloads")
+                if should_stop_for_deadline(deadline_time, reserve_seconds=0):
+                    print(f"[INFO] Time limit reached ({elapsed:.0f}s elapsed), stopping downloads")
                     break
                 
                 # Download file
