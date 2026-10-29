@@ -1,0 +1,596 @@
+[
+  {
+    "timestamp": "2020-09-24T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1000000,
+    "buyPrice": 1000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-09-08T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1700000,
+    "buyPrice": 1700000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-09-12T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1789000,
+    "buyPrice": 1789000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-09-17T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 3349999,
+    "buyPrice": 3349999,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-09-19T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1200000,
+    "buyPrice": 1200000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-09-23T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1678899,
+    "buyPrice": 1678899,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-04T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 700054,
+    "buyPrice": 700054,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-10-05T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 750000,
+    "buyPrice": 750000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-13T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 2399999,
+    "buyPrice": 2399999,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-10-19T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 1000000,
+    "buyPrice": 1000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-04T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 1590000,
+    "buyPrice": 1590000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-15T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 1588888,
+    "buyPrice": 1588888,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-08T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1800000,
+    "buyPrice": 1800000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-25T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 1049999,
+    "buyPrice": 1049999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-21T12:00:00Z",
+    "city": "martlock",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1250999,
+    "buyPrice": 1250999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-22T06:00:00Z",
+    "city": "martlock",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 2450000,
+    "buyPrice": 2450000,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-10-30T12:00:00Z",
+    "city": "martlock",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 850000,
+    "buyPrice": 850000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-27T18:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 900000,
+    "buyPrice": 900000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-10-28T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1000000,
+    "buyPrice": 1000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-02T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 929999,
+    "buyPrice": 929999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-06T06:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 900000,
+    "buyPrice": 900000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-03T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 1000000,
+    "buyPrice": 1000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-03T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1100000,
+    "buyPrice": 1100000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-05T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1000000,
+    "buyPrice": 1000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-06T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1000000,
+    "buyPrice": 1000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-08T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1000000,
+    "buyPrice": 1000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-06T18:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 999999,
+    "buyPrice": 999999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-26T00:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 899994,
+    "buyPrice": 899994,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-11-18T18:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 257732,
+    "buyPrice": 257732,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-21T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 214985,
+    "buyPrice": 214985,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-30T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 599938,
+    "buyPrice": 599938,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2020-12-29T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 399867,
+    "buyPrice": 399867,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-12-28T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 399956,
+    "buyPrice": 399956,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-12-27T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 190000,
+    "buyPrice": 190000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-27T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 189989,
+    "buyPrice": 189989,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-25T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 199995,
+    "buyPrice": 199995,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-25T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 199000,
+    "buyPrice": 199000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-23T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 200000,
+    "buyPrice": 200000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-21T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 639985,
+    "buyPrice": 639985,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2020-12-22T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 215000,
+    "buyPrice": 215000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-22T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 215000,
+    "buyPrice": 215000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-22T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 200000,
+    "buyPrice": 200000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-23T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 214997,
+    "buyPrice": 214997,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-23T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 429990,
+    "buyPrice": 429990,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-12-24T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 429996,
+    "buyPrice": 429996,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-12-24T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 214998,
+    "buyPrice": 214998,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-24T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199997,
+    "buyPrice": 199997,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-25T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199991,
+    "buyPrice": 199991,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-26T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199985,
+    "buyPrice": 199985,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-26T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199985,
+    "buyPrice": 199985,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-27T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 399884,
+    "buyPrice": 399884,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-12-27T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 214997,
+    "buyPrice": 214997,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-27T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 214998,
+    "buyPrice": 214998,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-28T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199890,
+    "buyPrice": 199890,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-29T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199885,
+    "buyPrice": 199885,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-29T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199888,
+    "buyPrice": 199888,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-29T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199888,
+    "buyPrice": 199888,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-31T06:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 60003,
+    "buyPrice": 60003,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-26T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 799872,
+    "buyPrice": 799872,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2021-01-15T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 755555,
+    "buyPrice": 755555,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-01-16T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 700000,
+    "buyPrice": 700000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-01-21T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 650000,
+    "buyPrice": 650000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-01-22T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 100000,
+    "buyPrice": 100000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-01-23T00:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 101000,
+    "buyPrice": 101000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-01-31T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 540000,
+    "buyPrice": 540000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2021-01-29T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 500000,
+    "buyPrice": 500000,
+    "quantity": 1
+  }
+]
