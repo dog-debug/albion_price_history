@@ -79,5 +79,32 @@
     "sellPrice": 20000,
     "buyPrice": 20000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2022-01-02T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 20000,
+    "buyPrice": 20000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-01-06T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 39999,
+    "buyPrice": 39999,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2022-01-25T06:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 75,
+    "buyPrice": 75,
+    "quantity": 1
   }
 ]

@@ -11761,5 +11761,59 @@
     "sellPrice": 722520,
     "buyPrice": 722520,
     "quantity": 1
+  },
+  {
+    "timestamp": "2022-01-01T18:00:00Z",
+    "city": "unknown",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1001,
+    "buyPrice": 1001,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-01-02T06:00:00Z",
+    "city": "unknown",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 2002,
+    "buyPrice": 2002,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2022-01-11T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 376000,
+    "buyPrice": 376000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-01-12T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 599999,
+    "buyPrice": 599999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-01-21T06:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 375001,
+    "buyPrice": 375001,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-01-23T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 600000,
+    "buyPrice": 600000,
+    "quantity": 1
   }
 ]
