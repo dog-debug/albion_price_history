@@ -1105,5 +1105,59 @@
     "sellPrice": 230001,
     "buyPrice": 230001,
     "quantity": 1
+  },
+  {
+    "timestamp": "2022-02-11T12:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 250000,
+    "buyPrice": 250000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-02-22T18:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 420000,
+    "buyPrice": 420000,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2022-02-22T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 420000,
+    "buyPrice": 420000,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2022-02-26T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 159997,
+    "buyPrice": 159997,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2022-02-26T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 374998,
+    "buyPrice": 374998,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-02-27T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 32414,
+    "buyPrice": 32414,
+    "quantity": 3
   }
 ]
