@@ -1456,5 +1456,32 @@
     "sellPrice": 333334,
     "buyPrice": 333334,
     "quantity": 1
+  },
+  {
+    "timestamp": "2022-03-09T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 4,
+    "server": "west",
+    "sellPrice": 1000000,
+    "buyPrice": 1000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-03-24T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 850000,
+    "buyPrice": 850000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2022-03-29T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 849999,
+    "buyPrice": 849999,
+    "quantity": 1
   }
 ]
