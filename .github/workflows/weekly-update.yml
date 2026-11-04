@@ -2,8 +2,8 @@ name: Weekly AODP Market History Update
 
 on:
   schedule:
-    # Run every Friday at 6pm Florida time (23:00 UTC)
-    - cron: '0 23 * * 5'
+    # Run every 6 hours to keep the data set refreshed without waiting for a weekly batch
+    - cron: '0 */6 * * *'
   # Allow manual triggering
   workflow_dispatch:
     inputs:
@@ -49,6 +49,7 @@ jobs:
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
           ALBION_MAX_RUNTIME_SECONDS: '19800'
           ALBION_RUNTIME_BUFFER_SECONDS: '0'
+          ALBION_MAX_WORKERS: '8'
         run: python albion_data_extractor/ci_processor.py
 
       - name: Clean up temporary directories
