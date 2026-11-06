@@ -62,8 +62,12 @@ DEFAULT_RUNTIME_BUFFER_SECONDS = int(os.getenv('ALBION_RUNTIME_BUFFER_SECONDS', 
 
 
 def get_run_start_time() -> float:
-    """Return the workflow start timestamp when available, otherwise fall back to process start."""
-    raw = os.getenv('ALBION_JOB_STARTED_AT')
+    """Return the full workflow start timestamp, including checkout/setup time."""
+    raw = (
+        os.getenv('ALBION_JOB_STARTED_AT')
+        or os.getenv('GITHUB_RUN_STARTED_AT')
+        or os.getenv('RUN_STARTED_AT')
+    )
     if raw:
         try:
             value = raw.strip()
@@ -327,6 +331,16 @@ def save_processed_file(filename: str, paths: Dict[str, Path]):
         print(f"[ERROR] Failed to save processed file: {e}")
 
 
+def restore_file_item_snapshots(paths: Dict[str, Path], item_snapshots: Dict[str, List[Dict[str, Any]]]) -> None:
+    """Restore each item JSON file to its pre-file state after a deadline interruption."""
+    for item_id, original_records in item_snapshots.items():
+        output_path = paths['output'] / f'{item_id}.json'
+        if original_records:
+            atomic_write_json(output_path, original_records)
+        elif output_path.exists():
+            output_path.unlink()
+
+
 def parse_sql_insert(line: str) -> List[Any]:
     """Parse VALUES tuple from SQL INSERT"""
     match = re.search(r'\((.*)\)(?:,|\s|;|$)', line)
@@ -575,13 +589,24 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
             worker_count = int(os.getenv('ALBION_MAX_WORKERS', str(min(8, os.cpu_count() or 1))))
             worker_count = max(1, min(worker_count, len(file_items) if file_items else 1))
 
-            if len(file_items) > 1 and worker_count > 1:
+            item_snapshots = {
+                item_id: load_json_file(paths['output'] / f'{item_id}.json')
+                for item_id in file_items
+            }
+
+            use_parallel = len(file_items) > 1 and worker_count > 1 and not should_stop_for_deadline(deadline_time, reserve_seconds=1800)
+
+            if use_parallel:
                 tasks = [(item_id, price_records, paths) for item_id, price_records in file_items.items()]
                 try:
                     with ProcessPoolExecutor(max_workers=worker_count) as executor:
                         for idx, item_id in enumerate(executor.map(_parallel_write_item, tasks), start=1):
                             if idx % 1000 == 0:
                                 print(f"[DEBUG] Written {idx:,}/{len(file_items):,} items...")
+                            if should_stop_for_deadline(deadline_time, reserve_seconds=0):
+                                print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; discarding this file's item writes.")
+                                restore_file_item_snapshots(paths, item_snapshots)
+                                return processed_count
                     print(f"[DEBUG] Parallel write complete for {server_name}")
                 except Exception as exc:
                     print(f"[WARN] Parallel write failed for {server_name}: {exc}; falling back to single-process output")
@@ -589,7 +614,8 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                         if item_idx % 1000 == 0 and item_idx > 0:
                             print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
                         if should_stop_for_deadline(deadline_time, reserve_seconds=0):
-                            print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; leaving current SQL file unmarked as processed.")
+                            print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; discarding this file's item writes.")
+                            restore_file_item_snapshots(paths, item_snapshots)
                             return processed_count
                         try:
                             write_item_records(item_id, price_records, paths)
@@ -601,7 +627,8 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                         print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
 
                     if should_stop_for_deadline(deadline_time, reserve_seconds=0):
-                        print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; leaving current SQL file unmarked as processed.")
+                        print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; discarding this file's item writes.")
+                        restore_file_item_snapshots(paths, item_snapshots)
                         return processed_count
 
                     try:
