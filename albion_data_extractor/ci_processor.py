@@ -59,6 +59,8 @@ SERVERS = {
 PROJECT_ROOT = Path(__file__).parent.parent
 DEFAULT_MAX_RUNTIME_SECONDS = int(os.getenv('ALBION_MAX_RUNTIME_SECONDS', '19800'))
 DEFAULT_RUNTIME_BUFFER_SECONDS = int(os.getenv('ALBION_RUNTIME_BUFFER_SECONDS', '0'))
+DEFAULT_DOWNLOAD_RETRIES = int(os.getenv('ALBION_DOWNLOAD_RETRIES', '5'))
+DEFAULT_DOWNLOAD_TIMEOUT_SECONDS = int(os.getenv('ALBION_DOWNLOAD_TIMEOUT_SECONDS', '120'))
 
 
 def get_run_start_time() -> float:
@@ -144,31 +146,62 @@ class _LinkParser(HTMLParser):
 _MARKET_HISTORY_RE = re.compile(r'^market_history_\d{4}_\d{2}\.sql\.gz$')
 
 
+def download_file_with_retries(url: str, destination: Path, timeout_seconds: int = DEFAULT_DOWNLOAD_TIMEOUT_SECONDS, max_retries: int = DEFAULT_DOWNLOAD_RETRIES) -> bool:
+    """Download a file with retries, handling transient network cancels."""
+    for attempt in range(1, max_retries + 1):
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=timeout_seconds) as resp, open(destination, 'wb') as out:
+                shutil.copyfileobj(resp, out)
+            return True
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError, ConnectionError) as e:
+            if attempt == max_retries:
+                print(f"[ERROR] Failed to download {url} after {max_retries} attempts: {e}")
+                return False
+            delay = min(5 * attempt, 30)
+            print(f"[WARN] Download retry {attempt}/{max_retries} for {url} after {delay}s ({e})")
+            time.sleep(delay)
+
+    return False
+
+
 def get_available_downloads(base_url: str) -> List[str]:
     """Scrape AODP database page, return only market_history_YYYY_MM.sql.gz filenames"""
-    try:
-        req = urllib.request.Request(
-            base_url,
-            headers={'User-Agent': 'Mozilla/5.0'}
-        )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            html = resp.read().decode('utf-8', errors='ignore')
+    retries = DEFAULT_DOWNLOAD_RETRIES
+    last_error = None
 
-        parser = _LinkParser()
-        parser.feed(html)
+    for attempt in range(1, retries + 1):
+        try:
+            req = urllib.request.Request(
+                base_url,
+                headers={'User-Agent': 'Mozilla/5.0'}
+            )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                html = resp.read().decode('utf-8', errors='ignore')
 
-        filenames = []
-        for link in parser.links:
-            name = link.rstrip('/').split('/')[-1].split('?')[0]
-            if _MARKET_HISTORY_RE.match(name):
-                filenames.append(name)
+            parser = _LinkParser()
+            parser.feed(html)
 
-        print(f"[INFO] Found {len(filenames)} market_history_YYYY_MM.sql.gz file(s) on {base_url}")
-        return sorted(filenames)
+            filenames = []
+            for link in parser.links:
+                name = link.rstrip('/').split('/')[-1].split('?')[0]
+                if _MARKET_HISTORY_RE.match(name):
+                    filenames.append(name)
 
-    except Exception as e:
-        print(f"[ERROR] Failed to scrape {base_url}: {e}")
-        return []
+            print(f"[INFO] Found {len(filenames)} market_history_YYYY_MM.sql.gz file(s) on {base_url}")
+            return sorted(filenames)
+
+        except Exception as e:
+            last_error = e
+            if attempt == retries:
+                print(f"[ERROR] Failed to scrape {base_url}: {e}")
+                return []
+            delay = min(5 * attempt, 30)
+            print(f"[WARN] Retry {attempt}/{retries} for {base_url} after {delay}s ({e})")
+            time.sleep(delay)
+
+    print(f"[ERROR] Failed to scrape {base_url} after retries: {last_error}")
+    return []
 
 
 def setup_directories():
@@ -240,13 +273,11 @@ def download_latest_exports(
 
         try:
             print(f"[DOWNLOAD] {filename} from {server_name}...")
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
-                shutil.copyfileobj(resp, out)
-            print(f"[SUCCESS] Downloaded {filename} to {server_name}/raw/")
-            downloaded_files.append(local_path)
-        except urllib.error.HTTPError as e:
-            print(f"[ERROR] HTTP {e.code} downloading {filename} from {server_name}")
+            if download_file_with_retries(url, local_path, timeout_seconds=DEFAULT_DOWNLOAD_TIMEOUT_SECONDS, max_retries=DEFAULT_DOWNLOAD_RETRIES):
+                print(f"[SUCCESS] Downloaded {filename} to {server_name}/raw/")
+                downloaded_files.append(local_path)
+            else:
+                print(f"[ERROR] Failed to download {filename} from {server_name} after retries")
         except Exception as e:
             print(f"[ERROR] Error downloading {filename} from {server_name}: {e}")
 
@@ -760,13 +791,13 @@ def main():
                 try:
                     url = base_url + filename
                     local_path = paths['raw'] / filename
-                    
-                    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                    with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
-                        shutil.copyfileobj(resp, out)
+
+                    if not download_file_with_retries(url, local_path, timeout_seconds=DEFAULT_DOWNLOAD_TIMEOUT_SECONDS, max_retries=DEFAULT_DOWNLOAD_RETRIES):
+                        print(f"[ERROR] Failed to download {filename} after retries")
+                        continue
+
                     print(f"[SUCCESS] Downloaded {filename}")
                     # Extract immediately after download
-                    print(f"[EXTRACT] Extracting {filename}...")
                     print(f"[EXTRACT] Extracting {filename}...")
                     extracted_path = paths['history'] / filename[:-3]  # Remove .gz
                     try:
@@ -831,9 +862,9 @@ def main():
                             url = base_url + filename
                             local_path = paths['raw'] / filename
 
-                            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                            with urllib.request.urlopen(req, timeout=120) as resp, open(local_path, 'wb') as out:
-                                shutil.copyfileobj(resp, out)
+                            if not download_file_with_retries(url, local_path, timeout_seconds=DEFAULT_DOWNLOAD_TIMEOUT_SECONDS, max_retries=DEFAULT_DOWNLOAD_RETRIES):
+                                print(f"[ERROR] Failed to process {filename} after retries")
+                                continue
 
                             extracted_path = paths['history'] / filename[:-3]
 
