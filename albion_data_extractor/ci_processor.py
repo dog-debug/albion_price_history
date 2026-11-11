@@ -61,6 +61,26 @@ DEFAULT_MAX_RUNTIME_SECONDS = int(os.getenv('ALBION_MAX_RUNTIME_SECONDS', '19800
 DEFAULT_RUNTIME_BUFFER_SECONDS = int(os.getenv('ALBION_RUNTIME_BUFFER_SECONDS', '0'))
 DEFAULT_DOWNLOAD_RETRIES = int(os.getenv('ALBION_DOWNLOAD_RETRIES', '5'))
 DEFAULT_DOWNLOAD_TIMEOUT_SECONDS = int(os.getenv('ALBION_DOWNLOAD_TIMEOUT_SECONDS', '120'))
+DEFAULT_MAX_WORKERS = int(os.getenv('ALBION_MAX_WORKERS', '1'))
+DEFAULT_MAX_FILES_PER_RUN = int(os.getenv('ALBION_MAX_FILES_PER_RUN', '1'))
+
+
+def get_max_worker_count() -> int:
+    """Return a conservative worker count that keeps the runner stable."""
+    try:
+        worker_count = int(os.getenv('ALBION_MAX_WORKERS', str(DEFAULT_MAX_WORKERS)))
+    except ValueError:
+        worker_count = DEFAULT_MAX_WORKERS
+    return max(1, min(worker_count, 4))
+
+
+def get_max_files_per_run() -> int:
+    """Limit how many files are processed during a single workflow run."""
+    try:
+        max_files = int(os.getenv('ALBION_MAX_FILES_PER_RUN', str(DEFAULT_MAX_FILES_PER_RUN)))
+    except ValueError:
+        max_files = DEFAULT_MAX_FILES_PER_RUN
+    return max(1, max_files)
 
 
 def get_run_start_time() -> float:
@@ -572,12 +592,16 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
     """
     paths = get_paths_for_server(server_name)
     print(f"[INFO] Processing market history files for {server_name}...")
-    
+
     if not paths['history'].exists():
         print(f"[WARN] History directory not found for {server_name}")
         return 0
-    
+
     sql_files = sorted(paths['history'].glob('market_history*.sql')) + sorted(paths['history'].glob('market_history*.sql.gz'))
+    max_files_per_run = get_max_files_per_run()
+    if max_files_per_run > 0:
+        sql_files = sql_files[:max_files_per_run]
+        print(f"[INFO] Limiting run to the first {len(sql_files)} SQL file(s) for {server_name} to stay within workflow limits.")
     processed = load_processed_files(paths)
     processed_count = 0
     
@@ -617,7 +641,7 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                 continue
 
             print(f"[DEBUG] Writing {len(file_items):,} items to JSON files for {server_name}...")
-            worker_count = int(os.getenv('ALBION_MAX_WORKERS', str(min(8, os.cpu_count() or 1))))
+            worker_count = get_max_worker_count()
             worker_count = max(1, min(worker_count, len(file_items) if file_items else 1))
 
             item_snapshots = {
@@ -762,10 +786,12 @@ def main():
     print(f"\n{'='*60}")
     print(f"[PHASE 2] Processing server: {most_behind}")
     print(f"{'='*60}")
-    
+
+    max_files_per_run = get_max_files_per_run()
+
     base_url = SERVERS[most_behind]
     paths = get_paths_for_server(most_behind)
-    
+
     # Check if this server has unprocessed files
     available = get_available_downloads(base_url)
     if not available:
@@ -778,8 +804,11 @@ def main():
         unprocessed_files = [f for f in sorted(available) if f not in processed]
         
         if unprocessed_files:
-            print(f"[INFO] {len(unprocessed_files)} unprocessed files to download")
-            
+            if max_files_per_run > 0:
+                unprocessed_files = unprocessed_files[:max_files_per_run]
+                print(f"[INFO] Limiting this run to {len(unprocessed_files)} file(s) to stay within GitHub runner limits")
+            print(f"[INFO] {len(unprocessed_files)} unprocessed file(s) selected for download")
+
             for filename in unprocessed_files:
                 # Respect the workflow-start deadline instead of a hard-coded 5.5h cutoff.
                 if should_stop_for_deadline(deadline_time, reserve_seconds=600):
@@ -853,7 +882,9 @@ def main():
                 unprocessed_files = [f for f in sorted(available) if f not in processed]
 
                 if unprocessed_files:
-                    for filename in unprocessed_files[:3]:
+                    limited_files = unprocessed_files[:max_files_per_run]
+                    print(f"[INFO] Limiting secondary server to {len(limited_files)} file(s) this run")
+                    for filename in limited_files:
                         if should_stop_for_deadline(deadline_time, reserve_seconds=600):
                             print(f"[INFO] Time limit approaching, stopping")
                             break
