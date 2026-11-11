@@ -2,8 +2,8 @@ name: Weekly AODP Market History Update
 
 on:
   schedule:
-    # Run every Friday at 6:00 PM Florida time (UTC = 23:00 in winter / 22:00 in summer)
-    - cron: '0 23 * * 5'
+    # Run every 6 hours (UTC)
+    - cron: '0 */6 * * *'
   # Allow manual triggering
   workflow_dispatch:
     inputs:
@@ -16,7 +16,7 @@ on:
 jobs:
   update-market-history:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
 
     permissions:
       contents: write
@@ -48,8 +48,8 @@ jobs:
         env:
           ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
-          ALBION_MAX_RUNTIME_SECONDS: '1800'
-          ALBION_RUNTIME_BUFFER_SECONDS: '300'
+          ALBION_MAX_RUNTIME_SECONDS: '19800'
+          ALBION_RUNTIME_BUFFER_SECONDS: '600'
           ALBION_MAX_WORKERS: '8'
           ALBION_DOWNLOAD_RETRIES: '5'
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
