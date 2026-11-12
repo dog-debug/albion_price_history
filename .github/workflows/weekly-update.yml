@@ -2,8 +2,8 @@ name: Weekly AODP Market History Update
 
 on:
   schedule:
-    # Run every 6 hours (UTC)
-    - cron: '0 */6 * * *'
+    # Run every hour (UTC)
+    - cron: '0 * * * *'
   # Allow manual triggering
   workflow_dispatch:
     inputs:
