@@ -114,8 +114,23 @@ def get_max_runtime_seconds() -> int:
     return max_runtime
 
 
-def should_stop_for_deadline(deadline_time: float, reserve_seconds: int = DEFAULT_RUNTIME_BUFFER_SECONDS) -> bool:
+def get_runtime_buffer_seconds() -> int:
+    """Read the workflow safety buffer from the environment."""
+    try:
+        buffer_seconds = int(os.getenv('ALBION_RUNTIME_BUFFER_SECONDS', str(DEFAULT_RUNTIME_BUFFER_SECONDS)))
+    except ValueError:
+        buffer_seconds = DEFAULT_RUNTIME_BUFFER_SECONDS
+
+    if buffer_seconds < 0:
+        return 0
+    return buffer_seconds
+
+
+def should_stop_for_deadline(deadline_time: float, reserve_seconds: int | None = None) -> bool:
     """Return True when processing should stop before the next work item starts."""
+    if reserve_seconds is None:
+        reserve_seconds = get_runtime_buffer_seconds()
+    reserve_seconds = max(0, reserve_seconds)
     return time.time() >= (deadline_time - reserve_seconds)
 
 
@@ -282,8 +297,8 @@ def download_latest_exports(
     
     downloaded_files = []
     for filename in to_download:
-        # Use the workflow-start deadline, not a hard-coded 5.5h rule.
-        if should_stop_for_deadline(deadline_time, reserve_seconds=600):
+        # Use the workflow-start deadline and the configured safety buffer.
+        if should_stop_for_deadline(deadline_time):
             elapsed = time.time() - start_time
             print(f"[INFO] Time limit approaching ({elapsed:.0f}s elapsed), stopping downloads")
             break
@@ -649,7 +664,8 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                 for item_id in file_items
             }
 
-            use_parallel = len(file_items) > 1 and worker_count > 1 and not should_stop_for_deadline(deadline_time, reserve_seconds=1800)
+            parallel_buffer = max(0, min(1800, get_runtime_buffer_seconds()))
+            use_parallel = len(file_items) > 1 and worker_count > 1 and not should_stop_for_deadline(deadline_time, reserve_seconds=parallel_buffer)
 
             if use_parallel:
                 tasks = [(item_id, price_records, paths) for item_id, price_records in file_items.items()]
@@ -810,8 +826,8 @@ def main():
             print(f"[INFO] {len(unprocessed_files)} unprocessed file(s) selected for download")
 
             for filename in unprocessed_files:
-                # Respect the workflow-start deadline instead of a hard-coded 5.5h cutoff.
-                if should_stop_for_deadline(deadline_time, reserve_seconds=600):
+                # Respect the workflow-start deadline and the configured safety buffer.
+                if should_stop_for_deadline(deadline_time):
                     elapsed = time.time() - start_time
                     print(f"[INFO] Time limit approaching ({elapsed:.0f}s elapsed), stopping downloads")
                     break
@@ -868,7 +884,7 @@ def main():
     if remaining > 1200:
         other_servers = [s for s in SERVERS_PRIORITY if s != most_behind]
         for server_name in other_servers:
-            if should_stop_for_deadline(deadline_time, reserve_seconds=600):
+            if should_stop_for_deadline(deadline_time):
                 print(f"[INFO] Insufficient time to process {server_name}, stopping")
                 break
 
@@ -885,7 +901,7 @@ def main():
                     limited_files = unprocessed_files[:max_files_per_run]
                     print(f"[INFO] Limiting secondary server to {len(limited_files)} file(s) this run")
                     for filename in limited_files:
-                        if should_stop_for_deadline(deadline_time, reserve_seconds=600):
+                        if should_stop_for_deadline(deadline_time):
                             print(f"[INFO] Time limit approaching, stopping")
                             break
 
