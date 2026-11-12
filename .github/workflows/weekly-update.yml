@@ -50,8 +50,8 @@ jobs:
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
           ALBION_MAX_RUNTIME_SECONDS: '19800'
           ALBION_RUNTIME_BUFFER_SECONDS: '600'
-          ALBION_MAX_WORKERS: '1'
-          ALBION_MAX_FILES_PER_RUN: '1'
+          ALBION_MAX_WORKERS: '2'
+          ALBION_MAX_FILES_PER_RUN: '3'
           ALBION_DOWNLOAD_RETRIES: '5'
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
         run: python albion_data_extractor/ci_processor.py
