@@ -4,11 +4,10 @@ on:
   schedule:
     # Run every hour (UTC)
     - cron: '0 * * * *'
-  # Allow manual triggering
   workflow_dispatch:
     inputs:
       server:
-        description: 'Which server to process this run. Use all to process the full queue in order.'
+        description: 'Which server to process this run. Use all to process all servers.'
         required: false
         default: 'all'
         type: choice
@@ -36,12 +35,17 @@ jobs:
         server: [europe, east, west]
     runs-on: ubuntu-latest
     timeout-minutes: 360
-    if: github.event_name != 'workflow_dispatch' || inputs.server == 'all' || inputs.server == matrix.server
 
     permissions:
-      contents: write
+      contents: read
 
     steps:
+      - name: Skip unmatched manual server
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.server != 'all' && inputs.server != matrix.server }}
+        run: |
+          echo "Skipping ${{ matrix.server }} because manual selection is ${{ inputs.server }}"
+          exit 0
+
       - name: Record workflow start time
         run: |
           echo "ALBION_JOB_STARTED_AT=${{ github.run_started_at }}" >> "$GITHUB_ENV"
@@ -59,9 +63,7 @@ jobs:
 
       - name: Create directories
         run: |
-          mkdir -p albion_data_dumps/europe/{raw,extracted,formatted}
-          mkdir -p albion_data_dumps/east/{raw,extracted,formatted}
-          mkdir -p albion_data_dumps/west/{raw,extracted,formatted}
+          mkdir -p "albion_data_dumps/${{ matrix.server }}/{raw,extracted,formatted}"
           mkdir -p albion_data_dumps/temp
 
       - name: Run AODP CI Processor
@@ -77,38 +79,36 @@ jobs:
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
         run: python albion_data_extractor/ci_processor.py
 
+      - name: Package generated output
+        run: |
+          set -e
+          if [ -d "albion_data_dumps/${{ matrix.server }}/formatted" ] && find "albion_data_dumps/${{ matrix.server }}/formatted" -type f | grep -q .; then
+            zip -r "albion-market-history-${{ matrix.server }}-${{ github.run_number }}.zip" "albion_data_dumps/${{ matrix.server }}"
+            echo "HAS_DATA=true" >> "$GITHUB_ENV"
+          else
+            echo "HAS_DATA=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Upload generated artifact
+        if: ${{ env.HAS_DATA == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: albion-market-history-${{ matrix.server }}-${{ github.run_number }}
+          path: albion-market-history-${{ matrix.server }}-${{ github.run_number }}.zip
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Clean up temporary directories
+        if: ${{ always() }}
         run: |
           rm -rf albion_data_dumps/*/raw/
           rm -rf albion_data_dumps/*/extracted/
           rm -rf albion_data_dumps/temp/
 
-      - name: Check for changes
-        id: changes
-        run: |
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-          else
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push changes
-        if: steps.changes.outputs.has_changes == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add albion_data_dumps/*/formatted/
-          git commit -m "chore: update market history data - $(date +'%Y-%m-%d')"
-          git push
-
       - name: Create summary
         run: |
-          echo "### AODP Market History Update" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.changes.outputs.has_changes }}" == "true" ]; then
-            echo "✅ Market history data updated and committed" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ No new market history files found" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Timestamp:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "### AODP Market History Update" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Server:** ${{ matrix.server }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Status:** Completed" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Timestamp:** $(date)" >> "$GITHUB_STEP_SUMMARY"
