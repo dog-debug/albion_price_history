@@ -7,16 +7,36 @@ on:
   # Allow manual triggering
   workflow_dispatch:
     inputs:
+      server:
+        description: 'Which server to process this run. Use all to process the full queue in order.'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - europe
+          - east
+          - west
       reset_processed:
         description: 'Reset the .processed state and re-download archived market history files'
         required: false
         default: false
         type: boolean
 
+concurrency:
+  group: market-history-update
+  cancel-in-progress: false
+
 jobs:
   update-market-history:
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        server: [europe, east, west]
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    if: github.event_name != 'workflow_dispatch' || inputs.server == 'all' || inputs.server == matrix.server
 
     permissions:
       contents: write
@@ -48,10 +68,11 @@ jobs:
         env:
           ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
+          ALBION_TARGET_SERVER: ${{ matrix.server }}
           ALBION_MAX_RUNTIME_SECONDS: '19800'
           ALBION_RUNTIME_BUFFER_SECONDS: '600'
-          ALBION_MAX_WORKERS: '2'
-          ALBION_MAX_FILES_PER_RUN: '3'
+          ALBION_MAX_WORKERS: '0'
+          ALBION_MAX_FILES_PER_RUN: '0'
           ALBION_DOWNLOAD_RETRIES: '5'
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
         run: python albion_data_extractor/ci_processor.py
