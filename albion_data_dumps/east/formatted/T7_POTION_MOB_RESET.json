@@ -34,5 +34,32 @@
     "sellPrice": 600000,
     "buyPrice": 600000,
     "quantity": 3
+  },
+  {
+    "timestamp": "2023-11-05T12:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 799978,
+    "buyPrice": 799978,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2023-11-08T18:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 400000,
+    "buyPrice": 400000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2023-11-08T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 300000,
+    "buyPrice": 300000,
+    "quantity": 1
   }
 ]
