@@ -52,7 +52,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add albion_data_dumps/east/formatted
+          git add -A albion_data_dumps/east/formatted
           if git diff --cached --quiet; then
             echo "No east data changes to push"
           else
