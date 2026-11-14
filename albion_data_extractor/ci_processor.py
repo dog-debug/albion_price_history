@@ -57,12 +57,21 @@ SERVERS = {
 
 # Use relative paths from project root
 PROJECT_ROOT = Path(__file__).parent.parent
+DEFAULT_DATA_ROOT = os.getenv('ALBION_DATA_ROOT', 'albion_data_dumps')
 DEFAULT_MAX_RUNTIME_SECONDS = int(os.getenv('ALBION_MAX_RUNTIME_SECONDS', '19800'))
 DEFAULT_RUNTIME_BUFFER_SECONDS = int(os.getenv('ALBION_RUNTIME_BUFFER_SECONDS', '0'))
 DEFAULT_DOWNLOAD_RETRIES = int(os.getenv('ALBION_DOWNLOAD_RETRIES', '5'))
 DEFAULT_DOWNLOAD_TIMEOUT_SECONDS = int(os.getenv('ALBION_DOWNLOAD_TIMEOUT_SECONDS', '120'))
 DEFAULT_MAX_WORKERS = int(os.getenv('ALBION_MAX_WORKERS', '0'))
 DEFAULT_MAX_FILES_PER_RUN = int(os.getenv('ALBION_MAX_FILES_PER_RUN', '0'))
+
+
+def get_data_root() -> Path:
+    """Return the configured data root, defaulting to the legacy albion_data_dumps folder."""
+    raw_root = (os.getenv('ALBION_DATA_ROOT') or DEFAULT_DATA_ROOT or 'albion_data_dumps').strip()
+    if not raw_root:
+        raw_root = 'albion_data_dumps'
+    return PROJECT_ROOT / Path(raw_root)
 
 
 def get_max_worker_count() -> int:
@@ -157,11 +166,12 @@ def atomic_write_text(path: Path, content: str) -> None:
 
 
 def get_paths_for_server(server_name: str) -> Dict[str, Path]:
-    """Get directory paths for a specific server (each server has its own folder structure)"""
+    """Get directory paths for a specific server (each server has its own folder structure)."""
+    data_root = get_data_root()
     return {
-        'raw': PROJECT_ROOT / 'albion_data_dumps' / server_name / 'raw',
-        'history': PROJECT_ROOT / 'albion_data_dumps' / server_name / 'extracted',
-        'output': PROJECT_ROOT / 'albion_data_dumps' / server_name / 'formatted',
+        'raw': data_root / server_name / 'raw',
+        'history': data_root / server_name / 'extracted',
+        'output': data_root / server_name / 'formatted',
     }
 
 PATHS = get_paths_for_server('west')  # Default for backward compatibility
