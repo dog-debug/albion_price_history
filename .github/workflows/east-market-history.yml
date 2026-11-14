@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 180
 
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -48,23 +48,17 @@ jobs:
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
         run: python albion_data_extractor/ci_processor.py
 
-      - name: Package generated east output
+      - name: Commit and push east output
         run: |
-          if [ -d "albion_data_dumps/east/formatted" ] && find "albion_data_dumps/east/formatted" -type f | grep -q .; then
-            zip -r "albion-market-history-east-${{ github.run_number }}.zip" albion_data_dumps/east
-            echo "HAS_DATA=true" >> "$GITHUB_ENV"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add albion_data_dumps/east/formatted
+          if git diff --cached --quiet; then
+            echo "No east data changes to push"
           else
-            echo "HAS_DATA=false" >> "$GITHUB_ENV"
+            git commit -m "chore: update east market history data"
+            git push origin HEAD:${GITHUB_REF_NAME}
           fi
-
-      - name: Upload east artifact
-        if: ${{ env.HAS_DATA == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: albion-market-history-east-${{ github.run_number }}
-          path: albion-market-history-east-${{ github.run_number }}.zip
-          if-no-files-found: error
-          retention-days: 30
 
       - name: Summary
         run: |
@@ -72,5 +66,4 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "**Server:** east" >> "$GITHUB_STEP_SUMMARY"
           echo "**Files per run:** 1" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Result:** $(if [ "${HAS_DATA:-false}" = "true" ]; then echo "artifact uploaded"; else echo "no new east files"; fi)" >> "$GITHUB_STEP_SUMMARY"
           echo "**Timestamp:** $(date)" >> "$GITHUB_STEP_SUMMARY"
