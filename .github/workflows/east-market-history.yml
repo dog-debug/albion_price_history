@@ -1,0 +1,76 @@
+name: East Market History Update
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      reset_processed:
+        description: 'Reset the east .processed state and re-download archived east market_history files'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  east-market-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Create east directories
+        run: |
+          mkdir -p albion_data_dumps/east/{raw,extracted,formatted}
+          mkdir -p albion_data_dumps/temp
+
+      - name: Run east server processor
+        env:
+          ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
+          ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
+          ALBION_TARGET_SERVER: east
+          ALBION_MAX_RUNTIME_SECONDS: '19800'
+          ALBION_RUNTIME_BUFFER_SECONDS: '600'
+          ALBION_MAX_WORKERS: '1'
+          ALBION_MAX_FILES_PER_RUN: '1'
+          ALBION_DOWNLOAD_RETRIES: '5'
+          ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
+        run: python albion_data_extractor/ci_processor.py
+
+      - name: Package generated east output
+        run: |
+          if [ -d "albion_data_dumps/east/formatted" ] && find "albion_data_dumps/east/formatted" -type f | grep -q .; then
+            zip -r "albion-market-history-east-${{ github.run_number }}.zip" albion_data_dumps/east
+            echo "HAS_DATA=true" >> "$GITHUB_ENV"
+          else
+            echo "HAS_DATA=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Upload east artifact
+        if: ${{ env.HAS_DATA == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: albion-market-history-east-${{ github.run_number }}
+          path: albion-market-history-east-${{ github.run_number }}.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          echo "### East Market History Update" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Server:** east" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Files per run:** 1" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Result:** $(if [ "${HAS_DATA:-false}" = "true" ]; then echo "artifact uploaded"; else echo "no new east files"; fi)" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Timestamp:** $(date)" >> "$GITHUB_STEP_SUMMARY"
