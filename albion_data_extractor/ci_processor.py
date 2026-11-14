@@ -267,7 +267,7 @@ def download_latest_exports(
     paths = get_paths_for_server(server_name)
     print(f"[INFO] Checking for new market history files on {server_name}...")
 
-    processed = load_processed_files(paths)
+    processed = {normalize_processed_file_key(name) for name in load_processed_files(paths)}
     available = get_available_downloads(base_url)
 
     if not available:
@@ -275,18 +275,18 @@ def download_latest_exports(
         return []
 
     # Pre-build set of SQL filenames already present in extracted/history/
-    existing_sql = {f.name for f in paths['history'].glob('market_history_*.sql')}
-    existing_gz  = {f.name for f in paths['history'].glob('market_history_*.sql.gz')}
-    existing_raw = {f.name for f in paths['raw'].glob('market_history_*.sql.gz')}
+    existing_sql = {normalize_processed_file_key(f.name) for f in paths['history'].glob('market_history_*.sql')}
+    existing_gz  = {normalize_processed_file_key(f.name) for f in paths['history'].glob('market_history_*.sql.gz')}
+    existing_raw = {normalize_processed_file_key(f.name) for f in paths['raw'].glob('market_history_*.sql.gz')}
 
     to_download = []
     for filename in available:
-        sql_name = filename[:-3]  # strip .gz → market_history_YYYY_MM.sql
-        if filename in processed:
+        key = normalize_processed_file_key(filename)
+        if key in processed:
             print(f"[SKIP] {filename} — in .processed.txt")
-        elif filename in existing_gz or sql_name in existing_sql:
+        elif key in existing_gz or key in existing_sql:
             print(f"[SKIP] {filename} — already in extracted/history/")
-        elif filename in existing_raw:
+        elif key in existing_raw:
             print(f"[SKIP] {filename} — already in raw/")
         else:
             to_download.append(filename)
@@ -365,6 +365,20 @@ def reset_processed_files(paths: Dict[str, Path]) -> None:
             print(f"[WARN] Failed to reset processed state for {paths['output']}: {exc}")
 
 
+def normalize_processed_file_key(filename: str) -> str:
+    """Normalize SQL and .gz variants to a single processed-file key."""
+    raw_name = (filename or '').strip()
+    if not raw_name:
+        return ''
+
+    key = raw_name.replace('\\', '/').rsplit('/', 1)[-1]
+    if key.endswith('.sql.gz'):
+        key = key[:-3]
+    if key.endswith('.sql'):
+        key = key[:-4]
+    return key
+
+
 def load_processed_files(paths: Dict[str, Path]) -> Set[str]:
     """Load list of already-processed SQL files for a specific server."""
     processed_file = paths['output'] / '.processed.txt'
@@ -376,8 +390,12 @@ def load_processed_files(paths: Dict[str, Path]) -> Set[str]:
         return set()
 
     try:
-        with open(processed_file, 'r') as f:
-            processed = {line.strip() for line in f if line.strip()}
+        processed = set()
+        with open(processed_file, 'r', encoding='utf-8', errors='ignore') as f:
+            for line in f:
+                key = normalize_processed_file_key(line)
+                if key:
+                    processed.add(key)
     except Exception:
         return set()
 
@@ -396,7 +414,7 @@ def save_processed_file(filename: str, paths: Dict[str, Path]):
     try:
         processed_file = paths['output'] / '.processed.txt'
         processed = load_processed_files(paths)
-        processed.add(filename)
+        processed.add(normalize_processed_file_key(filename))
         atomic_write_text(processed_file, ''.join(f'{name}\n' for name in sorted(processed)))
     except Exception as e:
         print(f"[ERROR] Failed to save processed file: {e}")
@@ -624,7 +642,7 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
         print(f"[INFO] Limiting run to the first {len(sql_files)} SQL file(s) for {server_name} because ALBION_MAX_FILES_PER_RUN is set.")
     else:
         print(f"[INFO] No per-run file cap configured for {server_name}; processing all available SQL files within the runtime deadline.")
-    processed = load_processed_files(paths)
+    processed = {normalize_processed_file_key(name) for name in load_processed_files(paths)}
     processed_count = 0
     
     # Process multiple files until the workflow deadline is reached
@@ -633,7 +651,7 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
             print(f"[INFO] Processing deadline reached; stopping work and leaving {sql_file.name} unmarked as processed.")
             break
 
-        if sql_file.name in processed:
+        if normalize_processed_file_key(sql_file.name) in processed:
             print(f"[SKIP] {sql_file.name} already processed for {server_name}")
             continue
 
@@ -733,6 +751,29 @@ def _parallel_write_item(task: Tuple[str, List[Dict[str, Any]], Dict[str, Path]]
     return item_id
 
 
+def get_git_push_target() -> str:
+    """Return the correct Git ref target for pushes in CI or local checkout states."""
+    branch_name = (os.getenv('GITHUB_REF_NAME') or '').strip()
+    if branch_name:
+        return f'HEAD:{branch_name}'
+
+    try:
+        import subprocess
+        result = subprocess.run(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        branch_name = result.stdout.strip()
+    except Exception:
+        branch_name = 'main'
+
+    if not branch_name or branch_name == 'HEAD':
+        branch_name = 'main'
+    return f'HEAD:{branch_name}'
+
+
 def count_unprocessed_available_files(server_name: str) -> int:
     """
     Count how many unprocessed files are available to download from a server.
@@ -740,7 +781,7 @@ def count_unprocessed_available_files(server_name: str) -> int:
     """
     paths = get_paths_for_server(server_name)
     base_url = SERVERS[server_name]
-    processed = load_processed_files(paths)
+    processed = {normalize_processed_file_key(name) for name in load_processed_files(paths)}
     
     try:
         available = get_available_downloads(base_url)
@@ -748,7 +789,7 @@ def count_unprocessed_available_files(server_name: str) -> int:
             return 0
         
         # Count files that haven't been processed yet
-        unprocessed = [f for f in available if f not in processed]
+        unprocessed = [f for f in available if normalize_processed_file_key(f) not in processed]
         return len(unprocessed)
     except Exception as e:
         print(f"[WARN] Error checking available files for {server_name}: {e}")
@@ -838,8 +879,8 @@ def main():
         print(f"[INFO] Found {len(available)} total files on {most_behind}")
         
         # Download and process all available files until deadline.
-        processed = load_processed_files(paths)
-        unprocessed_files = [f for f in sorted(available) if f not in processed]
+        processed = {normalize_processed_file_key(name) for name in load_processed_files(paths)}
+        unprocessed_files = [f for f in sorted(available) if normalize_processed_file_key(f) not in processed]
         
         if unprocessed_files:
             if max_files_per_run > 0:
@@ -918,8 +959,8 @@ def main():
 
             available = get_available_downloads(base_url)
             if available:
-                processed = load_processed_files(paths)
-                unprocessed_files = [f for f in sorted(available) if f not in processed]
+                processed = {normalize_processed_file_key(name) for name in load_processed_files(paths)}
+                unprocessed_files = [f for f in sorted(available) if normalize_processed_file_key(f) not in processed]
 
                 if unprocessed_files:
                     if max_files_per_run > 0:
@@ -984,10 +1025,11 @@ def main():
             subprocess.run(['git', 'commit', '-m', commit_msg], cwd=PROJECT_ROOT, check=True, capture_output=True)
             print(f"[SUCCESS] Committed changes: {commit_msg}")
             
-            # Push to GitHub
+            # Push to GitHub on the current branch, including detached HEAD in CI.
             print(f"[PUSH] Pushing to GitHub...")
-            subprocess.run(['git', 'push', 'origin', 'main'], cwd=PROJECT_ROOT, check=True, capture_output=True)
-            print(f"[SUCCESS] Pushed to GitHub successfully!")
+            push_target = get_git_push_target()
+            subprocess.run(['git', 'push', 'origin', push_target], cwd=PROJECT_ROOT, check=True, capture_output=True)
+            print(f"[SUCCESS] Pushed to GitHub successfully with {push_target}!")
         else:
             print(f"[INFO] No changes to commit (data already current)")
     
