@@ -160,5 +160,77 @@
     "sellPrice": 110000,
     "buyPrice": 110000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-01T06:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 109995,
+    "buyPrice": 109995,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-02T00:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 110000,
+    "buyPrice": 110000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-03T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 200088,
+    "buyPrice": 200088,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-09T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 200041,
+    "buyPrice": 200041,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-19T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 214994,
+    "buyPrice": 214994,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-23T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 419998,
+    "buyPrice": 419998,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-05-25T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 200041,
+    "buyPrice": 200041,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-21T12:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 111111,
+    "buyPrice": 111111,
+    "quantity": 1
   }
 ]
