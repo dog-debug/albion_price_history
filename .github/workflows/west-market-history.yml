@@ -2,7 +2,7 @@ name: West Market History Update
 
 on:
   schedule:
-    - cron: '30 * * * *'
+    - cron: '40 * * * *'
   workflow_dispatch:
     inputs:
       reset_processed:
@@ -10,6 +10,10 @@ on:
         required: false
         default: false
         type: boolean
+
+concurrency:
+  group: albion-market-history
+  cancel-in-progress: false
 
 jobs:
   west-market-history:
@@ -32,14 +36,15 @@ jobs:
 
       - name: Create west directories
         run: |
-          mkdir -p albion_data_dumps/west/{raw,extracted,formatted}
-          mkdir -p albion_data_dumps/temp
+          mkdir -p data/west/{raw,extracted,formatted}
+          mkdir -p data/temp
 
       - name: Run west server processor
         env:
           ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
           ALBION_TARGET_SERVER: west
+          ALBION_DATA_ROOT: data
           ALBION_MAX_RUNTIME_SECONDS: '19800'
           ALBION_RUNTIME_BUFFER_SECONDS: '600'
           ALBION_MAX_WORKERS: '1'
@@ -52,7 +57,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add -A albion_data_dumps/west/formatted
+          git add -A data/west
           if git diff --cached --quiet; then
             echo "No west data changes to push"
           else
