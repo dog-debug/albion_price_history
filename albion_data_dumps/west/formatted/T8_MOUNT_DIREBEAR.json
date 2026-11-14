@@ -187,5 +187,86 @@
     "sellPrice": 11000000,
     "buyPrice": 11000000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-01T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 11500000,
+    "buyPrice": 11500000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-03T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 11999999,
+    "buyPrice": 11999999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-16T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 13000000,
+    "buyPrice": 13000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-21T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 12000000,
+    "buyPrice": 12000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-22T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 7000016,
+    "buyPrice": 7000016,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-24T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 11499997,
+    "buyPrice": 11499997,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-05T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 11000000,
+    "buyPrice": 11000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-10T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 12300000,
+    "buyPrice": 12300000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-30T12:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 14447990,
+    "buyPrice": 14447990,
+    "quantity": 1
   }
 ]

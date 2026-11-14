@@ -25,5 +25,32 @@
     "sellPrice": 1850000,
     "buyPrice": 1850000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-02T18:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 166000,
+    "buyPrice": 166000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-01T12:00:00Z",
+    "city": "unknown",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 130000,
+    "buyPrice": 130000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-01T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1960000,
+    "buyPrice": 1960000,
+    "quantity": 1
   }
 ]

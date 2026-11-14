@@ -754,5 +754,41 @@
     "sellPrice": 117253,
     "buyPrice": 117253,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-01T00:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 251985,
+    "buyPrice": 251985,
+    "quantity": 4
+  },
+  {
+    "timestamp": "2020-04-01T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 217993,
+    "buyPrice": 217993,
+    "quantity": 3
+  },
+  {
+    "timestamp": "2020-04-29T00:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 559998,
+    "buyPrice": 559998,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-30T18:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 559999,
+    "buyPrice": 559999,
+    "quantity": 1
   }
 ]

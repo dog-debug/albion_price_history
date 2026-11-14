@@ -1438,5 +1438,41 @@
     "sellPrice": 600000,
     "buyPrice": 600000,
     "quantity": 2
+  },
+  {
+    "timestamp": "2020-04-05T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 350000,
+    "buyPrice": 350000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-26T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 200000,
+    "buyPrice": 200000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-28T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 249000,
+    "buyPrice": 249000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-30T06:00:00Z",
+    "city": "martlock",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 199000,
+    "buyPrice": 199000,
+    "quantity": 1
   }
 ]

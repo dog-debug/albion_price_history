@@ -196,5 +196,32 @@
     "sellPrice": 158000,
     "buyPrice": 158000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-01T12:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 160000,
+    "buyPrice": 160000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-02T12:00:00Z",
+    "city": "bridgewatch",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 373553,
+    "buyPrice": 373553,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-04-07T06:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 617535,
+    "buyPrice": 617535,
+    "quantity": 1
   }
 ]
