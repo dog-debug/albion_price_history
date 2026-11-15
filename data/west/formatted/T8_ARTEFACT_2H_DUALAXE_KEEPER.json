@@ -61,5 +61,41 @@
     "sellPrice": 1300000,
     "buyPrice": 1300000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-03-02T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1000001,
+    "buyPrice": 1000001,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-03-05T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1750000,
+    "buyPrice": 1750000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-03-16T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1250001,
+    "buyPrice": 1250001,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-03-17T18:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1650000,
+    "buyPrice": 1650000,
+    "quantity": 1
   }
 ]

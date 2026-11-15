@@ -493,5 +493,41 @@
     "sellPrice": 70120,
     "buyPrice": 70120,
     "quantity": 2
+  },
+  {
+    "timestamp": "2020-03-04T12:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 100000,
+    "buyPrice": 100000,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-03-06T00:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 810608,
+    "buyPrice": 810608,
+    "quantity": 16
+  },
+  {
+    "timestamp": "2020-03-04T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1431984,
+    "buyPrice": 1431984,
+    "quantity": 24
+  },
+  {
+    "timestamp": "2020-03-26T06:00:00Z",
+    "city": "martlock",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 530594,
+    "buyPrice": 530594,
+    "quantity": 10
   }
 ]
