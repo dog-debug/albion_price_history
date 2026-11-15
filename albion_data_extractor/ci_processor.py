@@ -761,6 +761,11 @@ def _parallel_write_item(task: Tuple[str, List[Dict[str, Any]], Dict[str, Path]]
     return item_id
 
 
+def should_handle_git_commit() -> bool:
+    """Return False when the workflow already owns the single commit/push step."""
+    return str(os.getenv('GITHUB_ACTIONS', '')).strip().lower() not in {'1', 'true', 'yes'}
+
+
 def get_git_push_target() -> str:
     """Return the correct Git ref target for pushes in CI or local checkout states."""
     branch_name = (os.getenv('GITHUB_REF_NAME') or '').strip()
@@ -1016,6 +1021,12 @@ def main():
     print(f"[INFO] Processing complete. Formatted JSON files available in: albion_data_dumps/{{europe,east,west}}/formatted/")
     print(f"{'='*60}")
     
+    if not should_handle_git_commit():
+        print(f"\n{'='*60}")
+        print(f"[INFO] GitHub Actions is handling the repository commit for this workflow; skipping internal git commit/push.")
+        print(f"{'='*60}")
+        return 0
+
     # COMMIT AND PUSH TO GITHUB
     print(f"\n{'='*60}")
     print(f"[COMMIT] Committing changes to repository...")
