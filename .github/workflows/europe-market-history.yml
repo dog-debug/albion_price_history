@@ -57,7 +57,10 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add -A data/europe
+          git restore --staged data/europe/raw data/europe/extracted 2>/dev/null || true
+          git rm -r --cached --ignore-unmatch data/europe/raw data/europe/extracted 2>/dev/null || true
+          rm -rf data/europe/raw data/europe/extracted
+          git add data/europe/formatted
           if git diff --cached --quiet; then
             echo "No europe data changes to push"
           else
