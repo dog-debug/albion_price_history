@@ -85,10 +85,10 @@ This opens an interactive GUI where you can:
 
 ### CI/CD Processing
 
-The project uses a single combined GitHub Actions workflow that runs every **6 hours** (`0 */6 * * *`) and also supports manual triggering from the Actions tab. Each scheduled run processes **Europe → East → West** sequentially, with up to **10 files per server** per execution.
+The project uses a single combined GitHub Actions workflow that runs every **6 hours** (`0 */6 * * *`) and also supports manual triggering from the Actions tab. Each scheduled run processes **Europe → East → West** sequentially, with **5 files per server per execution** and a wider runtime budget to keep the full batch reliable on GitHub-hosted runners.
 
 The workflow does the following for each server:
-1. Uses its own isolated `data/<server>/` folder
+1. Uses its own isolated `albion_data_dumps/<server>/` folder
 2. Downloads the oldest unprocessed archive for that server
 3. Extracts and formats the data into JSON
 4. Keeps only `formatted/` output and the server `.processed.txt` in the repository commit
