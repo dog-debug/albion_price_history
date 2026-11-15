@@ -1,8 +1,6 @@
 name: West Market History Update
 
 on:
-  schedule:
-    - cron: '40 * * * *'
   workflow_dispatch:
     inputs:
       reset_processed:
