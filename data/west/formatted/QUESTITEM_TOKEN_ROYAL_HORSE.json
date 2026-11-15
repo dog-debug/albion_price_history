@@ -565,5 +565,32 @@
     "sellPrice": 484444,
     "buyPrice": 484444,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-07-03T12:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 50001,
+    "buyPrice": 50001,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-07-03T18:00:00Z",
+    "city": "lymhurst",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 400001,
+    "buyPrice": 400001,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-07-02T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 450000,
+    "buyPrice": 450000,
+    "quantity": 1
   }
 ]
