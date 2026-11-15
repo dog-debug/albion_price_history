@@ -47,10 +47,10 @@ jobs:
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
           ALBION_TARGET_SERVER: europe
           ALBION_DATA_ROOT: albion_data_dumps
-          ALBION_MAX_RUNTIME_SECONDS: '3600'
-          ALBION_RUNTIME_BUFFER_SECONDS: '300'
+          ALBION_MAX_RUNTIME_SECONDS: '1800'
+          ALBION_RUNTIME_BUFFER_SECONDS: '180'
           ALBION_MAX_WORKERS: '1'
-          ALBION_MAX_FILES_PER_RUN: '5'
+          ALBION_MAX_FILES_PER_RUN: '1'
           ALBION_DOWNLOAD_RETRIES: '5'
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
         run: python albion_data_extractor/ci_processor.py
@@ -61,10 +61,10 @@ jobs:
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
           ALBION_TARGET_SERVER: east
           ALBION_DATA_ROOT: albion_data_dumps
-          ALBION_MAX_RUNTIME_SECONDS: '3600'
-          ALBION_RUNTIME_BUFFER_SECONDS: '300'
+          ALBION_MAX_RUNTIME_SECONDS: '1800'
+          ALBION_RUNTIME_BUFFER_SECONDS: '180'
           ALBION_MAX_WORKERS: '1'
-          ALBION_MAX_FILES_PER_RUN: '5'
+          ALBION_MAX_FILES_PER_RUN: '1'
           ALBION_DOWNLOAD_RETRIES: '5'
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
         run: python albion_data_extractor/ci_processor.py
@@ -75,10 +75,10 @@ jobs:
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
           ALBION_TARGET_SERVER: west
           ALBION_DATA_ROOT: albion_data_dumps
-          ALBION_MAX_RUNTIME_SECONDS: '3600'
-          ALBION_RUNTIME_BUFFER_SECONDS: '300'
+          ALBION_MAX_RUNTIME_SECONDS: '1800'
+          ALBION_RUNTIME_BUFFER_SECONDS: '180'
           ALBION_MAX_WORKERS: '1'
-          ALBION_MAX_FILES_PER_RUN: '5'
+          ALBION_MAX_FILES_PER_RUN: '1'
           ALBION_DOWNLOAD_RETRIES: '5'
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
         run: python albion_data_extractor/ci_processor.py
@@ -103,6 +103,6 @@ jobs:
           echo "### Market History Update" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "**Mode:** all servers" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Files per server:** 5" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Files per server:** 1" >> "$GITHUB_STEP_SUMMARY"
           echo "**Trigger:** scheduled and manual" >> "$GITHUB_STEP_SUMMARY"
           echo "**Timestamp:** $(date)" >> "$GITHUB_STEP_SUMMARY"
