@@ -583,5 +583,23 @@
     "sellPrice": 60000,
     "buyPrice": 60000,
     "quantity": 7
+  },
+  {
+    "timestamp": "2020-04-05T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 14999,
+    "buyPrice": 14999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-04-06T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 15000,
+    "buyPrice": 15000,
+    "quantity": 1
   }
 ]

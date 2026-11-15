@@ -1042,5 +1042,50 @@
     "sellPrice": 3600,
     "buyPrice": 3600,
     "quantity": 3
+  },
+  {
+    "timestamp": "2020-04-01T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 10355,
+    "buyPrice": 10355,
+    "quantity": 12
+  },
+  {
+    "timestamp": "2020-04-01T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 14461,
+    "buyPrice": 14461,
+    "quantity": 16
+  },
+  {
+    "timestamp": "2020-04-29T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 1569,
+    "buyPrice": 1569,
+    "quantity": 13
+  },
+  {
+    "timestamp": "2020-04-30T00:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 252,
+    "buyPrice": 252,
+    "quantity": 6
+  },
+  {
+    "timestamp": "2020-04-30T18:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 974,
+    "buyPrice": 974,
+    "quantity": 8
   }
 ]
