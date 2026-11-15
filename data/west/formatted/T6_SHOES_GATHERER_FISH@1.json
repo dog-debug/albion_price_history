@@ -259,5 +259,23 @@
     "sellPrice": 70000,
     "buyPrice": 70000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-12T06:00:00Z",
+    "city": "caerleon",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 12125,
+    "buyPrice": 12125,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-05-06T00:00:00Z",
+    "city": "caerleon",
+    "quality": 2,
+    "server": "west",
+    "sellPrice": 99999,
+    "buyPrice": 99999,
+    "quantity": 1
   }
 ]
