@@ -85,29 +85,22 @@ This opens an interactive GUI where you can:
 
 ### CI/CD Processing
 
-The project includes automated GitHub Actions that run **every hour** to:
+The project uses a single combined GitHub Actions workflow that runs every **6 hours** (`0 */6 * * *`) and also supports manual triggering from the Actions tab. Each scheduled run processes **Europe → East → West** sequentially, with up to **10 files per server** per execution.
 
-1. Check servers in priority order: **Europe → East → West**
-2. Process **ONE server per run** (whichever has unprocessed files first)
-3. Download the oldest unprocessed file from that server
-4. Extract and format the data
-5. Clean up temporary files and commit results to the repo
+The workflow does the following for each server:
+1. Uses its own isolated `data/<server>/` folder
+2. Downloads the oldest unprocessed archive for that server
+3. Extracts and formats the data into JSON
+4. Keeps only `formatted/` output and the server `.processed.txt` in the repository commit
+5. Removes raw and extracted SQL dumps before pushing to avoid GitHub's 100 MB file limit
 
-**Processing Order:**
-- Hour 1: Europe file 1 processed (if available)
-- Hour 2: Europe file 2 processed (if available) or East file 1 (if EU done)
-- Hour 3: Continue down the priority list
-- Cycles through all servers processing all files chronologically
-
-Each server has its own `.processed.txt` file tracking which files have been completed.
-
-To manually trigger this workflow, go to the GitHub Actions tab and click "Run workflow". If a stale `.processed.txt` blocks downloading, rerun the workflow with the `reset_processed` option enabled to clear the cached state and re-seed the archive list.
+Each server has its own `.processed.txt` file tracking which files have been completed. If a stale `.processed.txt` blocks downloading, rerun the workflow with the `reset_processed` option enabled to clear the cached state and re-seed the archive list.
 
 ## File Structure
 
 ```
 albion_price_history/
-├── albion_data_dumps/
+├── data/
 │   ├── europe/                        # Europe server data
 │   │   ├── raw/                       # Downloaded .gz files (ignored in git)
 │   │   ├── extracted/                 # SQL files extracted (ignored in git)
@@ -133,7 +126,7 @@ albion_price_history/
 │   ├── transform_aodp_to_json_v2.py  # GUI tool (legacy)
 │   └── ci_processor.py               # Automated CI processor
 └── .github/workflows/
-    └── monthly-update.yml            # GitHub Actions workflow
+    └── market-history/*.yml          # Server-specific GitHub Actions workflows
 ```
 
 ## Data Sources
