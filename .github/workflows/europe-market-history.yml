@@ -1,8 +1,6 @@
 name: Europe Market History Update
 
 on:
-  schedule:
-    - cron: '20 * * * *'
   workflow_dispatch:
     inputs:
       reset_processed:
