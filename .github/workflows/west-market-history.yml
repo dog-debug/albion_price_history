@@ -57,7 +57,10 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add -A data/west
+          git restore --staged data/west/raw data/west/extracted 2>/dev/null || true
+          git rm -r --cached --ignore-unmatch data/west/raw data/west/extracted 2>/dev/null || true
+          rm -rf data/west/raw data/west/extracted
+          git add data/west/formatted
           if git diff --cached --quiet; then
             echo "No west data changes to push"
           else
