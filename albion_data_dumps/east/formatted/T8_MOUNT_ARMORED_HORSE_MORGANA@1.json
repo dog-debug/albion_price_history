@@ -592,5 +592,32 @@
     "sellPrice": 10000000,
     "buyPrice": 10000000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2023-12-01T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 9999999,
+    "buyPrice": 9999999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2023-12-11T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 9000000,
+    "buyPrice": 9000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2023-12-12T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "east",
+    "sellPrice": 11000000,
+    "buyPrice": 11000000,
+    "quantity": 1
   }
 ]
