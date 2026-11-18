@@ -85,7 +85,7 @@ This opens an interactive GUI where you can:
 
 ### CI/CD Processing
 
-The project uses a single combined GitHub Actions workflow that runs every **6 hours** (`0 */6 * * *`) and also supports manual triggering from the Actions tab. Each scheduled run processes **Europe → East → West** sequentially, with **1 file per server per execution** because that is the stable GitHub-hosted runner profile we have verified.
+The project uses a matrix GitHub Actions workflow that runs every **6 hours** (`0 */6 * * *`) and also supports manual triggering from the Actions tab. Each scheduled run processes **Europe → East → West** with one bounded matrix job per server, and each server processes **1 file per execution**.
 
 The workflow does the following for each server:
 1. Uses its own isolated `albion_data_dumps/<server>/` folder

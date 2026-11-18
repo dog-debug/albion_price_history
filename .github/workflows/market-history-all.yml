@@ -1,4 +1,4 @@
-name: Market History Update
+﻿name: Market History Update
 
 on:
   schedule:
@@ -18,7 +18,12 @@ concurrency:
 jobs:
   market-history-all:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        server: [europe, east, west]
 
     permissions:
       contents: write
@@ -28,75 +33,49 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          sparse-checkout: |
+            .github/workflows
+            albion_data_extractor
+            .gitignore
+            requirements.txt
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Prepare server data folders
         run: |
-          mkdir -p albion_data_dumps/europe/{raw,extracted,formatted}
-          mkdir -p albion_data_dumps/east/{raw,extracted,formatted}
-          mkdir -p albion_data_dumps/west/{raw,extracted,formatted}
+          mkdir -p albion_data_dumps/${{ matrix.server }}/{raw,extracted,formatted}
           mkdir -p albion_data_dumps/temp
 
-      - name: Process Europe server
+      - name: Process ${{ matrix.server }} server
         env:
           ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
           ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
-          ALBION_TARGET_SERVER: europe
+          ALBION_TARGET_SERVER: ${{ matrix.server }}
           ALBION_DATA_ROOT: albion_data_dumps
-          ALBION_MAX_RUNTIME_SECONDS: '1800'
-          ALBION_RUNTIME_BUFFER_SECONDS: '180'
+          ALBION_MAX_RUNTIME_SECONDS: '1500'
+          ALBION_RUNTIME_BUFFER_SECONDS: '300'
           ALBION_MAX_WORKERS: '1'
           ALBION_MAX_FILES_PER_RUN: '1'
           ALBION_DOWNLOAD_RETRIES: '5'
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
-        run: python albion_data_extractor/ci_processor.py
-
-      - name: Process East server
-        env:
-          ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
-          ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
-          ALBION_TARGET_SERVER: east
-          ALBION_DATA_ROOT: albion_data_dumps
-          ALBION_MAX_RUNTIME_SECONDS: '1800'
-          ALBION_RUNTIME_BUFFER_SECONDS: '180'
-          ALBION_MAX_WORKERS: '1'
-          ALBION_MAX_FILES_PER_RUN: '1'
-          ALBION_DOWNLOAD_RETRIES: '5'
-          ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
-        run: python albion_data_extractor/ci_processor.py
-
-      - name: Process West server
-        env:
-          ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
-          ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
-          ALBION_TARGET_SERVER: west
-          ALBION_DATA_ROOT: albion_data_dumps
-          ALBION_MAX_RUNTIME_SECONDS: '1800'
-          ALBION_RUNTIME_BUFFER_SECONDS: '180'
-          ALBION_MAX_WORKERS: '1'
-          ALBION_MAX_FILES_PER_RUN: '1'
-          ALBION_DOWNLOAD_RETRIES: '5'
-          ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
-        run: python albion_data_extractor/ci_processor.py
-
-      - name: Commit and push server output
         run: |
+          git sparse-checkout set albion_data_extractor albion_data_dumps/${{ matrix.server }}/formatted
+          git fetch origin main --depth=1
+          git merge --ff-only origin/main
+          python albion_data_extractor/ci_processor.py
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git restore --staged albion_data_dumps/*/raw albion_data_dumps/*/extracted 2>/dev/null || true
-          git rm -r --cached --ignore-unmatch albion_data_dumps/europe/raw albion_data_dumps/europe/extracted albion_data_dumps/east/raw albion_data_dumps/east/extracted albion_data_dumps/west/raw albion_data_dumps/west/extracted 2>/dev/null || true
-          rm -rf albion_data_dumps/europe/raw albion_data_dumps/europe/extracted albion_data_dumps/east/raw albion_data_dumps/east/extracted albion_data_dumps/west/raw albion_data_dumps/west/extracted
-          git add albion_data_dumps/europe/formatted albion_data_dumps/east/formatted albion_data_dumps/west/formatted
+          git add --all -- albion_data_dumps/${{ matrix.server }}/formatted
           if git diff --cached --quiet; then
-            echo "No market history changes to push"
+            echo "No ${{ matrix.server }} market history changes to push"
           else
-            git commit -m "chore: update all market history data"
+            git commit -m "chore: update ${{ matrix.server }} market history data"
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
+          rm -rf albion_data_dumps/${{ matrix.server }}/raw albion_data_dumps/${{ matrix.server }}/extracted
 
       - name: Summary
         run: |

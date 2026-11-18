@@ -18,7 +18,6 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Tuple, Set
 from collections import defaultdict
-from concurrent.futures import ProcessPoolExecutor
 import zipfile
 import shutil
 
@@ -199,12 +198,18 @@ _MARKET_HISTORY_RE = re.compile(r'^market_history_\d{4}_\d{2}\.sql\.gz$')
 def download_file_with_retries(url: str, destination: Path, timeout_seconds: int = DEFAULT_DOWNLOAD_TIMEOUT_SECONDS, max_retries: int = DEFAULT_DOWNLOAD_RETRIES) -> bool:
     """Download a file with retries, handling transient network cancels."""
     for attempt in range(1, max_retries + 1):
+        temp_destination = destination.with_name(destination.name + '.download')
         try:
+            temp_destination.unlink(missing_ok=True)
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, timeout=timeout_seconds) as resp, open(destination, 'wb') as out:
-                shutil.copyfileobj(resp, out)
+            with urllib.request.urlopen(req, timeout=timeout_seconds) as resp, open(temp_destination, 'wb') as out:
+                shutil.copyfileobj(resp, out, length=1024 * 1024)
+            if temp_destination.stat().st_size == 0:
+                raise OSError("Downloaded file is empty")
+            os.replace(temp_destination, destination)
             return True
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError, ConnectionError) as e:
+            temp_destination.unlink(missing_ok=True)
             if attempt == max_retries:
                 print(f"[ERROR] Failed to download {url} after {max_retries} attempts: {e}")
                 return False
@@ -486,7 +491,6 @@ def iter_sql_records(filepath: Path):
     try:
         opener = gzip.open if filepath.suffix == '.gz' else open
         with opener(filepath, 'rt', encoding='utf-8', errors='ignore') as f:
-            buffer = ''
             in_insert = False
             found_records = 0
 
@@ -496,37 +500,25 @@ def iter_sql_records(filepath: Path):
                     continue
 
                 if not in_insert:
-                    if re.match(r'INSERT\s+INTO\s+`?market_history`?\s+VALUES\s*', line, re.IGNORECASE):
-                        buffer = line
-                        in_insert = True
-                    continue
+                    insert_match = re.search(
+                        r'INSERT\s+INTO\s+`?market_history`?\s+VALUES\b',
+                        line,
+                        re.IGNORECASE,
+                    )
+                    if not insert_match:
+                        continue
+                    in_insert = True
+                    line = line[insert_match.end():]
 
-                buffer += ' ' + line
-                if line.endswith(';'):
-                    insert_pattern = r'INSERT INTO\s+`?market_history`?\s+VALUES\s+((?:\([^()]+\)(?:,\s*)?)+)'
-                    insert_match = re.search(insert_pattern, buffer, re.IGNORECASE)
-                    if insert_match:
-                        values_text = insert_match.group(1)
-                        for tuple_match in re.finditer(r'\(([^()]+)\)', values_text):
-                            tuple_str = '(' + tuple_match.group(1) + ')'
-                            values = parse_sql_insert(tuple_str)
-                            if values and len(values) >= 8:
-                                found_records += 1
-                                yield tuple(values[:8])
+                for tuple_match in re.finditer(r'\(([^()]+)\)', line):
+                    tuple_str = '(' + tuple_match.group(1) + ')'
+                    values = parse_sql_insert(tuple_str)
+                    if values and len(values) >= 8:
+                        found_records += 1
+                        yield tuple(values[:8])
+
+                if line.rstrip().endswith(';'):
                     in_insert = False
-                    buffer = ''
-
-            if in_insert and buffer:
-                insert_pattern = r'INSERT INTO\s+`?market_history`?\s+VALUES\s+((?:\([^()]+\)(?:,\s*)?)+)'
-                insert_match = re.search(insert_pattern, buffer, re.IGNORECASE)
-                if insert_match:
-                    values_text = insert_match.group(1)
-                    for tuple_match in re.finditer(r'\(([^()]+)\)', values_text):
-                        tuple_str = '(' + tuple_match.group(1) + ')'
-                        values = parse_sql_insert(tuple_str)
-                        if values and len(values) >= 8:
-                            found_records += 1
-                            yield tuple(values[:8])
 
         print(f"[DEBUG] Extracted {found_records} records from {filepath.name}")
     except Exception as e:
@@ -583,6 +575,68 @@ def write_item_records(item_id: str, price_records: List[Dict[str, Any]], paths:
     file_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_in_file if isinstance(r, dict)}
     final_records = existing_in_file + [r for r in price_records if (r['timestamp'], r['city'], r['quality']) not in file_keys]
     atomic_write_json(base_output, final_records)
+
+
+def snapshot_item_output(output_path: Path) -> Path | None:
+    """Copy an existing item output aside for a deadline rollback."""
+    if not output_path.exists():
+        return None
+    rollback_path = output_path.with_name(f'.{output_path.name}.rollback')
+    shutil.copyfile(output_path, rollback_path)
+    return rollback_path
+
+
+def restore_item_output(output_path: Path, rollback_path: Path | None) -> None:
+    """Restore one item output from its rollback snapshot, or remove a newly created file."""
+    if rollback_path is not None and rollback_path.exists():
+        os.replace(rollback_path, output_path)
+    elif output_path.exists():
+        output_path.unlink()
+
+
+def flush_item_batches(
+    file_items: Dict[str, List[Dict[str, Any]]],
+    paths: Dict[str, Path],
+    deadline_time: float,
+) -> bool:
+    """Write a bounded batch of item records and roll it back if the deadline interrupts."""
+    rollbacks: Dict[str, Path | None] = {}
+
+    for item_idx, (item_id, price_records) in enumerate(file_items.items()):
+        if item_idx % 1000 == 0 and item_idx > 0:
+            print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
+
+        if should_stop_for_deadline(deadline_time, reserve_seconds=0):
+            print(f"[INFO] Deadline reached while writing {item_id}; discarding this item batch.")
+            for written_item_id, rollback_path in rollbacks.items():
+                restore_item_output(paths['output'] / f'{written_item_id}.json', rollback_path)
+            return False
+
+        output_path = paths['output'] / f'{item_id}.json'
+        rollback_path = snapshot_item_output(output_path)
+        rollbacks[item_id] = rollback_path
+
+        if should_stop_for_deadline(deadline_time, reserve_seconds=0):
+            print(f"[INFO] Deadline reached while preparing {item_id}; discarding this item batch.")
+            restore_item_output(output_path, rollback_path)
+            rollbacks.pop(item_id, None)
+            for written_item_id, written_rollback_path in rollbacks.items():
+                restore_item_output(paths['output'] / f'{written_item_id}.json', written_rollback_path)
+            return False
+
+        try:
+            write_item_records(item_id, price_records, paths)
+        except Exception as exc:
+            print(f"[ERROR] Failed to write {item_id}: {exc}")
+            restore_item_output(output_path, rollback_path)
+            rollbacks.pop(item_id, None)
+
+    for rollback_path in rollbacks.values():
+        if rollback_path is not None:
+            rollback_path.unlink(missing_ok=True)
+
+    print(f"[DEBUG] Wrote item batch ({len(file_items):,} items)")
+    return True
 
 
 def transform_record(rec: Tuple, server_name: str) -> Dict[str, Any]:
@@ -669,6 +723,9 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
             print(f"\n[PROCESS] Processing {sql_file.name} for {server_name}...")
             file_items: Dict[str, List[Dict]] = defaultdict(list)
             record_count = 0
+            record_batch_limit = 250000
+            pending_item_writes = 0
+            item_count_written = 0
 
             for rec in iter_sql_records(sql_file):
                 record_count += 1
@@ -680,9 +737,18 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                             print(f"[INFO] Deadline reached while reading {sql_file.name}; leaving current SQL file unmarked as processed.")
                             return processed_count
                         file_items[item_id].append(transformed)
+                        pending_item_writes += 1
 
                 if record_count % 500000 == 0:
                     print(f"[DEBUG] Processed {record_count:,} records...")
+
+                if pending_item_writes >= record_batch_limit:
+                    print(f"[DEBUG] Flushing {len(file_items):,} item buckets after {record_count:,} records...")
+                    if not flush_item_batches(file_items, paths, deadline_time):
+                        return processed_count
+                    item_count_written += len(file_items)
+                    file_items.clear()
+                    pending_item_writes = 0
 
             if record_count == 0:
                 print(f"[WARN] No records found in {sql_file.name}")
@@ -690,61 +756,15 @@ def process_market_history_files(server_name: str, deadline_time: float) -> int:
                 processed_count += 1
                 continue
 
-            print(f"[DEBUG] Writing {len(file_items):,} items to JSON files for {server_name}...")
-            worker_count = get_max_worker_count()
-            worker_count = max(1, min(worker_count, len(file_items) if file_items else 1))
-
-            item_snapshots = {
-                item_id: load_json_file(paths['output'] / f'{item_id}.json')
-                for item_id in file_items
-            }
-
-            parallel_buffer = max(0, min(1800, get_runtime_buffer_seconds()))
-            use_parallel = len(file_items) > 1 and worker_count > 1 and not should_stop_for_deadline(deadline_time, reserve_seconds=parallel_buffer)
-
-            if use_parallel:
-                tasks = [(item_id, price_records, paths) for item_id, price_records in file_items.items()]
-                try:
-                    with ProcessPoolExecutor(max_workers=worker_count) as executor:
-                        for idx, item_id in enumerate(executor.map(_parallel_write_item, tasks), start=1):
-                            if idx % 1000 == 0:
-                                print(f"[DEBUG] Written {idx:,}/{len(file_items):,} items...")
-                            if should_stop_for_deadline(deadline_time, reserve_seconds=0):
-                                print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; discarding this file's item writes.")
-                                restore_file_item_snapshots(paths, item_snapshots)
-                                return processed_count
-                    print(f"[DEBUG] Parallel write complete for {server_name}")
-                except Exception as exc:
-                    print(f"[WARN] Parallel write failed for {server_name}: {exc}; falling back to single-process output")
-                    for item_idx, (item_id, price_records) in enumerate(file_items.items()):
-                        if item_idx % 1000 == 0 and item_idx > 0:
-                            print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
-                        if should_stop_for_deadline(deadline_time, reserve_seconds=0):
-                            print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; discarding this file's item writes.")
-                            restore_file_item_snapshots(paths, item_snapshots)
-                            return processed_count
-                        try:
-                            write_item_records(item_id, price_records, paths)
-                        except Exception as e:
-                            print(f"[ERROR] Failed to write {item_id}: {e}")
-            else:
-                for item_idx, (item_id, price_records) in enumerate(file_items.items()):
-                    if item_idx % 1000 == 0 and item_idx > 0:
-                        print(f"[DEBUG] Written {item_idx:,}/{len(file_items):,} items...")
-
-                    if should_stop_for_deadline(deadline_time, reserve_seconds=0):
-                        print(f"[INFO] Deadline reached while writing {item_id} from {sql_file.name}; discarding this file's item writes.")
-                        restore_file_item_snapshots(paths, item_snapshots)
-                        return processed_count
-
-                    try:
-                        write_item_records(item_id, price_records, paths)
-                    except Exception as e:
-                        print(f"[ERROR] Failed to write {item_id}: {e}")
+            if file_items:
+                print(f"[DEBUG] Writing final {len(file_items):,} item buckets for {server_name}...")
+                if not flush_item_batches(file_items, paths, deadline_time):
+                    return processed_count
+                item_count_written += len(file_items)
 
             save_processed_file(sql_file.name, paths)
             processed_count += 1
-            print(f"[SUCCESS] Processed {sql_file.name} ({len(file_items):,} items, {record_count:,} records) for {server_name}")
+            print(f"[SUCCESS] Processed {sql_file.name} ({item_count_written:,} items, {record_count:,} records) for {server_name}")
 
         except Exception as e:
             print(f"[ERROR] Error processing {sql_file.name} for {server_name}: {e}")
@@ -927,13 +947,11 @@ def main():
                     extracted_path = paths['history'] / filename[:-3]  # Remove .gz
                     try:
                         if filename.endswith('.gz'):
-                            with gzip.open(local_path, 'rt', encoding='utf-8', errors='ignore') as f_in:
-                                with open(extracted_path, 'w', encoding='utf-8') as f_out:
-                                    f_out.write(f_in.read())
+                            with gzip.open(local_path, 'rb') as f_in:
+                                with open(extracted_path, 'wb') as f_out:
+                                    shutil.copyfileobj(f_in, f_out, length=1024 * 1024)
                         else:
-                            with open(local_path, 'r', encoding='utf-8', errors='ignore') as f_in:
-                                with open(extracted_path, 'w', encoding='utf-8') as f_out:
-                                    f_out.write(f_in.read())
+                            shutil.copyfile(local_path, extracted_path)
                         print(f"[SUCCESS] Extracted to {extracted_path.name}")
                     except Exception as e:
                         print(f"[ERROR] Failed to extract {filename}: {e}")
@@ -1000,13 +1018,11 @@ def main():
                             extracted_path = paths['history'] / filename[:-3]
 
                             if filename.endswith('.gz'):
-                                with gzip.open(local_path, 'rt', encoding='utf-8', errors='ignore') as f_in:
-                                    with open(extracted_path, 'w', encoding='utf-8') as f_out:
-                                        f_out.write(f_in.read())
+                                with gzip.open(local_path, 'rb') as f_in:
+                                    with open(extracted_path, 'wb') as f_out:
+                                        shutil.copyfileobj(f_in, f_out, length=1024 * 1024)
                             else:
-                                with open(local_path, 'r', encoding='utf-8', errors='ignore') as f_in:
-                                    with open(extracted_path, 'w', encoding='utf-8') as f_out:
-                                        f_out.write(f_in.read())
+                                shutil.copyfile(local_path, extracted_path)
 
                             print(f"[SUCCESS] Downloaded and extracted {filename}")
                         except Exception as e:
