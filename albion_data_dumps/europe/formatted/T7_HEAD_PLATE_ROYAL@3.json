@@ -475,5 +475,32 @@
     "sellPrice": 614817,
     "buyPrice": 614817,
     "quantity": 3
+  },
+  {
+    "timestamp": "2024-12-15T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "europe",
+    "sellPrice": 2500000,
+    "buyPrice": 2500000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2024-12-11T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 2,
+    "server": "europe",
+    "sellPrice": 2700000,
+    "buyPrice": 2700000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2024-12-19T12:00:00Z",
+    "city": "unknown",
+    "quality": 1,
+    "server": "europe",
+    "sellPrice": 2100000,
+    "buyPrice": 2100000,
+    "quantity": 1
   }
 ]
