@@ -25,6 +25,16 @@ from albion_data_extractor.ci_processor import (
 
 
 class ProcessedFilesTests(unittest.TestCase):
+    def test_market_workflow_uses_full_history_and_current_actions(self):
+        workflow_path = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "market-history-all.yml"
+        workflow = workflow_path.read_text(encoding="utf-8")
+
+        self.assertIn("uses: actions/checkout@v5", workflow)
+        self.assertIn("uses: actions/setup-python@v6", workflow)
+        self.assertIn("fetch-depth: 0", workflow)
+        self.assertIn("git fetch origin main --prune --no-tags --force", workflow)
+        self.assertNotIn("git fetch origin main --depth=1", workflow)
+
     def test_iter_sql_records_handles_one_insert_per_line(self):
         with TemporaryDirectory() as tmp_dir:
             sql_file = Path(tmp_dir) / "market_history_2024_01.sql"

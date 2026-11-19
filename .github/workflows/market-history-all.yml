@@ -30,9 +30,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           sparse-checkout: |
             .github/workflows
             albion_data_extractor
@@ -40,7 +40,7 @@ jobs:
             requirements.txt
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -63,7 +63,7 @@ jobs:
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
         run: |
           git sparse-checkout set albion_data_extractor albion_data_dumps/${{ matrix.server }}/formatted
-          git fetch origin main --depth=1
+          git fetch origin main --prune --no-tags --force
           git merge --ff-only origin/main
           python albion_data_extractor/ci_processor.py
           git config --local user.email "action@github.com"
