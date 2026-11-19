@@ -268,5 +268,41 @@
     "sellPrice": 300000,
     "buyPrice": 300000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2024-12-04T12:00:00Z",
+    "city": "bridgewatch",
+    "quality": 1,
+    "server": "europe",
+    "sellPrice": 11000000,
+    "buyPrice": 11000000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2024-12-14T18:00:00Z",
+    "city": "blackmarket",
+    "quality": 5,
+    "server": "europe",
+    "sellPrice": 60000,
+    "buyPrice": 60000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2024-12-13T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 5,
+    "server": "europe",
+    "sellPrice": 300000,
+    "buyPrice": 300000,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2024-12-04T00:00:00Z",
+    "city": "blackmarket",
+    "quality": 5,
+    "server": "europe",
+    "sellPrice": 300000,
+    "buyPrice": 300000,
+    "quantity": 1
   }
 ]
