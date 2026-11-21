@@ -5416,5 +5416,59 @@
     "sellPrice": 400000,
     "buyPrice": 400000,
     "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-18T06:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 229999,
+    "buyPrice": 229999,
+    "quantity": 1
+  },
+  {
+    "timestamp": "2020-12-18T12:00:00Z",
+    "city": "blackmarket",
+    "quality": 1,
+    "server": "west",
+    "sellPrice": 495999,
+    "buyPrice": 495999,
+    "quantity": 2
+  },
+  {
+    "timestamp": "2020-12-24T18:00:00Z",
+    "city": "bridgewatch",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 945121,
+    "buyPrice": 945121,
+    "quantity": 106
+  },
+  {
+    "timestamp": "2020-12-25T06:00:00Z",
+    "city": "bridgewatch",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 1053327,
+    "buyPrice": 1053327,
+    "quantity": 120
+  },
+  {
+    "timestamp": "2020-12-25T12:00:00Z",
+    "city": "bridgewatch",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 526112,
+    "buyPrice": 526112,
+    "quantity": 60
+  },
+  {
+    "timestamp": "2020-12-26T06:00:00Z",
+    "city": "bridgewatch",
+    "quality": 3,
+    "server": "west",
+    "sellPrice": 880148,
+    "buyPrice": 880148,
+    "quantity": 103
   }
 ]
