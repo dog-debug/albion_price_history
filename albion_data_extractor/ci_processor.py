@@ -569,12 +569,61 @@ def write_json_file(path: Path, records: List[Dict[str, Any]]) -> None:
 
 
 def write_item_records(item_id: str, price_records: List[Dict[str, Any]], paths: Dict[str, Path]) -> None:
-    """Append transformed records to the per-item JSON file, deduplicated by timestamp/city/quality."""
-    base_output = paths['output'] / f'{item_id}.json'
-    existing_in_file = load_json_file(base_output)
-    file_keys = {(r['timestamp'], r['city'], r['quality']) for r in existing_in_file if isinstance(r, dict)}
-    final_records = existing_in_file + [r for r in price_records if (r['timestamp'], r['city'], r['quality']) not in file_keys]
-    atomic_write_json(base_output, final_records)
+    """Append item records once and optionally split the item across 99 MB-sized JSON files."""
+    output_dir = paths['output']
+    split_pattern = re.compile(r'^' + re.escape(item_id) + r'(?:_(\d+))?\.json$')
+    split_paths = sorted(
+        (path for path in output_dir.glob('*.json') if split_pattern.match(path.name)),
+        key=lambda path: int(split_pattern.match(path.name).group(1) or '1'),
+    )
+
+    final_records: List[Dict[str, Any]] = []
+    seen_keys = set()
+    for split_path in split_paths:
+        for record in load_json_file(split_path):
+            if not isinstance(record, dict):
+                continue
+            key = (record.get('timestamp'), record.get('city'), record.get('quality'))
+            if key not in seen_keys:
+                seen_keys.add(key)
+                final_records.append(record)
+
+    for record in price_records:
+        if not isinstance(record, dict):
+            continue
+        key = (record.get('timestamp'), record.get('city'), record.get('quality'))
+        if key not in seen_keys:
+            seen_keys.add(key)
+            final_records.append(record)
+
+    max_bytes = get_max_json_file_bytes()
+    chunks: List[List[Dict[str, Any]]] = []
+    if max_bytes is None:
+        chunks = [final_records]
+    else:
+        current_chunk: List[Dict[str, Any]] = []
+        for record in final_records:
+            candidate = current_chunk + [record]
+            if current_chunk and len(dump_json_bytes(candidate)) > max_bytes:
+                chunks.append(current_chunk)
+                current_chunk = [record]
+            else:
+                current_chunk = candidate
+        if current_chunk:
+            chunks.append(current_chunk)
+    if not chunks:
+        chunks = [[]]
+
+    base_output = output_dir / f'{item_id}.json'
+    for index, chunk in enumerate(chunks, start=1):
+        output_path = base_output if index == 1 else output_dir / f'{item_id}_{index}.json'
+        atomic_write_json(output_path, chunk)
+
+    for split_path in split_paths:
+        split_match = split_pattern.match(split_path.name)
+        split_index = int(split_match.group(1) or '1')
+        if split_index > len(chunks):
+            split_path.unlink(missing_ok=True)
 
 
 def snapshot_item_output(output_path: Path) -> Path | None:
