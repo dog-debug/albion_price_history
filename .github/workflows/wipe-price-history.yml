@@ -28,6 +28,14 @@ jobs:
           else
             echo "[SKIP] Directory not found: albion_data_dumps/"
           fi
+
+          # Remove the legacy duplicate data tree
+          if [ -d "data" ]; then
+            echo "[REMOVE] Directory: data/"
+            rm -rf data
+          else
+            echo "[SKIP] Directory not found: data/"
+          fi
           
           # Remove .processed_*.txt files
           for file in .processed_europe.txt .processed_east.txt .processed_west.txt; do
