@@ -61,6 +61,7 @@ jobs:
           ALBION_MAX_FILES_PER_RUN: '1'
           ALBION_DOWNLOAD_RETRIES: '5'
           ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
+          ALBION_MAX_JSON_FILE_BYTES: '99000000'
         run: |
           git sparse-checkout set albion_data_extractor albion_data_dumps/${{ matrix.server }}/formatted
           git fetch origin main --prune --no-tags --force
