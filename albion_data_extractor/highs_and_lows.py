@@ -1,30 +1,19 @@
 #!/usr/bin/env python3
-"""
-Build or refresh a server-scoped highs/lows summary for all item JSON files.
-
-Behavior:
-- Accepts one server argument: eu, asia, us, or their full names.
-- Reads every item JSON in the target server's formatted directory.
-- Creates a summary file named highs_and_lows.json.
-- Each item includes its highest and lowest recorded values.
-- Only one server is processed per run.
-- If a summary already exists for the selected server and was created within the
-  last 30 days, it skips that server and moves to the next one in priority order.
-"""
+"""Build per-server highs/lows and distribution statistics for Albion market history."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import math
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Iterable, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_ROOT = PROJECT_ROOT / "albion_data_dumps"
 SUMMARY_FILENAME = "highs_and_lows.json"
 MAX_AGE_DAYS = 30
-
 SERVER_PRIORITY = ["europe", "east", "west"]
 SERVER_ALIASES = {
     "eu": "europe",
@@ -60,24 +49,15 @@ def is_fresh(path: Path, max_age_days: int = MAX_AGE_DAYS) -> bool:
 
 
 def choose_server(requested_server: Optional[str]) -> Optional[str]:
-    if requested_server:
-        first_server = requested_server
-        remaining = [server for server in SERVER_PRIORITY if server != first_server]
-        candidates = [first_server] + remaining
-    else:
-        candidates = SERVER_PRIORITY
-
+    candidates = [requested_server] + [server for server in SERVER_PRIORITY if server != requested_server] if requested_server else SERVER_PRIORITY
     for server in candidates:
         server_dir = get_server_dir(server)
         if not server_dir.exists():
             print(f"[SKIP] {server}: data directory not found")
             continue
-
-        summary_file = get_summary_path(server)
-        if not is_fresh(summary_file):
+        if not is_fresh(get_summary_path(server)):
             return server
         print(f"[SKIP] {server}: summary was updated within the last {MAX_AGE_DAYS} days")
-
     return None
 
 
@@ -86,7 +66,7 @@ def load_json(path: Path) -> Any:
         return json.load(handle)
 
 
-def clean_price(value: Any) -> Optional[float]:
+def normalize_number(value: Any) -> Optional[float]:
     if value is None:
         return None
     if isinstance(value, (int, float)):
@@ -97,52 +77,66 @@ def clean_price(value: Any) -> Optional[float]:
         return None
 
 
-def read_item_extremes(records: Iterable[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-    highest_value: Optional[float] = None
-    lowest_value: Optional[float] = None
-    highest_record: Optional[Dict[str, Any]] = None
-    lowest_record: Optional[Dict[str, Any]] = None
+def median(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    mid = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[mid]
+    return (ordered[mid - 1] + ordered[mid]) / 2.0
 
-    for record in records:
-        if not isinstance(record, dict):
-            continue
 
-        sell_price = clean_price(record.get("sellPrice"))
-        buy_price = clean_price(record.get("buyPrice"))
-        for price in (sell_price, buy_price):
-            if price is None:
-                continue
+def stddev(values: list[float]) -> float:
+    if len(values) < 2:
+        return 0.0
+    mean = sum(values) / len(values)
+    variance = sum((value - mean) ** 2 for value in values) / len(values)
+    return math.sqrt(variance)
 
-            if highest_value is None or price > highest_value:
-                highest_value = price
-                highest_record = {
-                    "value": round(price, 2),
-                    "timestamp": record.get("timestamp"),
-                    "city": record.get("city"),
-                    "quality": record.get("quality"),
-                    "server": record.get("server"),
-                }
 
-            if lowest_value is None or price < lowest_value:
-                lowest_value = price
-                lowest_record = {
-                    "value": round(price, 2),
-                    "timestamp": record.get("timestamp"),
-                    "city": record.get("city"),
-                    "quality": record.get("quality"),
-                    "server": record.get("server"),
-                }
-
-    if highest_value is None or lowest_value is None:
-        return None
-
+def record_snapshot(record: dict[str, Any], value: float, price_key: str) -> dict[str, Any]:
     return {
-        "highest": highest_record,
-        "lowest": lowest_record,
+        "value": round(value, 2),
+        "timestamp": record.get("timestamp"),
+        "city": record.get("city"),
+        "quality": record.get("quality"),
+        "server": record.get("server"),
+        "price_field": price_key,
     }
 
 
-def merge_with_previous(current_item: Dict[str, Any], previous_item: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def read_item_statistics(records: Iterable[dict[str, Any]]) -> Optional[dict[str, Any]]:
+    samples: list[dict[str, Any]] = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        for price_key in ("sellPrice", "buyPrice"):
+            value = normalize_number(record.get(price_key))
+            if value is None:
+                continue
+            samples.append({"value": value, "record": record_snapshot(record, value, price_key)})
+
+    if not samples:
+        return None
+
+    values = [sample["value"] for sample in samples]
+    highest = max(samples, key=lambda sample: sample["value"])
+    lowest = min(samples, key=lambda sample: sample["value"])
+
+    return {
+        "count": len(values),
+        "average": round(sum(values) / len(values), 2),
+        "median": round(median(values), 2),
+        "stddev": round(stddev(values), 2),
+        "highest": highest["record"],
+        "lowest": lowest["record"],
+        "max": highest["record"],
+        "min": lowest["record"],
+    }
+
+
+def merge_with_previous(current_item: dict[str, Any], previous_item: Optional[dict[str, Any]]) -> dict[str, Any]:
     if previous_item is None:
         return current_item
 
@@ -152,21 +146,25 @@ def merge_with_previous(current_item: Dict[str, Any], previous_item: Optional[Di
     if previous_high:
         previous_high_value = previous_high.get("value")
         current_high_value = current_item.get("highest", {}).get("value")
-        if previous_high_value is not None and current_high_value is not None:
-            if previous_high_value > current_high_value:
-                current_item["highest"] = previous_high
+        if previous_high_value is not None and current_high_value is not None and previous_high_value > current_high_value:
+            current_item["highest"] = previous_high
+            current_item["max"] = previous_high
 
     if previous_low:
         previous_low_value = previous_low.get("value")
         current_low_value = current_item.get("lowest", {}).get("value")
-        if previous_low_value is not None and current_low_value is not None:
-            if previous_low_value < current_low_value:
-                current_item["lowest"] = previous_low
+        if previous_low_value is not None and current_low_value is not None and previous_low_value < current_low_value:
+            current_item["lowest"] = previous_low
+            current_item["min"] = previous_low
 
+    current_item.setdefault("count", 0)
+    current_item.setdefault("average", 0)
+    current_item.setdefault("median", 0)
+    current_item.setdefault("stddev", 0)
     return current_item
 
 
-def build_server_summary(server_name: str) -> Dict[str, Any]:
+def build_server_summary(server_name: str) -> dict[str, Any]:
     server_dir = get_server_dir(server_name)
     if not server_dir.exists():
         return {
@@ -176,8 +174,7 @@ def build_server_summary(server_name: str) -> Dict[str, Any]:
         }
 
     summary_path = get_summary_path(server_name)
-    previous_summary: Dict[str, Any] = {}
-
+    previous_summary: dict[str, Any] = {}
     if summary_path.exists():
         try:
             previous_summary = load_json(summary_path)
@@ -185,29 +182,25 @@ def build_server_summary(server_name: str) -> Dict[str, Any]:
             previous_summary = {}
 
     previous_items = previous_summary.get("items", {}) if isinstance(previous_summary, dict) else {}
-    item_map: Dict[str, Dict[str, Any]] = {}
+    item_map: dict[str, dict[str, Any]] = {}
 
-    files = sorted(server_dir.glob("*.json"))
-    for item_file in files:
+    for item_file in sorted(server_dir.glob("*.json")):
         if item_file.name == SUMMARY_FILENAME:
             continue
-
         try:
-            data = load_json(item_file)
+            payload = load_json(item_file)
         except (json.JSONDecodeError, OSError):
             print(f"[WARN] Skipping unreadable file: {item_file.name}")
             continue
-
-        if not isinstance(data, list):
+        if not isinstance(payload, list):
             continue
 
-        item_extremes = read_item_extremes(data)
-        if item_extremes is None:
+        stats = read_item_statistics(payload)
+        if stats is None:
             continue
 
         item_id = item_file.stem
-        previous_item = previous_items.get(item_id)
-        item_map[item_id] = merge_with_previous(item_extremes, previous_item)
+        item_map[item_id] = merge_with_previous(stats, previous_items.get(item_id))
 
     return {
         "server": server_name,
@@ -216,7 +209,7 @@ def build_server_summary(server_name: str) -> Dict[str, Any]:
     }
 
 
-def write_server_summary(server_name: str, summary: Dict[str, Any]) -> Path:
+def write_server_summary(server_name: str, summary: dict[str, Any]) -> Path:
     summary_path = get_summary_path(server_name)
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     with summary_path.open("w", encoding="utf-8") as handle:
@@ -225,13 +218,9 @@ def write_server_summary(server_name: str, summary: Dict[str, Any]) -> Path:
     return summary_path
 
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Build per-server highs and lows summaries from JSON market history files.")
-    parser.add_argument(
-        "server",
-        nargs="?",
-        help="One server: eu, asia, us, europe, east, or west. If omitted, the first stale server in priority order is used.",
-    )
+    parser.add_argument("server", nargs="?", help="One server: eu, asia, us, europe, east, or west. If omitted, first stale server is used.")
     args = parser.parse_args(argv)
 
     requested_server = normalize_server(args.server)
@@ -240,7 +229,6 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 2
 
     chosen = choose_server(requested_server)
-
     if chosen is None:
         print("[INFO] No stale server needs a highs/lows refresh in this run.")
         return 0
