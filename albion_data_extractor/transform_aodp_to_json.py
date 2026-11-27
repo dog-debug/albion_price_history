@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 Transform AODP SQL market_history exports to price checker JSON format.
-6+ years of Albion market data from 2020-2026.
-GUI with file picker, progress tracking, CPU limiting, and processed file tracking.
+Fast append-only approach with in-memory caching.
 """
 
 import os
@@ -15,36 +14,61 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Tuple, Set
 from collections import defaultdict
-from threading import Thread, Semaphore
+from threading import Thread
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 # Location ID to city name mapping
 LOCATION_ID_TO_CITY = {
-    3003: 'bridgewatch',    # Bridgewatch
-    3005: 'caerleon',       # Caerleon  
-    3008: 'lymhurst',       # Lymhurst
-    3002: 'thetford',       # Thetford
-    3004: 'forsterling',    # Fort Sterling
-    3006: 'brecilien',      # Brecilien
-    4002: 'blackmarket',    # Black Market
-    1002: 'martlock',       # Martlock
-    7: 'blackmarket',       # Black Market (alternate code)
+    3003: 'bridgewatch',
+    3005: 'caerleon',
+    3008: 'lymhurst',
+    3002: 'thetford',
+    3004: 'forsterling',
+    3006: 'brecilien',
+    4002: 'blackmarket',
+    1002: 'martlock',
+    7: 'blackmarket',
 }
 
 # Server codes
 SOURCE_TO_SERVER = {
     6: 'west.albion-online-data.com',
-    7: 'europe.albion-online-data.com', 
+    7: 'europe.albion-online-data.com',
     8: 'east.albion-online-data.com',
 }
 
 PATHS = {
     'history': Path(r'C:\Users\Luka\Flutter Projects\albioneconomy\lib\price_checker_and_history_parts\albion data dumps\extracted\history'),
     'output': Path(r'C:\Users\Luka\Flutter Projects\albioneconomy\lib\price_checker_and_history_parts\albion data dumps\formatted'),
+    'items': Path(r'C:\Users\Luka\Flutter Projects\albioneconomy\lib\albion data dumps\ao-bin-dumps-master\formatted\items.json'),
 }
 
-PROCESSED_FILE = PATHS['output'] / '.processed.txt'
+
+def load_items_database() -> Dict[str, str]:
+    """Load item IDs and their English names from items.json"""
+    print("[DEBUG] Loading items database...")
+    
+    if not PATHS['items'].exists():
+        print(f"[WARNING] items.json not found at {PATHS['items']}")
+        return {}
+    
+    try:
+        with open(PATHS['items'], 'r', encoding='utf-8') as f:
+            items_data = json.load(f)
+        
+        # Build lookup: item_id -> english_name
+        items_lookup = {}
+        for item_id, item_info in items_data.items():
+            localized_names = item_info.get('LocalizedNames', {})
+            english_name = localized_names.get('EN-US', item_id)
+            items_lookup[item_id] = english_name
+        
+        print(f"[DEBUG] Loaded {len(items_lookup)} items")
+        return items_lookup
+    
+    except Exception as e:
+        print(f"[ERROR] Failed to load items.json: {e}")
+        return {}
 
 
 def load_processed_files(output_dir: Path = None) -> Set[str]:
@@ -80,15 +104,6 @@ def save_processed_file(filename: str, output_dir: Path = None):
                 f.write(name + '\n')
     except:
         pass
-
-
-def format_price(price: int) -> str:
-    """Format price as display string (1.2K, 500, 1.5M)"""
-    if price >= 1_000_000:
-        return f"{price / 1_000_000:.1f}M".rstrip('0').rstrip('.')
-    elif price >= 1_000:
-        return f"{price / 1_000:.1f}K".rstrip('0').rstrip('.')
-    return str(price)
 
 
 def parse_sql_insert(line: str) -> List[Any]:
@@ -209,47 +224,21 @@ def transform_record(rec: Tuple) -> Dict[str, Any]:
         'server': server,
         'sellPrice': price_val,
         'buyPrice': price_val,
-        'sellPriceFormatted': format_price(price_val),
-        'buyPriceFormatted': format_price(price_val),
-        'quantity': int(city_id) if city_id else 0,  # Transaction quantity
-    }
-
-
-def build_item_file(item_id: str, records: List[Dict]) -> Dict:
-    """Build item JSON structure"""
-    # Sort by timestamp descending (newest first)
-    sorted_recs = sorted(records, key=lambda r: r['timestamp'], reverse=True)
-    
-    return {
-        'itemId': item_id,
-        'priceHistory': sorted_recs,
-        'latest': {
-            rec['city']: {
-                rec['quality']: {
-                    'timestamp': rec['timestamp'],
-                    'sellPrice': rec['sellPrice'],
-                    'buyPrice': rec['buyPrice'],
-                    'sellPriceFormatted': rec['sellPriceFormatted'],
-                    'buyPriceFormatted': rec['buyPriceFormatted'],
-                }
-                for rec in sorted_recs
-                if rec['city'] != 'unknown'
-            }
-            for rec in sorted_recs
-        }
+        'quantity': int(city_id) if city_id else 0,
     }
 
 
 class TransformerGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("AODP → Price Checker JSON Transformer")
-        self.root.geometry("900x950")
+        self.root.title("AODP → Price Checker JSON Transformer v2")
+        self.root.geometry("900x750")
         self.root.resizable(True, True)
         
         # Path variables
         self.input_path = tk.StringVar(value=str(PATHS['history']))
         self.output_path = tk.StringVar(value=str(PATHS['output']))
+        self.items_path = tk.StringVar(value=str(PATHS['items']))
         
         self.selected_files = []
         self.processing = False
@@ -258,7 +247,7 @@ class TransformerGUI:
         self.total_records = 0
         self.processed_files: Set[str] = set()
         self.skip_processed = tk.BooleanVar(value=True)
-        self.cpu_workers = tk.IntVar(value=2)
+        self.items_lookup: Dict[str, str] = {}
         
         self.sql_files = []
         
@@ -267,54 +256,44 @@ class TransformerGUI:
     def setup_ui(self):
         """Build the UI"""
         # Title
-        title = ttk.Label(self.root, text="AODP 6-Year Price History Transformer", font=("Arial", 14, "bold"))
+        title = ttk.Label(self.root, text="AODP 6-Year Price History Transformer (Fast)", font=("Arial", 14, "bold"))
         title.pack(pady=10)
         
         # Path selection frame
-        frame_paths = ttk.LabelFrame(self.root, text="Select Folders", padding=10)
+        frame_paths = ttk.LabelFrame(self.root, text="Select Folders & Files", padding=10)
         frame_paths.pack(fill="x", padx=10, pady=5)
         
         # Input path
         ttk.Label(frame_paths, text="SQL Files Location:", font=("Arial", 9, "bold")).pack(anchor="w", pady=(0, 5))
         input_frame = ttk.Frame(frame_paths)
-        input_frame.pack(fill="x", pady=(0, 10))
-        
+        input_frame.pack(fill="x", pady=(0, 8))
         ttk.Entry(input_frame, textvariable=self.input_path, state="readonly").pack(side="left", fill="x", expand=True, padx=(0, 5))
         ttk.Button(input_frame, text="Browse", command=self.browse_input).pack(side="left", padx=2)
-        ttk.Button(input_frame, text="Reload", command=self.reload_files).pack(side="left", padx=2)
         
         # Output path
         ttk.Label(frame_paths, text="Output Location:", font=("Arial", 9, "bold")).pack(anchor="w", pady=(0, 5))
         output_frame = ttk.Frame(frame_paths)
-        output_frame.pack(fill="x")
-        
+        output_frame.pack(fill="x", pady=(0, 8))
         ttk.Entry(output_frame, textvariable=self.output_path, state="readonly").pack(side="left", fill="x", expand=True, padx=(0, 5))
         ttk.Button(output_frame, text="Browse", command=self.browse_output).pack(side="left", padx=2)
+        
+        # Items path
+        ttk.Label(frame_paths, text="Items Database (items.json):", font=("Arial", 9, "bold")).pack(anchor="w", pady=(0, 5))
+        items_frame = ttk.Frame(frame_paths)
+        items_frame.pack(fill="x")
+        ttk.Entry(items_frame, textvariable=self.items_path, state="readonly").pack(side="left", fill="x", expand=True, padx=(0, 5))
+        ttk.Button(items_frame, text="Browse", command=self.browse_items).pack(side="left", padx=2)
+        
+        # Options frame
         frame_options = ttk.LabelFrame(self.root, text="Options", padding=10)
         frame_options.pack(fill="x", padx=10, pady=5)
         
-        # Skip processed checkbox
         check_skip = ttk.Checkbutton(
-            frame_options, 
-            text="Skip already processed files", 
+            frame_options,
+            text="Skip already processed files",
             variable=self.skip_processed
         )
         check_skip.pack(anchor="w", pady=5)
-        
-        # CPU limit frame
-        cpu_frame = ttk.Frame(frame_options)
-        cpu_frame.pack(anchor="w", pady=5)
-        
-        ttk.Label(cpu_frame, text="CPU Workers (1-8):").pack(side="left", padx=5)
-        spinbox = ttk.Spinbox(
-            cpu_frame,
-            from_=1,
-            to=8,
-            textvariable=self.cpu_workers,
-            width=5
-        )
-        spinbox.pack(side="left")
-        ttk.Label(cpu_frame, text="(fewer = less CPU usage)", font=("Arial", 8)).pack(side="left", padx=10)
         
         # File selection frame
         frame_files = ttk.LabelFrame(self.root, text="Select Files to Extract", padding=10)
@@ -325,77 +304,107 @@ class TransformerGUI:
         btn_frame.pack(fill="x", pady=(0, 10))
         
         ttk.Button(btn_frame, text="Select All", command=self.select_all).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Clear Selection", command=self.clear_selection).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Invert Selection", command=self.invert_selection).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Clear", command=self.clear_selection).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Invert", command=self.invert_selection).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Unprocessed Only", command=self.select_unprocessed).pack(side="left", padx=5)
         
-        # File count label
         self.label_file_count = ttk.Label(btn_frame, text="", font=("Arial", 9), foreground="blue")
         self.label_file_count.pack(side="right", padx=10)
         
-        # Listbox with scrollbar
+        # Listbox
         scroll = ttk.Scrollbar(frame_files)
         scroll.pack(side="right", fill="y")
         
-        self.listbox = tk.Listbox(frame_files, yscrollcommand=scroll.set, selectmode="multiple", height=12)
+        self.listbox = tk.Listbox(frame_files, yscrollcommand=scroll.set, selectmode="multiple", height=10)
         self.listbox.pack(fill="both", expand=True)
         scroll.config(command=self.listbox.yview)
         
-        # Load initial files
         self.reload_files()
         
         # Progress frame
         frame_progress = ttk.LabelFrame(self.root, text="Progress", padding=10)
-        frame_progress.pack(fill="both", padx=10, pady=5)
+        frame_progress.pack(fill="x", padx=10, pady=5)
         
-        # File label
-        self.label_file = ttk.Label(frame_progress, text="Ready to process", font=("Arial", 10))
+        self.label_file = ttk.Label(frame_progress, text="Ready", font=("Arial", 10))
         self.label_file.pack(anchor="w", pady=(0, 5))
         
-        # Progress bar
-        self.progress_bar = ttk.Progressbar(frame_progress, length=400, mode="determinate")
-        self.progress_bar.pack(fill="x", pady=5)
-        
-        # Stats frame
-        frame_stats = ttk.Frame(frame_progress)
-        frame_stats.pack(fill="x", pady=5)
-        
-        self.label_percent = ttk.Label(frame_stats, text="0%", font=("Arial", 9))
-        self.label_percent.pack(side="left", padx=10)
-        
-        self.label_time = ttk.Label(frame_stats, text="--:--", font=("Arial", 9))
-        self.label_time.pack(side="right", padx=10)
-        
-        # Recent files frame
-        frame_recent = ttk.LabelFrame(self.root, text="Recently Extracted", padding=10)
-        frame_recent.pack(fill="both", expand=True, padx=10, pady=5)
-        
-        scroll_recent = ttk.Scrollbar(frame_recent)
-        scroll_recent.pack(side="right", fill="y")
-        
-        self.listbox_recent = tk.Listbox(frame_recent, yscrollcommand=scroll_recent.set, height=6)
-        self.listbox_recent.pack(fill="both", expand=True)
-        scroll_recent.config(command=self.listbox_recent.yview)
-        
-        # Stats
-        self.label_stats = ttk.Label(self.root, text="", font=("Arial", 9))
-        self.label_stats.pack(pady=5)
+        self.label_stats = ttk.Label(frame_progress, text="", font=("Arial", 9))
+        self.label_stats.pack(anchor="w")
         
         # Buttons
         frame_buttons = ttk.Frame(self.root)
-        frame_buttons.pack(fill="both", padx=10, pady=15)
+        frame_buttons.pack(fill="x", padx=10, pady=10)
         
-        # Big START button
-        style = ttk.Style()
-        style.configure('Start.TButton', font=("Arial", 12, "bold"))
-        
-        self.btn_start = ttk.Button(frame_buttons, text="▶ START EXTRACTION", command=self.start_extraction, style='Start.TButton')
-        self.btn_start.pack(side="left", padx=5, pady=10, ipady=10)
+        self.btn_start = ttk.Button(frame_buttons, text="▶ START EXTRACTION", command=self.start_extraction)
+        self.btn_start.pack(side="left", padx=5, ipady=10)
         
         self.btn_cancel = ttk.Button(frame_buttons, text="⏸ CANCEL", command=self.cancel_extraction, state="disabled")
-        self.btn_cancel.pack(side="left", padx=5, pady=10, ipady=10)
+        self.btn_cancel.pack(side="left", padx=5, ipady=10)
         
-        ttk.Button(frame_buttons, text="📁 Open Output Folder", command=self.open_output).pack(side="right", padx=5, pady=10, ipady=10)
+        ttk.Button(frame_buttons, text="📁 Open Output", command=self.open_output).pack(side="right", padx=5, ipady=10)
+    
+    def browse_input(self):
+        folder = filedialog.askdirectory(title="Select SQL files folder", initialdir=self.input_path.get())
+        if folder:
+            self.input_path.set(folder)
+            self.reload_files()
+    
+    def browse_output(self):
+        folder = filedialog.askdirectory(title="Select output folder", initialdir=self.output_path.get())
+        if folder:
+            self.output_path.set(folder)
+            self.reload_files()
+    
+    def browse_items(self):
+        file = filedialog.askopenfilename(
+            title="Select items.json",
+            initialdir=str(Path(self.items_path.get()).parent),
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+        )
+        if file:
+            self.items_path.set(file)
+    
+    def reload_files(self):
+        """Reload SQL files from selected input path"""
+        input_dir = Path(self.input_path.get())
+        output_dir = Path(self.output_path.get())
+        
+        if not input_dir.exists():
+            messagebox.showerror("Error", f"Input folder not found:\n{input_dir}")
+            return
+        
+        PATHS['history'] = input_dir
+        PATHS['output'] = output_dir
+        
+        self.processed_files = load_processed_files(output_dir)
+        self.sql_files = sorted(input_dir.glob('market_history_*.sql'))
+        
+        if not self.sql_files:
+            messagebox.showwarning("No Files", f"No 'market_history_*.sql' files found in:\n{input_dir}")
+            self.listbox.delete(0, "end")
+            self.label_file_count.config(text="No files found")
+            return
+        
+        self.listbox.delete(0, "end")
+        for sql_file in self.sql_files:
+            is_processed = sql_file.stem in self.processed_files
+            prefix = "✓ " if is_processed else "  "
+            self.listbox.insert("end", prefix + sql_file.stem)
+        
+        if self.sql_files:
+            self.listbox.selection_set(0, "end")
+        
+        processed_count = len(self.processed_files)
+        total_count = len(self.sql_files)
+        remaining = total_count - processed_count
+        
+        if processed_count > 0:
+            self.label_file_count.config(
+                text=f"✓ {processed_count}/{total_count} done ({remaining} left)",
+                foreground="green"
+            )
+        else:
+            self.label_file_count.config(text=f"{total_count} files", foreground="blue")
     
     def select_all(self):
         self.listbox.selection_set(0, "end")
@@ -411,86 +420,15 @@ class TransformerGUI:
                 self.listbox.selection_set(i)
     
     def select_unprocessed(self):
-        """Select only files that haven't been processed yet"""
         self.clear_selection()
         for i, sql_file in enumerate(self.sql_files):
             if sql_file.stem not in self.processed_files:
                 self.listbox.selection_set(i)
     
-    def browse_input(self):
-        """Browse for input SQL files folder"""
-        folder = filedialog.askdirectory(
-            title="Select folder with SQL files",
-            initialdir=self.input_path.get()
-        )
-        if folder:
-            self.input_path.set(folder)
-            self.reload_files()
-    
-    def browse_output(self):
-        """Browse for output JSON files folder"""
-        folder = filedialog.askdirectory(
-            title="Select output folder for JSON files",
-            initialdir=self.output_path.get()
-        )
-        if folder:
-            self.output_path.set(folder)
-            self.reload_files()
-    
-    def reload_files(self):
-        """Reload SQL files from selected input path"""
-        input_dir = Path(self.input_path.get())
-        output_dir = Path(self.output_path.get())
-        
-        if not input_dir.exists():
-            messagebox.showerror("Error", f"Input folder not found:\n{input_dir}")
-            return
-        
-        # Update PATHS
-        PATHS['history'] = input_dir
-        PATHS['output'] = output_dir
-        
-        # Reload processed files
-        self.processed_files = load_processed_files(output_dir)
-        
-        # Load SQL files
-        self.sql_files = sorted(input_dir.glob('market_history_*.sql'))
-        
-        if not self.sql_files:
-            messagebox.showwarning("No Files", f"No 'market_history_*.sql' files found in:\n{input_dir}")
-            self.listbox.delete(0, "end")
-            self.label_file_count.config(text="No files found")
-            return
-        
-        # Update listbox
-        self.listbox.delete(0, "end")
-        for sql_file in self.sql_files:
-            is_processed = sql_file.stem in self.processed_files
-            prefix = "✓ " if is_processed else "  "
-            self.listbox.insert("end", prefix + sql_file.stem)
-        
-        # Select all by default
-        if self.sql_files:
-            self.listbox.selection_set(0, "end")
-        
-        # Update file count label
-        processed_count = len(self.processed_files)
-        total_count = len(self.sql_files)
-        remaining = total_count - processed_count
-        
-        if processed_count > 0:
-            self.label_file_count.config(
-                text=f"✓ {processed_count}/{total_count} done ({remaining} left)",
-                foreground="green"
-            )
-        else:
-            self.label_file_count.config(text=f"{total_count} files", foreground="blue")
-    
     def get_selected_files(self):
         indices = self.listbox.curselection()
         selected = [self.sql_files[i] for i in indices]
         
-        # Filter out processed files if checkbox is enabled
         if self.skip_processed.get():
             selected = [f for f in selected if f.stem not in self.processed_files]
         
@@ -502,18 +440,19 @@ class TransformerGUI:
             messagebox.showwarning("No Selection", "Please select at least one file to extract.")
             return
         
-        # Validate and create output path FIRST (on main thread, not background)
+        # Load items database
+        self.items_lookup = load_items_database()
+        if not self.items_lookup:
+            messagebox.showwarning("Warning", "items.json not loaded. Will use item IDs as names.")
+        
+        # Validate output path
         try:
             output_dir = Path(self.output_path.get())
             output_dir.mkdir(parents=True, exist_ok=True)
             
-            # Test write access
             test_file = output_dir / '.write_test'
             test_file.touch()
             test_file.unlink()
-        except PermissionError:
-            messagebox.showerror("Error", f"No permission to write to:\n{self.output_path.get()}")
-            return
         except Exception as e:
             messagebox.showerror("Error", f"Cannot create output folder:\n{e}")
             return
@@ -528,7 +467,6 @@ class TransformerGUI:
         self.btn_cancel.config(state="normal")
         self.listbox.config(state="disabled")
         
-        # Start processing in background thread
         thread = Thread(target=self.process_files, daemon=True)
         thread.start()
     
@@ -540,15 +478,10 @@ class TransformerGUI:
         messagebox.showinfo("Cancelled", "Extraction cancelled.")
     
     def process_files(self):
-        """Process selected files one at a time, writing to disk immediately (low memory)"""
+        """Process selected files - read to RAM, then append to JSON files"""
         try:
-            # Get paths from GUI (already validated in start_extraction)
             output_dir = Path(self.output_path.get())
-            num_workers = self.cpu_workers.get()
             total_items_written = 0
-            
-            # Cache of already-read JSON files (keep only what's needed)
-            file_cache: Dict[str, List[Dict]] = {}
             
             for idx, sql_file in enumerate(self.selected_files):
                 if not self.processing:
@@ -556,19 +489,19 @@ class TransformerGUI:
                 
                 print(f"\n[DEBUG] === PROCESSING FILE {idx+1}/{len(self.selected_files)} ===")
                 self.current_file_idx = idx
-                self.update_progress_display(sql_file.stem, idx, len(self.selected_files))
                 
-                # Read this file's records
-                print(f"[DEBUG] Reading SQL file...")
+                self.root.after(0, self.label_file.config, {"text": f"Reading: {sql_file.stem}"})
+                
+                # Read SQL file to RAM
                 recs = read_sql_file(sql_file)
-                print(f"[DEBUG] Read {len(recs)} records, transforming...")
                 
-                # Process records for this file only
+                # Group by item_id in RAM
+                print(f"[DEBUG] Grouping {len(recs)} records by item...")
                 file_items: Dict[str, List[Dict]] = defaultdict(list)
                 
                 for i, rec in enumerate(recs):
-                    if i % 100000 == 0 and i > 0:
-                        print(f"[DEBUG] Transforming record {i}/{len(recs)}...")
+                    if i % 500000 == 0 and i > 0:
+                        print(f"[DEBUG] Processed {i}/{len(recs)} records...")
                     
                     if len(rec) >= 8:
                         item_id = rec[3]
@@ -576,195 +509,114 @@ class TransformerGUI:
                         file_items[item_id].append(transformed)
                         self.total_records += 1
                 
-                print(f"[DEBUG] Transformation done, {len(file_items)} unique items to write")
-                print(f"[DEBUG] Starting direct writes with cache...")
+                print(f"[DEBUG] Grouped into {len(file_items)} items, writing to disk...")
+                self.root.after(0, self.label_file.config, {"text": f"Writing: {len(file_items)} items"})
                 
-                # Write JSON files directly (use cache to avoid re-reading)
-                written_count = 0
-                for item_id in file_items.keys():
+                # Write items to JSON files (append-only, no reading)
+                for item_idx, (item_id, records) in enumerate(file_items.items()):
                     if not self.processing:
                         break
                     
-                    new_records = file_items[item_id]
+                    if item_idx % 500 == 0 and item_idx > 0:
+                        print(f"[DEBUG] Written {item_idx}/{len(file_items)} items...")
                     
-                    # Get existing records from cache or disk
-                    if item_id in file_cache:
-                        existing_history = file_cache[item_id]
-                    else:
-                        output_file = output_dir / f"{item_id}.json"
-                        if output_file.exists():
-                            try:
-                                with open(output_file, 'r', encoding='utf-8') as f:
-                                    existing_data = json.load(f)
-                                    existing_history = existing_data.get('priceHistory', [])
-                                    file_cache[item_id] = existing_history  # Cache it
-                            except:
-                                existing_history = []
-                                file_cache[item_id] = []
-                        else:
-                            existing_history = []
-                            file_cache[item_id] = []
-                    
-                    # Merge and write
-                    all_records = existing_history + new_records
-                    item_data = build_item_file(item_id, all_records)
                     output_file = output_dir / f"{item_id}.json"
                     
+                    # Get item name
+                    item_name = self.items_lookup.get(item_id, item_id)
+                    
                     try:
-                        with open(output_file, 'w', encoding='utf-8') as f:
-                            json.dump(item_data, f, indent=2)
+                        if output_file.exists():
+                            # File exists: append to priceHistory using binary mode
+                            with open(output_file, 'r+b') as f:
+                                # Seek to 2 bytes before end (before `]}`)
+                                f.seek(-2, 2)
+                                # Write comma and new records
+                                f.write(b',\n')
+                                for record in records:
+                                    record_json = json.dumps(record)
+                                    f.write(b'    ' + record_json.encode('utf-8') + b',\n')
+                                # Remove trailing comma and close properly
+                                f.seek(-2, 1)  # Go back 2 bytes (comma + newline)
+                                f.write(b'\n  ]\n}')
+                                f.truncate()  # Ensure file ends here
+                        else:
+                            # File doesn't exist: create new
+                            data = {
+                                'itemId': item_id,
+                                'itemName': item_name,
+                                'priceHistory': records
+                            }
+                            with open(output_file, 'w', encoding='utf-8') as f:
+                                json.dump(data, f, indent=2)
                         
-                        # Update cache with new data
-                        file_cache[item_id] = item_data.get('priceHistory', [])
-                        written_count += 1
                         total_items_written += 1
-                        
-                        if written_count % 500 == 0:
-                            print(f"[DEBUG] Written {written_count}/{len(file_items)}...")
+                    
                     except Exception as e:
                         print(f"[DEBUG] Error writing {item_id}: {e}")
                 
-                print(f"[DEBUG] Wrote {written_count} items")
-                
-                # Clear file data from memory
+                # Clear memory
                 file_items.clear()
                 
-                # Mark file as processed
-                print(f"[DEBUG] Saving processed file marker...")
+                # Mark as processed
                 save_processed_file(sql_file.stem, output_dir)
                 self.processed_files.add(sql_file.stem)
                 
-                # Update recently extracted
-                self.root.after(0, self.add_recent_file, sql_file.stem, len(recs))
-                print(f"[DEBUG] File {sql_file.stem} complete!\n")
+                print(f"[DEBUG] File {sql_file.stem} complete! Wrote {len(file_items)} items")
+                
+                elapsed = time.time() - self.start_time
+                self.root.after(0, self.update_status, idx, len(self.selected_files), elapsed)
             
             if not self.processing:
                 return
             
-            # Complete
             elapsed = time.time() - self.start_time
-            self.root.after(0, self.on_complete, total_items_written, elapsed)
+            hours, remainder = divmod(int(elapsed), 3600)
+            minutes, seconds = divmod(remainder, 60)
+            time_str = f"{hours}h {minutes}m {seconds}s"
+            
+            self.root.after(0, messagebox.showinfo, "Success",
+                f"Extraction complete!\n\nRecords: {self.total_records:,}\nItems: {total_items_written:,}\nTime: {time_str}")
+            self.root.after(0, self.reset_ui)
         
         except Exception as e:
             print(f"[DEBUG] EXCEPTION: {e}")
             import traceback
             traceback.print_exc()
-            self.root.after(0, lambda: messagebox.showerror("Error", f"Processing failed: {e}"))
+            self.root.after(0, messagebox.showerror, "Error", f"Processing failed: {e}")
             self.root.after(0, self.reset_ui)
     
-    def _merge_and_write_json(self, item_id: str, new_records: List[Dict], output_dir: Path) -> bool:
-        """Merge new records with existing JSON file and write back (called from thread pool)"""
-        try:
-            output_file = output_dir / f"{item_id}.json"
-            
-            # Load existing data if file exists
-            if output_file.exists():
-                with open(output_file, 'r', encoding='utf-8') as f:
-                    existing_data = json.load(f)
-                    existing_history = existing_data.get('priceHistory', [])
-            else:
-                existing_history = []
-            
-            # Combine old and new records
-            all_records = existing_history + new_records
-            
-            # Build final item structure
-            item_data = build_item_file(item_id, all_records)
-            
-            # Write back to file
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(item_data, f, indent=2)
-            
-            return True
-        except:
-            return False
-    
-    def update_progress_display(self, filename, current, total):
-        """Update progress display (called from background thread)"""
-        def update():
-            percent = int((current / total) * 100)
-            self.progress_bar['value'] = percent
-            self.label_percent.config(text=f"{percent}%")
-            self.label_file.config(text=f"Processing: {filename}")
-            
-            # Calculate ETA
-            if current > 0:
-                elapsed = time.time() - self.start_time
-                per_file = elapsed / current
-                remaining_files = total - current - 1
-                eta_seconds = int(per_file * remaining_files)
-                
-                hours, remainder = divmod(eta_seconds, 3600)
-                minutes, seconds = divmod(remainder, 60)
-                
-                if hours > 0:
-                    time_str = f"{hours}h {minutes}m"
-                else:
-                    time_str = f"{minutes}m {seconds}s"
-                
-                self.label_time.config(text=time_str)
+    def update_status(self, current, total, elapsed):
+        percent = int((current / total) * 100)
+        per_file = elapsed / (current + 1)
+        remaining = int(per_file * (total - current - 1))
         
-        self.root.after(0, update)
-    
-    def add_recent_file(self, filename, record_count):
-        """Add file to recent list"""
-        self.listbox_recent.insert(0, f"{filename}: {record_count:,} records")
-        
-        # Keep only last 10
-        if self.listbox_recent.size() > 10:
-            self.listbox_recent.delete(10, "end")
-        
-        # Update stats
-        total_files = len(self.selected_files)
-        self.label_stats.config(
-            text=f"Total Records: {self.total_records:,} | Selected Files: {total_files}"
-        )
-    
-    def on_complete(self, written, elapsed):
-        """Called when processing complete"""
-        hours, remainder = divmod(int(elapsed), 3600)
+        hours, remainder = divmod(remaining, 3600)
         minutes, seconds = divmod(remainder, 60)
-        time_str = f"{hours}h {minutes}m {seconds}s"
         
-        self.label_file.config(text=f"✓ Complete! Written {written:,} JSON files in {time_str}")
-        self.progress_bar['value'] = 100
-        self.label_percent.config(text="100%")
+        if hours > 0:
+            time_str = f"{hours}h {minutes}m"
+        else:
+            time_str = f"{minutes}m {seconds}s"
         
-        self.reset_ui()
-        
-        messagebox.showinfo(
-            "Success",
-            f"Extraction complete!\n\n"
-            f"Records processed: {self.total_records:,}\n"
-            f"Files written: {written:,}\n"
-            f"Time elapsed: {time_str}\n\n"
-            f"Output: {PATHS['output']}"
-        )
+        self.label_stats.config(text=f"{percent}% | Remaining: {time_str} | Total: {self.total_records:,} records")
     
     def reset_ui(self):
-        """Reset UI after processing"""
         self.processing = False
         self.btn_start.config(state="normal")
         self.btn_cancel.config(state="disabled")
         self.listbox.config(state="normal")
     
     def open_output(self):
-        """Open output folder in explorer"""
-        import subprocess
-        import platform
-        
         output_path = Path(self.output_path.get())
-        
         if not output_path.exists():
-            messagebox.showwarning("Folder Not Found", f"Output folder doesn't exist yet:\n{output_path}")
+            messagebox.showwarning("Not Found", f"Output folder doesn't exist:\n{output_path}")
             return
         
-        if platform.system() == "Windows":
+        if os.name == 'nt':
             os.startfile(output_path)
-        elif platform.system() == "Darwin":
-            os.system(f"open '{output_path}'")
         else:
-            os.system(f"xdg-open '{output_path}'")
+            os.system(f"open '{output_path}'" if os.name == 'posix' else f"xdg-open '{output_path}'")
 
 
 def main_gui():
