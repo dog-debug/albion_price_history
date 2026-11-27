@@ -1,0 +1,88 @@
+name: Market History Update
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      reset_processed:
+        description: 'Reset the per-server processed state and re-download archived files'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: albion-market-history-all
+  cancel-in-progress: true
+
+jobs:
+  market-history-all:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        server: [europe, east, west]
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            .github/workflows
+            albion_data_extractor
+            .gitignore
+            requirements.txt
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Prepare server data folders
+        run: |
+          mkdir -p albion_data_dumps/${{ matrix.server }}/{raw,extracted,formatted}
+          mkdir -p albion_data_dumps/temp
+
+      - name: Process ${{ matrix.server }} server
+        env:
+          ALBION_RESET_PROCESSED: ${{ inputs.reset_processed && '1' || '0' }}
+          ALBION_JOB_STARTED_AT: ${{ github.run_started_at }}
+          ALBION_TARGET_SERVER: ${{ matrix.server }}
+          ALBION_DATA_ROOT: albion_data_dumps
+          ALBION_MAX_RUNTIME_SECONDS: '1500'
+          ALBION_RUNTIME_BUFFER_SECONDS: '300'
+          ALBION_MAX_WORKERS: '1'
+          ALBION_MAX_FILES_PER_RUN: '1'
+          ALBION_DOWNLOAD_RETRIES: '5'
+          ALBION_DOWNLOAD_TIMEOUT_SECONDS: '120'
+          ALBION_MAX_JSON_FILE_BYTES: '99000000'
+        run: |
+          git sparse-checkout set albion_data_extractor albion_data_dumps/${{ matrix.server }}/formatted
+          git fetch origin main --prune --no-tags --force
+          git merge --ff-only origin/main
+          python albion_data_extractor/ci_processor.py
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add --all -- albion_data_dumps/${{ matrix.server }}/formatted
+          if git diff --cached --quiet; then
+            echo "No ${{ matrix.server }} market history changes to push"
+          else
+            git commit -m "chore: update ${{ matrix.server }} market history data"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
+          rm -rf albion_data_dumps/${{ matrix.server }}/raw albion_data_dumps/${{ matrix.server }}/extracted
+
+      - name: Summary
+        run: |
+          echo "### Market History Update" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Mode:** all servers" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Files per server:** 1" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Trigger:** scheduled and manual" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Timestamp:** $(date)" >> "$GITHUB_STEP_SUMMARY"
